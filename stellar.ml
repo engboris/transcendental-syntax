@@ -85,12 +85,23 @@ let string_of_star s = "[" ^ (string_of_list string_of_ray ", " s) ^ "]"
 let string_of_constellation cs =
 	if cs = [] then "{}" else string_of_list string_of_star " + " cs
 	
-let string_of_intspace (cs, space) =
+let string_of_configuration (cs, space) =
 	(string_of_constellation cs) ^ " |- " ^ (string_of_constellation space)
 
 (* ---------------------------------------
    Interactive execution
    --------------------------------------- *)
+(*
+The expressions which are evaluated are "stellar configurations" :
+reference constellation |- interaction space
+
+1. Select a ray 'r' in a star 's' of the interaction space
+2. Look for possible connexions with rays 'ri' in stars 'si'
+   in the reference constellation and in 's'
+3. Duplicate 's' for each 'ri' and make them interact
+4. In case of co-branching ('ri' matchable with other 'rk')
+	 interaction is not defined
+*)
 	
 let raymatcher ?(withloops=true) r r' : substitution option =
 	if is_polarised r && is_polarised r' then
@@ -104,20 +115,21 @@ let interaction ?(withloops=true) (s : star) i j (cs : constellation) : constell
 	let s' = List.map (extends_vars i') s' in
 	s' >>= fun j' r' ->
 	match raymatcher ~withloops (List.nth s j) r' with
-	| None -> []
+	| None -> [] (* print_endline (string_of_constellation cs); print_newline (); [] *)
 	| Some sub ->
 		let s1 = without j s in
 		let s2 = without j' s' in
 		return (List.map (subst sub) (s1@s2))
 
 let intspace ?(withloops=true) cs space : constellation =
+	print_endline (string_of_constellation space); print_newline ();
 	List.flatten (
 		space >>= fun i s ->
 		s >>= fun j _ ->
 		return (interaction ~withloops s i j (cs@space))
 	)
 
-let rec intexec ?(withloops=true) (cs, space) : constellation =
+let rec exec ?(withloops=true) (cs, space) : constellation =
 	let result = intspace ~withloops cs space in
-	if result = [] then space
-	else intexec ~withloops (cs, result)
+	if result = space then space
+	else exec ~withloops (cs, result)

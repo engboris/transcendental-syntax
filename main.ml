@@ -59,7 +59,7 @@ let rec intmode ?(withloops=true) cs =
 	else
 		(try
 			let cs' = constc Lexer.read (Lexing.from_string input) in
-			let result = intexec ~withloops (cs, cs') in
+			let result = exec ~withloops (cs, cs') in
 			print_endline (string_of_constellation result);
 			intmode result
 		with _ ->
@@ -89,7 +89,7 @@ let _ =
 			begin try
 				let lexbuf = Lexing.from_channel (open_in filename) in
 				let cs = spacec Lexer.read lexbuf in
-				let result = intexec ~withloops:!withloops cs in
+				let result = exec ~withloops:!withloops cs in
 				print_endline (string_of_constellation result)
 			with Sys_error f -> print_endline f
 			end
@@ -97,7 +97,7 @@ let _ =
 			let lexbuf = Lexing.from_string (String.concat " " intspace) in
 			(try 
 				let cs = spacec Lexer.read lexbuf in
-				let result = intexec ~withloops:!withloops cs in
+				let result = exec ~withloops:!withloops cs in
 				print_endline (string_of_constellation result)
 			with _ -> print_endline "Syntax error. Please try again.")
 		| ["intmode"; "-f"; filename] ->
