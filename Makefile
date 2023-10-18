@@ -1,5 +1,5 @@
 CC = ocamlc
-MAIN = main
+MAIN = exec
 
 all: $(MAIN)
 
@@ -23,4 +23,4 @@ lexer.ml: lexer.mll
 
 clean:
 	@echo "Project clean."
-	@rm -rf *.cmi *.cmo *.cmx *.mli *.o parser.ml lexer.ml parser.conflicts main
+	@rm -rf *.cmi *.cmo *.cmx *.mli *.o parser.ml lexer.ml parser.conflicts $(MAIN)
