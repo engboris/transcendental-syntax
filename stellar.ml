@@ -101,7 +101,10 @@ reference constellation |- interaction space
 3. Duplicate 's' for each 'ri' and make them interact
 4. In case of co-branching ('ri' matchable with other 'rk')
 	 interaction is not defined
+	 (we will avoid such constellations in this version)
 *)
+
+let counter = ref 0
 	
 let raymatcher ?(withloops=true) r r' : substitution option =
 	if is_polarised r && is_polarised r' then
@@ -109,27 +112,61 @@ let raymatcher ?(withloops=true) r r' : substitution option =
 	else
 		None
 
-let interaction ?(withloops=true) (s : star) i j (cs : constellation) : constellation = 
-	cs >>= fun i' s' ->
-	let s = List.map (extends_vars i) s in
-	let s' = List.map (extends_vars i') s' in
-	s' >>= fun j' r' ->
-	match raymatcher ~withloops (List.nth s j) r' with
-	| None -> [] (* print_endline (string_of_constellation cs); print_newline (); [] *)
-	| Some sub ->
-		let s1 = without j s in
-		let s2 = without j' s' in
-		return (List.map (subst sub) (s1@s2))
+let self_interaction ?(withloops=true) (r, other_rays) : star list =
+	let rec auxr accr s = match s with
+		| [] -> []
+		| r'::s' when not (is_polarised r') -> (auxr (r'::accr) s') 
+		| r'::s' ->
+			match raymatcher ~withloops r r' with
+			| None -> auxr (r'::accr) s'
+			| Some theta -> (List.map (subst theta) (accr@s')) :: (auxr (r'::accr) s')
+	in auxr [] other_rays
 
-let intspace ?(withloops=true) cs space : constellation =
-	print_endline (string_of_constellation space); print_newline ();
-	List.flatten (
-		space >>= fun i s ->
-		s >>= fun j _ ->
-		return (interaction ~withloops s i j (cs@space))
-	)
+let search_partners ?(withloops=true) (r, other_rays) cs : star list =
+	(* star selection, [] means no star partner *)
+	let rec auxs accs cs = match cs with
+		| [] -> []
+		| s::cs' ->
+			(* ray selection, [] means no ray partner in s *)
+			let rec auxr accr s = match s with
+				| [] -> []
+				| r'::s' when not (is_polarised r') -> (auxr (r'::accr) s') 
+				| r'::s' ->
+					let c1 = !counter in
+					let c2 = (!counter)+1 in
+					let renamed_r = extends_vars c1 r in
+					let renamed_r' = extends_vars c2 r' in
+					match raymatcher ~withloops renamed_r renamed_r' with
+					| None -> auxr (r'::accr) s'
+					| Some theta ->
+						counter := !counter + 2;
+						let s1 = List.map (extends_vars c1) other_rays in
+						let s2 = List.map (extends_vars c2) (accr@s') in
+						(List.map (subst theta) (s1@s2)) :: (auxr (r'::accr) s')
+			in (auxr [] s) @ (auxs (s::accs) cs')
+	in auxs [] cs
+
+(* selects only one ray for which interaction is possible *)
+let interaction ?(withloops=true) cs space =
+	(* star selection *)
+	let rec auxs accs space = match space with
+		| [] -> None
+		| s::space' ->
+			(* ray selection *)
+			let rec auxr accr s = match s with
+				| [] -> None
+				| r::s' when not (is_polarised r) -> auxr (r::accr) s'
+				| r::s' ->
+					let new_stars =
+						self_interaction ~withloops (r, accr@s')
+						@ search_partners ~withloops (r, accr@s') cs in
+					if new_stars=[] then auxr (r::accr) s' else Some new_stars
+			in let new_stars = auxr [] s in
+			if Option.is_none new_stars then auxs (s::accs) space'
+			else Some (accs@space'@(Option.get new_stars))
+	in auxs [] space
 
 let rec exec ?(withloops=true) (cs, space) : constellation =
-	let result = intspace ~withloops cs space in
-	if result = space then space
-	else exec ~withloops (cs, result)
+	let result = interaction ~withloops cs space in
+	if Option.is_none result then space
+	else exec ~withloops (cs, Option.get result)
