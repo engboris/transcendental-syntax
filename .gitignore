@@ -1,4 +1,4 @@
-main
+exec
 *.cmi
 *.cmo
 lexer.ml
