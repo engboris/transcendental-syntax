@@ -1,0 +1,123 @@
+# dune exec lsc examples/automata.stellar
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Workspace root: /mnt/e/Multimedia/Documents/Programming/large-star-collider
+# Auto-detected concurrency: 12
+$ /home/engboris/.opam/5.0.0+options/bin/ocamlc.opt -config > /tmp/dune_36b1b8_output
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; for_host = None
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; toplevel_path =
+#      Some External "/home/engboris/.opam/5.0.0+options/lib/toplevel"
+#  ; ocaml_bin = External "/home/engboris/.opam/5.0.0+options/bin"
+#  ; ocaml = Ok External "/home/engboris/.opam/5.0.0+options/bin/ocaml"
+#  ; ocamlc = External "/home/engboris/.opam/5.0.0+options/bin/ocamlc.opt"
+#  ; ocamlopt =
+#      Ok External "/home/engboris/.opam/5.0.0+options/bin/ocamlopt.opt"
+#  ; ocamldep =
+#      Ok External "/home/engboris/.opam/5.0.0+options/bin/ocamldep.opt"
+#  ; ocamlmklib =
+#      Ok External "/home/engboris/.opam/5.0.0+options/bin/ocamlmklib.opt"
+#  ; env =
+#      map
+#        { "DUNE_OCAML_HARDCODED" :
+#            "/home/engboris/.opam/5.0.0+options/lib/ocaml:/home/engboris/.opam/5.0.0+options/lib"
+#        ; "DUNE_OCAML_STDLIB" : "/home/engboris/.opam/5.0.0+options/lib/ocaml"
+#        ; "DUNE_SOURCEROOT" :
+#            "/mnt/e/Multimedia/Documents/Programming/large-star-collider"
+#        ; "INSIDE_DUNE" :
+#            "/mnt/e/Multimedia/Documents/Programming/large-star-collider/_build/default"
+#        ; "OCAMLFIND_IGNORE_DUPS_IN" :
+#            "/mnt/e/Multimedia/Documents/Programming/large-star-collider/_build/install/default/lib"
+#        ; "OCAMLPATH" :
+#            "/mnt/e/Multimedia/Documents/Programming/large-star-collider/_build/install/default/lib"
+#        ; "OCAMLTOP_INCLUDE_PATH" :
+#            "/mnt/e/Multimedia/Documents/Programming/large-star-collider/_build/install/default/lib/toplevel"
+#        ; "OCAML_COLOR" : "always"
+#        ; "OPAMCOLOR" : "always"
+#        }
+#  ; findlib_paths =
+#      [ External "/home/engboris/.opam/5.0.0+options/lib/ocaml"
+#      ; External "/home/engboris/.opam/5.0.0+options/lib"
+#      ]
+#  ; arch_sixtyfour = true
+#  ; natdynlink_supported = true
+#  ; supports_shared_libraries = true
+#  ; ocaml_config =
+#      { version = "5.0.0"
+#      ; standard_library_default =
+#          "/home/engboris/.opam/5.0.0+options/lib/ocaml"
+#      ; standard_library = "/home/engboris/.opam/5.0.0+options/lib/ocaml"
+#      ; standard_runtime = "the_standard_runtime_variable_was_deleted"
+#      ; ccomp_type = "cc"
+#      ; c_compiler = "gcc"
+#      ; ocamlc_cflags =
+#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread"; "-fPIC" ]
+#      ; ocamlc_cppflags = [ "-D_FILE_OFFSET_BITS=64" ]
+#      ; ocamlopt_cflags =
+#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread"; "-fPIC" ]
+#      ; ocamlopt_cppflags = [ "-D_FILE_OFFSET_BITS=64" ]
+#      ; bytecomp_c_compiler =
+#          [ "gcc"
+#          ; "-O2"
+#          ; "-fno-strict-aliasing"
+#          ; "-fwrapv"
+#          ; "-pthread"
+#          ; "-fPIC"
+#          ; "-D_FILE_OFFSET_BITS=64"
+#          ]
+#      ; bytecomp_c_libraries = [ "-lm"; "-lpthread" ]
+#      ; native_c_compiler =
+#          [ "gcc"
+#          ; "-O2"
+#          ; "-fno-strict-aliasing"
+#          ; "-fwrapv"
+#          ; "-pthread"
+#          ; "-fPIC"
+#          ; "-D_FILE_OFFSET_BITS=64"
+#          ]
+#      ; native_c_libraries = [ "-lm"; "-lpthread" ]
+#      ; native_pack_linker = [ "ld"; "-r"; "-o" ]
+#      ; cc_profile = []
+#      ; architecture = "amd64"
+#      ; model = "default"
+#      ; int_size = 63
+#      ; word_size = 64
+#      ; system = "linux"
+#      ; asm = [ "as" ]
+#      ; asm_cfi_supported = true
+#      ; with_frame_pointers = false
+#      ; ext_exe = ""
+#      ; ext_obj = ".o"
+#      ; ext_asm = ".s"
+#      ; ext_lib = ".a"
+#      ; ext_dll = ".so"
+#      ; os_type = "Unix"
+#      ; default_executable_name = "a.out"
+#      ; systhread_supported = true
+#      ; host = "x86_64-pc-linux-gnu"
+#      ; target = "x86_64-pc-linux-gnu"
+#      ; profiling = false
+#      ; flambda = false
+#      ; spacetime = false
+#      ; safe_string = true
+#      ; exec_magic_number = "Caml1999X032"
+#      ; cmi_magic_number = "Caml1999I032"
+#      ; cmo_magic_number = "Caml1999O032"
+#      ; cma_magic_number = "Caml1999A032"
+#      ; cmx_magic_number = "Caml1999Y032"
+#      ; cmxa_magic_number = "Caml1999Z032"
+#      ; ast_impl_magic_number = "Caml1999M032"
+#      ; ast_intf_magic_number = "Caml1999N032"
+#      ; cmxs_magic_number = "Caml1999D032"
+#      ; cmt_magic_number = "Caml1999T032"
+#      ; natdynlink_supported = true
+#      ; supports_shared_libraries = true
+#      ; windows_unicode = false
+#      }
+#  }

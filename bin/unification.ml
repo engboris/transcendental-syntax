@@ -48,7 +48,7 @@ let extends_vars (i : int) =
 let vars t = fold_term skip List.cons [] t
   
 let apply sub x = try List.assoc x sub with Not_found -> Var x  
-let rec subst sub = map_term (fun x -> x) (apply sub) 
+let subst sub = map_term (fun x -> x) (apply sub) 
 
 (* ---------------------------------------
    Unification algorithm

@@ -25,8 +25,8 @@ starc:
 | LEFT_BRACK; rs = separated_list(COMMA, rayc); RIGHT_BRACK { rs }
 
 symc:
-| p = PLUS; f = SYM { (Pos, f) }
-| p = MINUS; f = SYM { (Neg, f) }
+| PLUS; f = SYM { (Pos, f) }
+| MINUS; f = SYM { (Neg, f) }
 | f = SYM { (Stellar.Null, f) }
 
 rayc:

@@ -1,0 +1,4 @@
+(lang dune 3.7)
+(name lsc)
+(sections (lib .) (bin ../../bin) (doc ../../doc/lsc))
+(files (lib (META dune-package opam)) (bin (lsc)) (doc (README.md)))

@@ -1,0 +1,27 @@
+type token =
+    VDASH
+  | VAR of string
+  | SYM of string
+  | RIGHT_PAR
+  | RIGHT_BRACK
+  | RIGHT_BRACE
+  | PLUS
+  | MINUS
+  | LEFT_PAR
+  | LEFT_BRACK
+  | LEFT_BRACE
+  | DOT
+  | COMMA
+val menhir_begin_marker : int
+val xv_symc : Stellar.StellarSig.idfunc
+val xv_starc : Stellar.star
+val xv_spacec : Stellar.constellation * Stellar.constellation
+val xv_separated_nonempty_list_PLUS_starc_ : Stellar.constellation
+val xv_separated_nonempty_list_COMMA_rayc_ : Stellar.star
+val xv_separated_list_PLUS_starc_ : Stellar.constellation
+val xv_separated_list_COMMA_rayc_ : Stellar.star
+val xv_rayc : Stellar.ray
+val xv_loption_separated_nonempty_list_PLUS_starc__ : Stellar.constellation
+val xv_loption_separated_nonempty_list_COMMA_rayc__ : Stellar.star
+val xv_constc : Stellar.constellation
+val menhir_end_marker : int

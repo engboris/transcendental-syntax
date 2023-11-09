@@ -22,9 +22,7 @@ end
 
 module StellarRays = Unification.Make(StellarSig)
 
-open StellarSig
 open StellarRays
-open Tools
 
 (* ---------------------------------------
    Stars and Constellations
@@ -49,7 +47,7 @@ let pconst f = pfunc f []
 let nconst f = nfunc f []
 let const f = func f []
 
-let rec is_polarised r : bool =
+let is_polarised r : bool =
 	let aux = (function
 		| (Pos, _) | (Neg, _) -> true
 		| (Null, _) -> false)
@@ -76,7 +74,7 @@ let rec string_of_ray = function
 let string_of_subst sub =
 	"{" ^ 
 	(List.fold_left (
-		fun acc (x, r) -> x ^ "->" ^ (string_of_ray r)
+		fun _ (x, r) -> x ^ "->" ^ (string_of_ray r)
 	) "" sub) ^
 	"}"
 		

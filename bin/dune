@@ -1,0 +1,10 @@
+(executable
+ (public_name lsc)
+ (name main)
+ (libraries lsc))
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
+(menhir
+  (modules parser))
+(ocamllex lexer)
