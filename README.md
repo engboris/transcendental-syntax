@@ -30,24 +30,16 @@ The constellation on the left of `|-` is the *reference constellation* and the c
 - For logic programs (such as in Prolog), we have the knowledge base on one side and the query on the other.
 - For the proof-structures of multiplicative linear logic, we start with a star containing a free rays (the initial port of the Interactive Abstract Machine) in the interaction space and the other rays are in the reference constellation.
 
-## Compilation
-
-Compiling the project
-
-```
-make
-```
-
-Cleaning the project
-
-```
-make clean
-```
-
 ## Use
 
+Building the project
+
 ```
-./exec [-noloops] <inputfile>
+dune build
+```
+
+```
+dune exec lsc [-noloops] <inputfile>
 ```
 where `-noloops` forbids trivial equations `X=X` during computation. This equation usually yields trivial loops linking two rays of a same star. This is something which can be unwanted in some cases.
 

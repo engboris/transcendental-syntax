@@ -164,7 +164,7 @@ let interaction ?(withloops=true) cs space =
 			else Some (accs@space'@(Option.get new_stars))
 	in auxs [] space
 
-let rec exec ?(withloops=true) (cs, space) : constellation =
+let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
 	let result = interaction ~withloops cs space in
 	if Option.is_none result then space
 	else exec ~withloops (cs, Option.get result)
