@@ -38,8 +38,10 @@ Building the project
 dune build
 ```
 
+Executing the program
+
 ```
-dune exec lsc [-noloops] <inputfile>
+_build/default/bin/main.exe [-showsteps] [-noloops] <inputfile>
 ```
 where `-noloops` forbids trivial equations `X=X` during computation. This equation usually yields trivial loops linking two rays of a same star. This is something which can be unwanted in some cases.
 

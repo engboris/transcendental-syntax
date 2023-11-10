@@ -164,7 +164,14 @@ let interaction ?(withloops=true) cs space =
 			else Some (accs@space'@(Option.get new_stars))
 	in auxs [] space
 
+let display_steps flag content =
+  if flag then 
+    (print_string (string_of_constellation content);
+    let _ = read_line () in ())
+
 let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
 	let result = interaction ~withloops cs space in
-	if Option.is_none result then space
-	else exec ~withloops (cs, Option.get result)
+  if Option.is_none result then space
+	else
+    ((display_steps showsteps (Option.get result);
+    exec ~withloops ~showsteps (cs, Option.get result)))
