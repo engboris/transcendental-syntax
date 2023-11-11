@@ -39,13 +39,15 @@ let pos f = (Pos, f)
 let neg f = (Neg, f)
 let null f = (Null, f)
 
-let pfunc f ts = Func (pos f, ts)
-let nfunc f ts = Func (neg f, ts)
-let func f ts = Func (null f, ts)
+let gfunc c ts = Func (c, ts) 
+let pfunc f ts = gfunc (pos f) ts
+let nfunc f ts = gfunc (neg f) ts
+let func f ts = gfunc (null f) ts
 let var x = Var x
 let pconst f = pfunc f []
 let nconst f = nfunc f []
 let const f = func f []
+let dot t u = nfunc "." [t; u]
 
 let is_polarised r : bool =
 	let aux = (function

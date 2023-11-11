@@ -1,5 +1,5 @@
-open Stellar
-open Parser
+open Lsc.Stellar
+open Lsc.Parser
 
 let usage_msg = "exec [-noloops] [-steps] <filename>"
 let withloops = ref true
@@ -17,7 +17,7 @@ let speclist =
 let _ =
 	Arg.parse speclist anon_fun usage_msg;
 	let lexbuf = Lexing.from_channel (open_in !input_file) in
-	let cs = spacec Lexer.read lexbuf in
+	let cs = spacec Lsc.Lexer.read lexbuf in
   (if !showsteps then print_string "Press any button to move to the next step.\n");
 	let result = exec ~withloops:!withloops ~showsteps:!showsteps cs in
   if not !showsteps then print_endline (string_of_constellation result)
