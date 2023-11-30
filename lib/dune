@@ -1,8 +1,8 @@
 (library
- (name lsc))
+ (name lsc)
+ (libraries base))
 (env
   (dev
     (flags (:standard -warn-error -A))))
-(menhir
-  (modules parser))
+(menhir (modules parser))
 (ocamllex lexer)

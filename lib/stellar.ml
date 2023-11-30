@@ -1,3 +1,5 @@
+open Base
+
 type polarity = Pos | Neg | Null
 
 let string_of_polarity = function
@@ -10,12 +12,13 @@ let string_of_polsym (p, f) = (string_of_polarity p) ^ f
 module StellarSig = struct
 	type idvar = string
 	type idfunc = polarity * string
+  let equal_idvar = equal_string
 	let concat = (^)
 	let compatible f g =
 		match f, g with
 		| (Pos, f), (Neg, g)
-		| (Neg, f), (Pos, g) when f = g -> true
-		| (Null, f), (Null, g) when f = g -> true
+		| (Neg, f), (Pos, g) -> equal_string f g
+		| (Null, f), (Null, g) -> equal_string f g
 		| _ -> false
 	let string_of_idfunc = string_of_polsym
 end
@@ -53,12 +56,14 @@ let is_polarised r : bool =
 	let aux = (function
 		| (Pos, _) | (Neg, _) -> true
 		| (Null, _) -> false)
-	in exists_term_func aux r
+	in exists_func aux r
 
 (* ---------------------------------------
    Display
    --------------------------------------- *)
-	
+
+let surround s ~first ~last = first ^ s ^ last
+
 let rec string_of_list printer sep = function
 	| [] -> ""
 	| [x] -> printer x
@@ -74,19 +79,20 @@ let rec string_of_ray = function
 		"(" ^ (string_of_list string_of_ray ", " ts) ^ ")"
 		
 let string_of_subst sub =
-	"{" ^ 
-	(List.fold_left (
+	List.fold sub ~init:"" ~f:(
 		fun _ (x, r) -> x ^ "->" ^ (string_of_ray r)
-	) "" sub) ^
-	"}"
-		
-let string_of_star s = "[" ^ (string_of_list string_of_ray ", " s) ^ "]"
+	) |> surround ~first:"{" ~last:"}"
+  
+let string_of_star s =
+  string_of_list string_of_ray ", " s
+  |> surround ~first:"[" ~last:"]"
 
 let string_of_constellation cs =
-	if cs = [] then "{}" else string_of_list string_of_star " + " cs
+	if List.is_empty cs then "{}" else string_of_list string_of_star " + " cs
 	
 let string_of_configuration (cs, space) =
-	(string_of_constellation cs) ^ " |- " ^ (string_of_constellation space)
+	(string_of_constellation cs) ^ " |- " ^
+  (string_of_constellation space)
 
 (* ---------------------------------------
    Interactive execution
@@ -113,67 +119,67 @@ let raymatcher ?(withloops=true) r r' : substitution option =
 		None
 
 let self_interaction ?(withloops=true) (r, other_rays) : star list =
-	let rec auxr accr s = match s with
+	let rec select_ray accr s = match s with
 		| [] -> []
-		| r'::s' when not (is_polarised r') -> (auxr (r'::accr) s') 
+		| r'::s' when not (is_polarised r') -> select_ray (r'::accr) s' 
 		| r'::s' ->
 			match raymatcher ~withloops r r' with
-			| None -> auxr (r'::accr) s'
-			| Some theta -> (List.map (subst theta) (accr@s')) :: (auxr (r'::accr) s')
-	in auxr [] other_rays
+			| None -> select_ray (r'::accr) s'
+			| Some theta ->
+        (List.map ~f:(subst theta) (accr@s')) :: (select_ray (r'::accr) s')
+	in select_ray [] other_rays
 
 let search_partners ?(withloops=true) (r, other_rays) cs : star list =
-	(* star selection, [] means no star partner *)
-	let rec auxs accs cs = match cs with
+	(* [] means no star partner *)
+	let rec select_star accs cs = match cs with
 		| [] -> []
 		| s::cs' ->
-			(* ray selection, [] means no ray partner in s *)
-			let rec auxr accr s = match s with
+			(* [] means no ray partner in s *)
+			let rec select_ray accr s = match s with
 				| [] -> []
-				| r'::s' when not (is_polarised r') -> (auxr (r'::accr) s') 
+				| r'::s' when not (is_polarised r') -> (select_ray (r'::accr) s') 
 				| r'::s' ->
 					let c1 = !counter in
 					let c2 = (!counter)+1 in
 					let renamed_r = extends_vars c1 r in
 					let renamed_r' = extends_vars c2 r' in
 					match raymatcher ~withloops renamed_r renamed_r' with
-					| None -> auxr (r'::accr) s'
+					| None -> select_ray (r'::accr) s'
 					| Some theta ->
 						counter := !counter + 2;
-						let s1 = List.map (extends_vars c1) other_rays in
-						let s2 = List.map (extends_vars c2) (accr@s') in
-						(List.map (subst theta) (s1@s2)) :: (auxr (r'::accr) s')
-			in (auxr [] s) @ (auxs (s::accs) cs')
-	in auxs [] cs
+						let s1 = List.map ~f:(extends_vars c1) other_rays in
+						let s2 = List.map ~f:(extends_vars c2) (accr@s') in
+						(List.map ~f:(subst theta) (s1@s2)) :: (select_ray (r'::accr) s')
+			in (select_ray [] s) @ (select_star (s::accs) cs')
+	in select_star [] cs
 
 (* selects only one ray for which interaction is possible *)
 let interaction ?(withloops=true) cs space =
-	(* star selection *)
-	let rec auxs accs space = match space with
+	let rec select_star accs space = match space with
 		| [] -> None
 		| s::space' ->
-			(* ray selection *)
-			let rec auxr accr s = match s with
+			let rec select_ray accr s = match s with
 				| [] -> None
-				| r::s' when not (is_polarised r) -> auxr (r::accr) s'
+				| r::s' when not (is_polarised r) -> select_ray (r::accr) s'
 				| r::s' ->
 					let new_stars =
 						self_interaction ~withloops (r, accr@s')
 						@ search_partners ~withloops (r, accr@s') cs in
-					if new_stars=[] then auxr (r::accr) s' else Some new_stars
-			in let new_stars = auxr [] s in
-			if Option.is_none new_stars then auxs (s::accs) space'
-			else Some (accs@space'@(Option.get new_stars))
-	in auxs [] space
+					if List.is_empty new_stars then select_ray (r::accr) s' else Some new_stars
+			in let new_stars = select_ray [] s in
+			if Option.is_none new_stars then select_star (s::accs) space'
+			else Some (accs@space'@(Option.value_exn new_stars))
+	in select_star [] space
 
 let display_steps flag content =
   if flag then 
-    (print_string (string_of_constellation content);
-    let _ = read_line () in ())
+    (string_of_constellation content
+     |> Out_channel.output_string Out_channel.stdout;
+    let _ = In_channel.input_line In_channel.stdin in ())
 
 let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
-	let result = interaction ~withloops cs space in
+  let result = interaction ~withloops cs space in
   if Option.is_none result then space
 	else
-    ((display_steps showsteps (Option.get result);
-    exec ~withloops ~showsteps (cs, Option.get result)))
+  (display_steps showsteps (Option.value_exn result);
+  exec ~withloops ~showsteps (cs, Option.value_exn result))

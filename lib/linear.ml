@@ -39,7 +39,7 @@ let rec string_of_type = function
 
 let tensor t1 t2 : constellation =
   [[gterm Neg (string_of_type t1); gterm Neg (string_of_type t2);
-   gterm Pos (string_of_type (Tensor (t1, t2)))]]
+    gterm Pos (string_of_type (Tensor (t1, t2)))]]
 
 let parl t1 t2 : constellation =
   [[gterm Neg (string_of_type t1); gterm Pos (string_of_type (Par (t1, t2)))];
