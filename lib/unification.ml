@@ -37,17 +37,17 @@ let rec map fnode fbase = function
 
 let skip = fun _ acc -> acc
 
-let exists_var pred t = fold skip (fun y acc -> pred y || acc) false t
-let for_all_var pred t = fold skip (fun y acc -> pred y && acc) true t
-let exists_func pred t = fold (fun y acc -> pred y || acc) skip false t
-let for_all_func pred t = fold (fun y acc -> pred y && acc) skip true t
+let exists_var pred = fold skip (fun y acc -> pred y || acc) false
+let for_all_var pred = fold skip (fun y acc -> pred y && acc) true
+let exists_func pred = fold (fun y acc -> pred y || acc) skip false
+let for_all_func pred = fold (fun y acc -> pred y && acc) skip true
 
-let occurs x t = exists_var (fun y -> Sig.equal_idvar x y) t
+let occurs x = exists_var (fun y -> Sig.equal_idvar x y)
 
 let extends_vars (i : int) =
 	map Fn.id (fun x -> Var (Sig.concat x (Int.to_string i)))
 
-let vars t = fold skip List.cons [] t
+let vars = fold skip List.cons []
   
 let apply sub x =
 	match List.Assoc.find sub ~equal:Sig.equal_idvar x with
@@ -90,10 +90,11 @@ let rec solve ?(withloops=true) sub : problem -> substitution option = function
 and elim ?(withloops=true) x t pbs sub : substitution option =
 	if occurs x t then None (* Circularity *)
 	else
-	let new_prob = List.map ~f:(lift_pair (subst [(x, t)])) pbs in
-	let new_sub = (x, t) :: List.map ~f:(lift_pairr (subst [(x, t)])) sub in
-	solve ~withloops new_sub new_prob
+	  let new_prob = List.map ~f:(lift_pair (subst [(x, t)])) pbs in
+	  let new_sub = (x, t) :: List.map ~f:(lift_pairr (subst [(x, t)])) sub in
+	  solve ~withloops new_sub new_prob
 	
-let solution ?(withloops=true) : problem -> substitution option = solve ~withloops []
+let solution ?(withloops=true) : problem -> substitution option =
+  solve ~withloops []
 
 end

@@ -53,22 +53,23 @@ let const f = func f []
 let dot t u = nfunc "." [t; u]
 
 let is_polarised r : bool =
-	let aux = (function
+	let aux = function
 		| (Pos, _) | (Neg, _) -> true
-		| (Null, _) -> false)
+		| (Null, _) -> false
 	in exists_func aux r
 
 (* ---------------------------------------
-   Display
+   Pretty Printer
    --------------------------------------- *)
 
-let surround s ~first ~last = first ^ s ^ last
+let surround first last s = first ^ s ^ last
 
 let rec string_of_list printer sep = function
 	| [] -> ""
-	| [x] -> printer x
+  | [x] -> printer x 
 	| h::t ->
-		(printer h) ^ sep ^ (string_of_list printer sep t)
+    (printer h) ^ sep ^
+    (string_of_list printer sep t) 
 
 let rec string_of_ray = function
 	| Var x -> x
@@ -76,19 +77,21 @@ let rec string_of_ray = function
 	| Func ((Null, "."), [r1; r2]) ->
 		(string_of_ray r1) ^ " · " ^ (string_of_ray r2)
 	| Func (pf, ts) -> string_of_polsym pf ^
-		"(" ^ (string_of_list string_of_ray ", " ts) ^ ")"
+    surround "(" ")" @@ 
+		string_of_list string_of_ray ", " ts
 		
 let string_of_subst sub =
-	List.fold sub ~init:"" ~f:(
-		fun _ (x, r) -> x ^ "->" ^ (string_of_ray r)
-	) |> surround ~first:"{" ~last:"}"
+	List.fold sub ~init:"" ~f:(fun _ (x, r) ->
+    x ^ "->" ^ (string_of_ray r))
+  |> surround "{" "}"
   
 let string_of_star s =
   string_of_list string_of_ray ", " s
-  |> surround ~first:"[" ~last:"]"
+  |> surround "[" "]"
 
 let string_of_constellation cs =
-	if List.is_empty cs then "{}" else string_of_list string_of_star " + " cs
+	if List.is_empty cs then "{}"
+  else string_of_list string_of_star " + " cs
 	
 let string_of_configuration (cs, space) =
 	(string_of_constellation cs) ^ " |- " ^
@@ -110,32 +113,34 @@ reference constellation |- interaction space
 	 (we will avoid such constellations in this version)
 *)
 
+(* counter used for renaming with unique identifiers *)
 let counter = ref 0
 	
 let raymatcher ?(withloops=true) r r' : substitution option =
 	if is_polarised r && is_polarised r' then
 		solution ~withloops [(r, r')]
-	else
-		None
+	else None
 
 let self_interaction ?(withloops=true) (r, other_rays) : star list =
-	let rec select_ray accr s = match s with
+	let rec select_ray accr = function
 		| [] -> []
 		| r'::s' when not (is_polarised r') -> select_ray (r'::accr) s' 
 		| r'::s' ->
-			match raymatcher ~withloops r r' with
+			begin match raymatcher ~withloops r r' with
 			| None -> select_ray (r'::accr) s'
 			| Some theta ->
-        (List.map ~f:(subst theta) (accr@s')) :: (select_ray (r'::accr) s')
+        (List.map (accr@s') ~f:(subst theta))
+        :: (select_ray (r'::accr) s')
+      end
 	in select_ray [] other_rays
 
 let search_partners ?(withloops=true) (r, other_rays) cs : star list =
 	(* [] means no star partner *)
-	let rec select_star accs cs = match cs with
+	let rec select_star accs = function 
 		| [] -> []
 		| s::cs' ->
 			(* [] means no ray partner in s *)
-			let rec select_ray accr s = match s with
+			let rec select_ray accr = function
 				| [] -> []
 				| r'::s' when not (is_polarised r') -> (select_ray (r'::accr) s') 
 				| r'::s' ->
@@ -147,9 +152,10 @@ let search_partners ?(withloops=true) (r, other_rays) cs : star list =
 					| None -> select_ray (r'::accr) s'
 					| Some theta ->
 						counter := !counter + 2;
-						let s1 = List.map ~f:(extends_vars c1) other_rays in
-						let s2 = List.map ~f:(extends_vars c2) (accr@s') in
-						(List.map ~f:(subst theta) (s1@s2)) :: (select_ray (r'::accr) s')
+						let s1 = List.map other_rays ~f:(extends_vars c1) in
+						let s2 = List.map (accr@s') ~f:(extends_vars c2) in
+						(List.map (s1@s2) ~f:(subst theta))
+            :: (select_ray (r'::accr) s')
 			in (select_ray [] s) @ (select_star (s::accs) cs')
 	in select_star [] cs
 
@@ -171,15 +177,14 @@ let interaction ?(withloops=true) cs space =
 			else Some (accs@space'@(Option.value_exn new_stars))
 	in select_star [] space
 
-let display_steps flag content =
-  if flag then 
-    (string_of_constellation content
-     |> Out_channel.output_string Out_channel.stdout;
-    let _ = In_channel.input_line In_channel.stdin in ())
+let display_steps content =
+  string_of_constellation content
+  |> Out_channel.output_string Out_channel.stdout;
+  let _ = In_channel.input_line In_channel.stdin in ()
 
 let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
   let result = interaction ~withloops cs space in
   if Option.is_none result then space
 	else
-  (display_steps showsteps (Option.value_exn result);
-  exec ~withloops ~showsteps (cs, Option.value_exn result))
+    (if showsteps then display_steps (Option.value_exn result);
+    exec ~withloops ~showsteps (cs, Option.value_exn result))
