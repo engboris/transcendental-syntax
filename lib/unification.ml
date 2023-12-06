@@ -1,4 +1,3 @@
-open Tools
 open Base
 
 module type Signature = sig
@@ -56,6 +55,14 @@ let apply sub x =
 	| Some t -> t
 
 let subst sub = map Fn.id (apply sub) 
+
+(* ---------------------------------------
+   A few useful functions
+   --------------------------------------- *)   
+
+let lift_pairl f (x, y) = (f x, y)
+let lift_pairr f (x, y) = (x, f y)
+let lift_pair f p = p |> lift_pairl f |> lift_pairr f
 
 (* ---------------------------------------
    Unification algorithm
