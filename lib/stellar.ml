@@ -180,6 +180,7 @@ let interaction ?(withloops=true) cs space =
 let display_steps content =
   string_of_constellation content
   |> Out_channel.output_string Out_channel.stdout;
+  Out_channel.flush Out_channel.stdout;
   let _ = In_channel.input_line In_channel.stdin in ()
 
 let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
