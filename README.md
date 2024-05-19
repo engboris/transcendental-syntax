@@ -22,8 +22,8 @@ of stellar resolution.
 
 ## Syntax
 
-A **ray** is a term which is either a variable or a polarised function symbol
-taking other rays as arguments. Example:
+A **ray** is a term which is either a variable or a possibly polarised function
+symbol taking other rays as arguments. Example:
 ```
 X
 f(X)
@@ -38,7 +38,7 @@ f(X)
 > programs clearer but any binary symbol can be used for concatenation and any
 > constant can represent the empty string.
 
-A **star** is a sequence of rays which optionally be separated by a comma:
+A **star** is a sequence of rays which can be separated by a comma:
 ```
 X, f(X), +a(X,Y), -h(f(X, Y))
 X f(X) +a(X,Y) -h(f(X, Y))
