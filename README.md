@@ -31,6 +31,10 @@ f(X)
 -h(f(X, Y))
 +a(+f(X), h(-f(X))
 ```
+Identifiers in uppercase (possibly with a suffix number are variables and
+identifiers in lowercase (possibly containing a `_` symbol and digits, but
+always beginning by an alphabetic character) are function symbols.
+
 > [!NOTE]
 > There is a special infix binary symbol `:` used to concatenate constants.
 > For instance, the encoding of the word `0101` can be written `0:1:0:1` where
