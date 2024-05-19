@@ -1,13 +1,17 @@
+'''vehicle'''
 +5(l:X) +6(l:X);
 +5(r:X) +6(r:X);
 
+'''adapters'''
 -5(l:X) +1(X);
 -5(r:X) +2(X);
 -6(l:X) +3(X);
 -6(r:X) +4(X);
 
+'''test'''
 -1(X) -2(X) +c5(X);
 -3(X); -4(X) +c6(X);
 -c6(X) c6(X);
 
+'''conclusion'''
 @-c5(X) c5(X);
