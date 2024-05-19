@@ -58,8 +58,8 @@ let is_polarised r : bool =
 		| (Null, _) -> false
 	in exists_func aux r
 
-let is_prefixed ~by:pf : ray -> bool = function
-  | Func (pf, _) -> true
+let is_prefixed ~by:_ : ray -> bool = function
+  | Func (_, _) -> true
   | _ -> false
 
 (* ---------------------------------------
@@ -78,11 +78,11 @@ let rec string_of_list printer sep = function
 let rec string_of_ray = function
 	| Var x -> x
 	| Func (pf, []) -> string_of_polsym pf
-	| Func ((Null, "."), [r1; r2]) ->
-		(string_of_ray r1) ^ " · " ^ (string_of_ray r2)
+	| Func ((Null, ":"), [r1; r2]) ->
+		(string_of_ray r1) ^ ":"  ^ (string_of_ray r2)
 	| Func (pf, ts) -> string_of_polsym pf ^
     surround "(" ")" @@ 
-		string_of_list string_of_ray ", " ts
+		string_of_list string_of_ray " " ts
 		
 let string_of_subst sub =
 	List.fold sub ~init:"" ~f:(fun _ (x, r) ->
@@ -90,17 +90,14 @@ let string_of_subst sub =
   |> surround "{" "}"
   
 let string_of_star s =
-  string_of_list string_of_ray ", " s
-  |> surround "[" "]"
+  if List.is_empty s then "[]"
+  else
+    string_of_list string_of_ray " " s
 
 let string_of_constellation cs =
 	if List.is_empty cs then "{}"
-  else string_of_list string_of_star " + " cs
+  else (string_of_list string_of_star ";\n" cs) ^ ";"
 
-let string_of_space (cs, space) =
-  string_of_constellation cs ^ " |- " ^
-  string_of_constellation space
-	
 (* ---------------------------------------
    Interactive execution
    --------------------------------------- *)

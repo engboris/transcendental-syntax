@@ -34,7 +34,7 @@ symbol:
 
 ray:
 | x = VAR { Stellar.to_var x }
-| r1 = ray; CONS; r2 = ray { Stellar.to_func ((Stellar.Null, "."), [r1; r2]) }
+| r1 = ray; CONS; r2 = ray { Stellar.to_func ((Stellar.Null, ":"), [r1; r2]) }
 | pf = symbol; LEFT_PAR; ts = separated_nonempty_list(COMMA?, ray); RIGHT_PAR
 	{ Stellar.to_func (pf, ts) }
 | pf = symbol { Stellar.to_func (pf, []) }
