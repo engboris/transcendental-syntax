@@ -1,6 +1,6 @@
 (executable
  (public_name lsc)
- (name main)
+ (name lsc)
  (libraries lsc))
 (env
   (dev
