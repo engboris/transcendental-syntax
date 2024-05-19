@@ -19,7 +19,8 @@ let speclist =
 let _ =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
-  let cs = spacec Lsc.Lexer.read lexbuf in
+  let mcs = marked_constellation Lsc.Lexer.read lexbuf in
+  let cs = extract_space mcs in
   (if !showsteps then output_string stdout "Press any button to move to the next step.\n");
   let result = exec ~withloops:!withloops ~showsteps:!showsteps cs in
   if not !showsteps then Stdlib.print_endline (string_of_constellation result)

@@ -1,103 +1,243 @@
+# Context: stellar resolution
+
+The stellar resolution (RS) is a model of computation introduced by Jean-Yves
+Girard [1] in his transcendental syntax project as a basis for the study of the
+computational foundations of logic. It has been mainly developed
+by Eng later in his PhD thesis [2].
+
+It is basically a logic-agnostic, asynchronous and very general version of
+Robinson's first order resolution with disjunctive clauses, which is used in
+logic programming.
+
+In this model, computation is done by making independent agents/bricks locally
+interact which each other. Those agents match and propagate information by
+using term unification [2]. It can be seen as a non-planar generalisation of
+Wang tiles.
+
 # Large Star Collider
 
-The Large Star Collider (LSC) is an implementation of the stellar resolution model introduced in Eng's thesis [1]. The stellar resolution is a model of computation based on Robinson's first order resolution with disjunctive clauses, which is used in logic programming. In this model, we compute with independent agents locally connecting which each other, forming a structure and propagating information by term unification [2]. It can compared to the computation of tile systems (Wang tiles, abstract tile assembly systems etc).
+The Large Star Collider (LSC) is an implementation of stellar resolution which
+interprets and executes objects called *constellations*, which are the programs
+of stellar resolution.
 
-A **ray** is a first-order term
-```
-r := X | f(r1, ..., rn) 
-```
-where `f` is a function symbol which can be prefixed by a symbol `+` or `-` called *polarity*. A useful symbol is the infix binary symbol `.` which is right-associative (meaning that `a . b . c` stands for `a . (b . c)`). The symbol `.` is especially useful to represent sequences of characters (for instance, words used as input for automata).
+## Syntax
 
-Two rays containing polarised function symbols are compatible when they are unifiable (we consider the Martelli-Montanari unification algorithm in our program) knowing that identical function symbols with opposite polarity are considered equal (usually, only equal function symbols are considered).
-
-A **star** is a finite non-ordered sequence of rays. It corresponds to disjunctive clauses in resolution logic.
+A **ray** is a term which is either a variable or a polarised function symbol
+taking other rays as arguments. Example:
 ```
-[r1, ..., rn]
+X
+f(X)
++a(X, Y)
+-h(f(X, Y))
++a(+f(X), h(-f(X))
 ```
-Stars are able to interact which each other along compatible rays by using Robinson's resolution rule. For instance, `[X, -f(X)]` and `[+f(a)]` can be connected along the symbol `f` and this connexion yields the result `[a]`. This operation is called *fusion*. It can be understood as a contrainst resolution between terms.
+> [!NOTE]
+> There is a special infix binary symbol `:` used to concatenate constants.
+> For instance, the encoding of the word `0101` can be written `0:1:0:1` where
+> `e` can represent the empty string. This is only syntactic sugar to make
+> programs clearer but any binary symbol can be used for concatenation and any
+> constant can represent the empty string.
 
-A **constellation** is a (potentially infinite) non-ordered sequence of stars (written as a sum of stars with the symbol `+`). They correspond to programs are written between braces `{` and `}`.
+A **star** is a sequence of rays which optionally be separated by a comma:
 ```
-{ [r11, ..., r1n] + ... + [rn1, ..., rnm] }
+X, f(X), +a(X,Y), -h(f(X, Y))
+X f(X) +a(X,Y) -h(f(X, Y))
 ```
 
-What is executed are not constellation directly by **interaction configuration** which are expressions :
+A **constellation** is a sequence of stars separated by a semicolon, in which
+every variables are local to their star:
 ```
-<constellation> |- <constellation>
+X, f(X);
++a(X,Y);
+-h(f(X, Y)) +a(+f(X), h(-f(X));
 ```
-The constellation on the left of `|-` is the *reference constellation* and the constellation on the right is the *interaction space*. The idea of the execution is that the interaction space is a "working space" in which some initial stars are present. Rays of those initial stars will interact (by fusion) with copies of stars from the reference constellation but also from the stars the selected rays come from.
-- In order to work with automata, the reference constellation is a representation of the automata and the interaction space only contains the encoding of a word.
-- For logic programs (such as in Prolog), we have the knowledge base on one side and the query on the other.
-- For the proof-structures of multiplicative linear logic, we start with a star containing a free rays (the initial port of the Interactive Abstract Machine) in the interaction space and the other rays are in the reference constellation.
+The `X`s on the first line are local and distinct from the other occurrences of
+`X` below.
 
-## Use
+## Computation
 
-Building the project
+You have to select initial stars (the initial pieces of the puzzle) by
+prefixing them with a `@` symbol as in:
+```
+X, f(X);
++a(X,Y);
+@-h(f(X, Y)) +a(+f(X), h(-f(X));
+```
 
+The LSC will put marked stars in an *interaction space* and make them collide
+with copies of other matching stars until there is no interaction possible
+anymore. At the end, the result of the interaction space is outputted.
+
+Collision between stars, called *fusion* (noted `<>` here) is done by using
+the principle of Robinson's resolution rule:
+- rays can *compatible* or *unifiable* when there exists a substitution of
+  variables making the two rays equal (considering variables are renamed to
+  make them disjoint) such that matching function symbols are of opposite
+  polarity (`+` against `-`);
+- consider a fusion `r1 ... rk +f(X) <> r1' ... rk' -f(a)` between two stars;
+- we see that `+f(X)` matches `-f(a)` with unifier `{X := a}`;
+- the two rays are annihilated and `{X := a}` is propagated;
+- we obtain `{X:=a}r1 ... {X:=a}rk {X:=a}r1' ... {X:=a}rk'`;
+
+Here is a trivial example:
+```
+X +f(X) <> -f(a) == a
+```
+
+And a non-trivial one:
+```
++7(l:X) +7(r:X); 3(X) +8(l:X); @+8(r:X) 6(X);
+-7(X) -8(X);
+```
+We have:
+```
++8(r:X) 6(X) <> -7(X) -8(X) == -7(r:X) 6(X)
+```
+Hence we obtain:
+```
++7(l:X) +7(r:X); 3(X) +8(l:X); @-7(r:X) 6(X);
+-7(X) -8(X);
+```
+We have:
+```
+-7(r:X) 6(X) <> +7(l:X) == +7(r:X) 6(X)
+```
+The ray `-7(r:X)` only matches with `+7(r:X)`, hence only `+7(l:X)` is left.
+We obtain:
+```
++7(l:X) +7(r:X); 3(X) +8(l:X); @+7(l:X) 6(X);
+-7(X) -8(X);
+```
+We have:
+```
++7(l:X) 6(X) <> -7(X) -8(X) == -8(l:X) 6(X)
+```
+We obtain:
+```
++7(l:X) +7(r:X); 3(X) +8(l:X); @-8(l:X) 6(X);
+-7(X) -8(X);
+```
+We have:
+```
+-8(l:X) 6(X) <> +8(l:X) 3(X) == 6(X) 3(X)
+```
+The result of the computation is
+```
+6(X) 3(X)
+```
+
+This computation corresponds to what we call cut-elimination for the proof
+structures of multiplicative linear logic.
+
+# Use
+
+You can either download a released binary (or ask for a binary) or build the
+program from sources.
+
+## Build from sources
+
+Install `opam` and OCaml from `opam` : https://ocaml.org/docs/installing-ocaml
+
+Install `dune`:
+```
+opam install dune
+```
+
+Install dependencies
+```
+opam install base
+opam install menhir
+```
+
+Build the project
 ```
 dune build
 ```
 
-Executing the program
+The executable is `_build/default/bin/main.exe`.
+
+## Commands
+
+Execute the program
 
 ```
-_build/default/bin/main.exe [-showsteps] [-noloops] <inputfile>
+main.exe [-showsteps] [-noloops] <inputfile>
 ```
-where `-noloops` forbids trivial equations `X=X` during computation. This equation usually yields trivial loops linking two rays of a same star. This is something which can be unwanted in some cases.
+where `-noloops` forbids trivial equations `X=X` during computation.
+This equation usually yields trivial loops linking two rays of a same star.
+This is something which can be unwanted in some cases.
 
-## Examples
+# Examples
 
-Some example files with the `.stellar` extension in `/examples` are ready to be executed. Below, some explanations of how to create other examples are given. In Eng's thesis, ways to work with other models of computation is a simple way are provided (Turing machines, pushdown automata, transducers, alternating automata etc).
+Some example files with the `.stellar` extension in `/examples` are ready to be
+executed. Below, some explanations of how to create other examples are given.
+In Eng's thesis, ways to work with other models of computation is a simple way
+are provided (Turing machines, pushdown automata, transducers, alternating
+automata etc).
 
-### Constructing logic programs
+## Constructing logic programs
 
-Facts are stars `[+p(t1, ..., tn)]` and inference rules `P(t11, ..., t1n), ... P(tn1, ..., tnm) => P(u1, ..., uk)` are stars `[-p(t11, ..., t1n), ..., -p(tn1, ..., tnm), +p(u1, ..., uk)]` where negative rays are inputs (hypotheses) and the only positive ray is the output (conclusion).
+Facts are stars `+p(t1 ... tn)` and inference rules `P(t11, ..., t1n), ...
+P(tn1, ..., tnm) => P(u1, ..., uk)` are stars `-p(t11 ... t1n) ... -p(tn1
+... tnm) +p(u1 ... uk)` where negative rays are inputs (hypotheses) and
+the only positive ray is the output (conclusion).
 
-Queries are stars `[+q(v1, ..., vl), X1, ..., Xp]` where `+q(v1, ..., vl)` corresponds to the query and `X1, ..., Xp` are variables occurring in the query that we would like to display in the result.
+Queries are stars `+q(v1 ... vl X1 ... Xp]` where `+q(v1 ... vl)`
+corresponds to the query and `X1 ... Xp` are variables occurring in the query
+that we would like to display in the result.
 
-### Constructing finite automata
+## Constructing finite automata
 
-The encoding of a finite automata must include the following stars:
-- `[-i(W), +a(W, q0)]` encoding the initial state (where `q0` can be replaced by any other name);
-- `[-a(e, qf), accept]` encoding the accepting/final state (where `qf` can be replaced by any other name and `e` represents the empty word).
+The encoding of a finite automaton must include the following stars:
+- `-i(W) +a(W q0)` encoding the initial state
+  (where `q0` can be replaced by any other name);
+- `-a(e qf) accept` encoding the accepting/final state (where `qf` can be
+  replaced by any other name and `e` represents the empty word).
 
-Each transition from a state `q1` to another state `q2` along the character `a` is encoded by a star:
+Each transition from a state `q1` to another state `q2` along the character `a`
+is encoded by a star:
 ```
-[-a(a . W, q1), +a(W, q2)]
-```
-
-Words are encoded by sequences of characters separated by the binary symbol `.` and ending with `e`. For instance, `0 . 0 . 1 . e`, `e` or `1 . b . c . e` encode words.
-
-Example with automata in the reference constellation and an input word in the interaction space:
-
-```
-{
-	[-i(W), +a(W, q0)] +
-	[-a(e, q2), accept] +
-	[-a(0 . W, q0), +a(W, q0)] +
-	[-a(1 . W, q0), +a(W, q0)] +
-	[-a(0 . W, q0), +a(W, q1)] +
-	[-a(0 . W, q1), +a(W, q2)]
-}
-|-
-{
-	[+i(0 . 0 . 0 . e)]
-} 
+-a(a:W q1) +a(W q2)
 ```
 
-### Constructing proof-structures of multiplicative linear logic
+Words are encoded by sequences of characters separated by the binary symbol `:`
+and ending with `e`. For example: `0:0:1:e`, `e` or `1:b:c:e` encode words.
 
-It is recommended to follow the method suggested in Eng's thesis. Each axiom becomes a binary star containing the translation of its atoms.
+Example of a marked constellation (ready to be executed) encoding an automaton:
+```
+-i(W) +a(W q0);
+-a(e q2) accept;
+-a(0:W q0) +a(W q0);
+-a(0:W q0) +a(W q1);
+-a(0:W q1) +a(W q2);
+-a(1:W q0) +a(W q0);
+@+i(0:0:0:e);
+```
 
-The translation of an atom `a` accessible from a conclusion `c` is given by a ray `+c(t)` where `t` is a sequence of symbols `l` (left) and `r` (right) separated by the binary symbol `.` and ending with the variable `X`. The idea is to encode the path from `c` to `a` by sequence of directions in the proof-structure.
+## Constructing proof-structures of multiplicative linear logic
 
-For instance, if from a conclusion `c`, we need to go up by going left two times and right once in order to reach `a`, the translation of `a` will be `+c(l.l.r.X)`.
+It is recommended to follow the method suggested in Eng's thesis.
+Each axiom becomes a binary star containing the translation of its atoms.
 
-A cut connecting the conclusions `c1` and `c2` is simply encoded by a star `[-c1(X), -c2(X)]`.
+The translation of an atom `a` accessible from a conclusion `c` is given by a
+ray `+c(t)` where `t` is a sequence of symbols `l` (left) and `r` (right)
+separated by the binary symbol `:` and ending with the variable `X`.
+The idea is to encode the path from `c` to `a` by sequence of directions in the
+proof-structure.
 
-Since proof-structures can be traversed by starting from any free atom, it is sufficient to put a star with a free (even unpolarised) ray in the interaction space and put the other stars in the reference constellation.
+For instance, if from a conclusion `c`, we need to go up by going left two
+times and right once in order to reach `a`, the translation of `a` will be
+`+c(l:l:r:X)`.
 
-## References
+A cut connecting the conclusions `c1` and `c2` is simply encoded by a star
+`-c1(X) -c2(X)`.
 
-- [1] [An exegesis of transcendental syntax. Eng.](https://hal.science/tel-04179276v1)
-- [2] Term Rewriting and All That. Baader, Franz.
+Since proof-structures can be traversed by starting from any free atom, it is
+sufficient to put a star with a free (even unpolarised) ray in the interaction
+space and put the other stars in the reference constellation.
+
+# References
+
+- [1] [Transcendental syntax I: deterministic case, Jean-Yves Girard.](https://girard.perso.math.cnrs.fr/trsy1.pdf)
+- [2] [An exegesis of transcendental syntax, Boris Eng.](https://hal.science/tel-04179276v1)
+- [3] Term Rewriting and All That, Franz Baader & Tobias Nipkow.
