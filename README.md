@@ -2,17 +2,23 @@
 
 The stellar resolution (RS) is a model of computation introduced by Jean-Yves
 Girard [1] in his transcendental syntax project as a basis for the study of the
-computational foundations of logic. It has been mainly developed
-by Eng later in his PhD thesis [2].
+computational foundations of logic. It has been mainly developed by Eng later
+in his PhD thesis [2].
 
-It is basically a logic-agnostic, asynchronous and very general version of
-Robinson's first order resolution with disjunctive clauses, which is used in
-logic programming.
+It can be understood from several point of view:
+- it is a logic-agnostic, asynchronous and very general version of Robinson's
+first order resolution with disjunctive clauses, which is used in logic
+programming;
+- it is a very elementary logic-agnostic contraint programming language;
+- it is a non-planar generalisation of Wang tiles (or LEGO bricks) using terms
+instead of colours and term unification instead of colour matching;
+- it is a model of interactive agents behaving like molecules which interact
+with each other. It can be seen as a generalisation of Jonoska's flexible
+tiles used in DNA computing;
+- it is an assembly language for meaning.
 
-In this model, computation is done by making independent agents/bricks locally
-interact which each other. Those agents match and propagate information by
-using term unification [2]. It can be seen as a non-planar generalisation of
-Wang tiles.
+Stellar resolution is very elementary and an interpreter for it can be written
+in a very concise way since it mostly relies on an unification algorithm.
 
 # Large Star Collider
 
@@ -23,13 +29,13 @@ of stellar resolution.
 ## Syntax
 
 A **ray** is a term which is either a variable or a possibly polarised function
-symbol taking other rays as arguments. Example:
+symbol taking other rays as arguments (separated by comma or space). Example:
 ```
 X
 f(X)
-+a(X, Y)
--h(f(X, Y))
-+a(+f(X), h(-f(X))
++a(X,Y)
+-h(f(X Y))
++a(+f(X) h(-f(X))
 ```
 Identifiers in uppercase (possibly with a suffix number are variables and
 identifiers in lowercase (possibly containing a `_` symbol and digits, but
@@ -40,52 +46,93 @@ always beginning by an alphabetic character) are function symbols.
 > For instance, the encoding of the word `0101` can be written `0:1:0:1` where
 > `e` can represent the empty string. This is only syntactic sugar to make
 > programs clearer but any binary symbol can be used for concatenation and any
-> constant can represent the empty string.
+> constant can represent the empty string. Another possible encoding is
+> `0(1(0(1(e))))`.
 
-A **star** is a sequence of rays which can be separated by a comma:
+> [!NOTE]
+> Function symbols does not have to be coherent. A same symbol can be used
+> with several different arities. For instance, `f(X)` and `f(X, Y)` can occur
+> in a same program.
+
+A **star** is an unordered sequence of rays which can be separated by a comma:
 ```
 X, f(X), +a(X,Y), -h(f(X, Y))
 X f(X) +a(X,Y) -h(f(X, Y))
 ```
 
-A **constellation** is a sequence of stars separated by a semicolon, in which
-every variables are local to their star:
+A **constellation** is an unordered sequence of stars ending by a semicolon in
+which every variables are local to their star:
 ```
-X, f(X);
-+a(X,Y);
--h(f(X, Y)) +a(+f(X), h(-f(X));
+X, f(X); +a(X Y);
+-h(f(X Y)) +a(+f(X) h(-f(X));
 ```
 The `X`s on the first line are local and distinct from the other occurrences of
-`X` below.
+`X` below. Hence it can be convenient to use different variable names to make
+it explicit.
+
+You can write comments with `'` and multiline comments are delimited by `'''`:
+```
+'this is a comment on a single line
+
+'''
+this is a comment
+on several lines
+'''
+```
 
 ## Computation
 
 You have to select initial stars (the initial pieces of the puzzle) by
 prefixing them with a `@` symbol as in:
 ```
-X, f(X);
-+a(X,Y);
-@-h(f(X, Y)) +a(+f(X), h(-f(X));
+X1, f(X1);
++a(X2,Y2);
+@-h(f(X3, Y3)) +a(+f(X4), h(-f(X4));
 ```
+Those marked stars are fixed and put in an *interaction space*. The other
+unmarked stars make a *reference constellation*. The LSC will take copy of
+stars in the reference constellation and fire it to matching stars in the
+interaction space until no possible interaction is left. At the end, the result
+of the interaction space is outputted.
 
-The LSC will put marked stars in an *interaction space* and make them collide
-with copies of other matching stars until there is no interaction possible
-anymore. At the end, the result of the interaction space is outputted.
+> [!NOTE]
+> The interaction space can be seen as *linear* and the reference constellation
+> as *non-linear*.
 
-Collision between stars, called *fusion* (noted `<>` here) is done by using
-the principle of Robinson's resolution rule:
-- rays can *compatible* or *unifiable* when there exists a substitution of
-  variables making the two rays equal (considering variables are renamed to
-  make them disjoint) such that matching function symbols are of opposite
-  polarity (`+` against `-`);
-- consider a fusion `r1 ... rk +f(X) <> r1' ... rk' -f(a)` between two stars;
+Collision between stars, called *fusion* is done by using the principle of
+Robinson's resolution rule. We define an operator `<i,j>` with connects the
+`i`th ray of a star to the `j`th ray of another star.
+
+Rays are *compatible* or *unifiable* when there exists a substitution of
+variables making the two rays equal (considering variables are renamed to
+make them disjoint) such that matching function symbols are of opposite
+polarity (`+` against `-`). For instance `+f(X)` and `-f(a)` are unifiable
+but not `+f(X)` and `+f(a)`, nor `+f(X)` and `-g(a)`.
+
+- consider a fusion `+f(X) r1 ... rk <0,0> -f(a) r1' ... rk'` between two stars;
 - we see that `+f(X)` matches `-f(a)` with unifier `{X := a}`;
-- the two rays are annihilated and `{X := a}` is propagated;
-- we obtain `{X:=a}r1 ... {X:=a}rk {X:=a}r1' ... {X:=a}rk'`;
+- the two connected rays are annihilated and `{X := a}` is propagated to
+  other rays;
+- we obtain
+	```
+	+f(X) r1 ... rk <0,0> -f(a) r1' ... rk' == {X:=a}r1 ... {X:=a}rk {X:=a}r1' ... {X:=a}rk'`;
+	```
+
+> [!NOTE]
+> This corresponds to the cut rule for first-order logic except that we are
+> in a logic-agnostic setting (our symbols do not hold any meaning).
+
+> [!NOTE]
+> In case a ray matches several other rays a duplication of star occurs.
+> Only unmarked stars are subject to duplication.
+
+> [!NOTE]
+> A ray of a star can interact with another ray of the same star (this is known
+> as *self-interaction*).
 
 Here is a trivial example:
 ```
-X +f(X) <> -f(a) == a
+X +f(X) <1,0> -f(a) == a
 ```
 
 And a non-trivial one:
@@ -95,7 +142,7 @@ And a non-trivial one:
 ```
 We have:
 ```
-+8(r:X) 6(X) <> -7(X) -8(X) == -7(r:X) 6(X)
++8(r:X) 6(X) <0,1> -7(X) -8(X) == -7(r:X) 6(X)
 ```
 Hence we obtain:
 ```
@@ -104,9 +151,8 @@ Hence we obtain:
 ```
 We have:
 ```
--7(r:X) 6(X) <> +7(l:X) == +7(r:X) 6(X)
+-7(r:X) 6(X) <0,0> +7(l:X) +7(r:X) == +7(l:X) 6(X)
 ```
-The ray `-7(r:X)` only matches with `+7(r:X)`, hence only `+7(l:X)` is left.
 We obtain:
 ```
 +7(l:X) +7(r:X); 3(X) +8(l:X); @+7(l:X) 6(X);
@@ -114,7 +160,7 @@ We obtain:
 ```
 We have:
 ```
-+7(l:X) 6(X) <> -7(X) -8(X) == -8(l:X) 6(X)
++7(l:X) 6(X) <0,0> -7(X) -8(X) == -8(l:X) 6(X)
 ```
 We obtain:
 ```
@@ -123,15 +169,16 @@ We obtain:
 ```
 We have:
 ```
--8(l:X) 6(X) <> +8(l:X) 3(X) == 6(X) 3(X)
+-8(l:X) 6(X) <0,0> +8(l:X) 3(X) == 6(X) 3(X)
 ```
 The result of the computation is
 ```
 6(X) 3(X)
 ```
 
-This computation corresponds to what we call cut-elimination for the proof
-structures of multiplicative linear logic.
+> [!NOTE]
+> This computation corresponds to what we call cut-elimination for the proof
+> structures of multiplicative linear logic.
 
 # Use
 
@@ -167,17 +214,13 @@ Assume the executable is named `lsc.exe`. Execute the program with:
 ```
 ./lsc.exe [-showsteps] [-noloops] <inputfile>
 ```
-where `-noloops` forbids trivial equations `X=X` during computation.
-This equation usually yields trivial loops linking two rays of a same star.
-This is something which can be unwanted in some cases.
 
 # Examples
 
 Some example files with the `.stellar` extension in `/examples` are ready to be
 executed. Below, some explanations of how to create other examples are given.
-In Eng's thesis, ways to work with other models of computation is a simple way
-are provided (Turing machines, pushdown automata, transducers, alternating
-automata etc).
+In Eng's thesis, ways to work with other models of computatio are described
+(Turing machines, pushdown automata, transducers, alternating automata etc).
 
 ## Constructing logic programs
 
@@ -189,6 +232,14 @@ the only positive ray is the output (conclusion).
 Queries are stars `+q(v1 ... vl X1 ... Xp]` where `+q(v1 ... vl)`
 corresponds to the query and `X1 ... Xp` are variables occurring in the query
 that we would like to display in the result.
+
+Example:
+```
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z));
+
+@-add(s(s(0)) s(s(0)) R) R; 'query
+```
 
 ## Constructing finite automata
 
@@ -209,13 +260,15 @@ and ending with `e`. For example: `0:0:1:e`, `e` or `1:b:c:e` encode words.
 
 Example of a marked constellation (ready to be executed) encoding an automaton:
 ```
--i(W) +a(W q0);
--a(e q2) accept;
+-i(W) +a(W q0); 'initial state
+-a(e q2) accept; 'final state
+
 -a(0:W q0) +a(W q0);
 -a(0:W q0) +a(W q1);
 -a(0:W q1) +a(W q2);
 -a(1:W q0) +a(W q0);
-@+i(0:0:0:e);
+
+@+i(0:0:0:e); 'input word
 ```
 
 ## Constructing proof-structures of multiplicative linear logic
