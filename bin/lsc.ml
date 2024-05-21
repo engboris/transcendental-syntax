@@ -3,7 +3,7 @@ open Lsc.Stellar
 open Lsc.Parser
 open Out_channel
 
-let usage_msg = "exec [-noloops] [-steps] <filename>"
+let usage_msg = "exec [-unfinished-computation] [-noloops] [-showsteps] <filename>"
 let withloops = ref true
 let showsteps = ref false
 let unfincomp = ref false
@@ -15,11 +15,12 @@ let speclist =
   [
     ("-noloops",
      Stdlib.Arg.Clear withloops,
-     "Forbid equations X=X which yield trivial loops.");
-    ("-unfinished-computation (they are allowed by default)",
-     Stdlib.Arg.Clear unfincomp,
+     "Forbid equations X=X which yield trivial loops (they are allowed by
+      default).");
+    ("-unfinished-computation",
+     Stdlib.Arg.Set unfincomp,
       "Show stars containing polarities which are left after execution
-      (they correspond to unfinished computation and are omitted by default)");
+      (they correspond to unfinished computation and are omitted by default).");
     ("-showsteps",
      Stdlib.Arg.Set showsteps,
      "Interactively show each steps of computation.")

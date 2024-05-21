@@ -196,13 +196,15 @@ let display_steps content =
   Out_channel.flush Out_channel.stdout;
   let _ = In_channel.input_line In_channel.stdin in ()
 
-let rec exec
+let exec
   ?(unfincomp=false)
   ?(withloops=true)
   ?(showsteps=false)
   (cs, space) : constellation =
+  let rec aux (cs, space) =
     (if showsteps then display_steps space);
     let result = interaction ~withloops cs space in
     (if Option.is_none result then space
-    else exec ~withloops ~showsteps (cs, Option.value_exn result))
-    |> if unfincomp then Fn.id else concealing
+    else aux (cs, Option.value_exn result))
+  in aux (cs, space)
+    |> (if unfincomp then Fn.id else concealing)
