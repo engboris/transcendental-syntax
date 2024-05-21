@@ -6,22 +6,35 @@ open Out_channel
 let usage_msg = "exec [-noloops] [-steps] <filename>"
 let withloops = ref true
 let showsteps = ref false
+let unfincomp = ref false
 let input_file = ref ""
 
 let anon_fun filename = input_file := filename
 
 let speclist =
   [
-    ("-noloops", Stdlib.Arg.Clear withloops, "Forbid equations X=X which yields trivial loops");
-    ("-showsteps", Stdlib.Arg.Set showsteps, "Interactively show each steps")
+    ("-noloops",
+     Stdlib.Arg.Clear withloops,
+     "Forbid equations X=X which yield trivial loops.");
+    ("-unfinished-computation (they are allowed by default)",
+     Stdlib.Arg.Clear unfincomp,
+      "Show stars containing polarities which are left after execution
+      (they correspond to unfinished computation and are omitted by default)");
+    ("-showsteps",
+     Stdlib.Arg.Set showsteps,
+     "Interactively show each steps of computation.")
   ]
 
 let _ =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
   let mcs = marked_constellation Lsc.Lexer.read lexbuf in
-  let cs = extract_space mcs in
-  (if !showsteps then output_string stdout "Press any button to move to the next step.\n");
-  let result = exec ~withloops:!withloops ~showsteps:!showsteps cs in
+  let cs = extract_intspace mcs in
+  (if !showsteps
+  then output_string stdout "Press any button to move to the next step.\n");
+  let result =
+    exec ~unfincomp:!unfincomp
+         ~withloops:!withloops
+         ~showsteps:!showsteps cs in
   if not !showsteps then Stdlib.print_endline (string_of_constellation result)
   else output_string stdout "No interaction left.\n"

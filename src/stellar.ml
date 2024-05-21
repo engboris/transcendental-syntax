@@ -125,7 +125,7 @@ let extract_intspace mcs =
   in aux ([], []) mcs
 
 let concealing =
-  List.filter ~f:(List.exists ~f:(Fn.compose not is_polarised))
+  List.filter ~f:(List.for_all ~f:(Fn.compose not is_polarised))
 
 (* counter used for renaming with unique identifiers *)
 let counter = ref 0
