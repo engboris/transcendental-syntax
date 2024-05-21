@@ -42,7 +42,7 @@ let pos f = (Pos, f)
 let neg f = (Neg, f)
 let null f = (Null, f)
 
-let gfunc c ts = Func (c, ts) 
+let gfunc c ts = Func (c, ts)
 let pfunc f ts = gfunc (pos f) ts
 let nfunc f ts = gfunc (neg f) ts
 let func f ts = gfunc (null f) ts
@@ -102,27 +102,30 @@ let string_of_constellation cs =
    Interactive execution
    --------------------------------------- *)
 (*
-The expressions which are evaluated are "stellar configurations" :
+The expressions which are evaluated are "stellar configurations":
 reference constellation |- interaction space
 
 1. Select a ray 'r' in a star 's' of the interaction space
 2. Look for possible connexions with rays 'ri' in stars 'si'
    in the reference constellation and in 's'
 3. Duplicate 's' for each 'ri' and make them interact
-4. In case of co-branching ('ri' matchable with other 'rk')
-   interaction is not defined
-   (we will avoid such constellations in this version)
+
+In case of co-branching ('ri' matchable with other 'rk')
+interaction is not defined (we will avoid such constellations in this version)
 *)
 
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
 
-let extract_space mcs =
+let extract_intspace mcs =
   let rec aux (cs, space) = function
     | [] -> (List.rev cs, List.rev space)
     | (Marked s)::t -> aux (cs, s::space) t
     | (Unmarked s)::t -> aux (s::cs, space) t
   in aux ([], []) mcs
+
+let concealing =
+  List.filter ~f:(List.exists ~f:(Fn.compose not is_polarised))
 
 (* counter used for renaming with unique identifiers *)
 let counter = ref 0
@@ -146,11 +149,9 @@ let self_interaction ?(withloops=true) (r, other_rays) : star list =
   in select_ray [] other_rays
 
 let search_partners ?(withloops=true) (r, other_rays) cs : star list =
-  (* [] means no star partner *)
-  let rec select_star accs = function 
+  let rec select_star accs = function
     | [] -> []
     | s::cs' ->
-      (* [] means no ray partner in s *)
       let rec select_ray accr = function
         | [] -> []
         | r'::s' when not (is_polarised r') -> (select_ray (r'::accr) s') 
@@ -195,8 +196,13 @@ let display_steps content =
   Out_channel.flush Out_channel.stdout;
   let _ = In_channel.input_line In_channel.stdin in ()
 
-let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
-  (if showsteps then display_steps space);
-  let result = interaction ~withloops cs space in
-  if Option.is_none result then space
-  else exec ~withloops ~showsteps (cs, Option.value_exn result)
+let rec exec
+  ?(unfincomp=false)
+  ?(withloops=true)
+  ?(showsteps=false)
+  (cs, space) : constellation =
+    (if showsteps then display_steps space);
+    let result = interaction ~withloops cs space in
+    (if Option.is_none result then space
+    else exec ~withloops ~showsteps (cs, Option.value_exn result))
+    |> if unfincomp then Fn.id else concealing

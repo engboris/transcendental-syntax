@@ -82,26 +82,11 @@ on several lines
 
 ## Computation
 
-You have to select initial stars (the initial pieces of the puzzle) by
-prefixing them with a `@` symbol as in:
-```
-X1, f(X1);
-+a(X2,Y2);
-@-h(f(X3, Y3)) +a(+f(X4), h(-f(X4));
-```
-Those marked stars are fixed and put in an *interaction space*. The other
-unmarked stars make a *reference constellation*. The LSC will take copy of
-stars in the reference constellation and fire it to matching stars in the
-interaction space until no possible interaction is left. At the end, the result
-of the interaction space is outputted.
+### Fusion
 
-> [!NOTE]
-> The interaction space can be seen as *linear* and the reference constellation
-> as *non-linear*.
-
-Collision between stars, called *fusion* is done by using the principle of
-Robinson's resolution rule. We define an operator `<i,j>` with connects the
-`i`th ray of a star to the `j`th ray of another star.
+Stars are able to interact, through an operation called *fusion*, by using the
+principle of Robinson's resolution rule. We define an operator `<i,j>` with
+connects the `i`th ray of a star to the `j`th ray of another star.
 
 Rays are *compatible* or *unifiable* when there exists a substitution of
 variables making the two rays equal (considering variables are renamed to
@@ -118,24 +103,46 @@ but not `+f(X)` and `+f(a)`, nor `+f(X)` and `-g(a)`.
 	+f(X) r1 ... rk <0,0> -f(a) r1' ... rk' == {X:=a}r1 ... {X:=a}rk {X:=a}r1' ... {X:=a}rk'`;
 	```
 
-> [!NOTE]
-> This corresponds to the cut rule for first-order logic except that we are
-> in a logic-agnostic setting (our symbols do not hold any meaning).
-
-> [!NOTE]
-> In case a ray matches several other rays a duplication of star occurs.
-> Only unmarked stars are subject to duplication.
-
-> [!NOTE]
-> A ray of a star can interact with another ray of the same star (this is known
-> as *self-interaction*).
-
-Here is a trivial example:
+For example:
 ```
 X +f(X) <1,0> -f(a) == a
 ```
 
-And a non-trivial one:
+> [!NOTE]
+> This corresponds to the cut rule for first-order logic except that we are
+> in a logic-agnostic setting (our symbols do not hold any meaning).
+
+### Execution
+
+You have to select initial stars (the initial pieces of the puzzle) by
+prefixing them with a `@` symbol as in:
+```
+X1, f(X1);
++a(X2,Y2);
+@-h(f(X3, Y3)) +a(+f(X4), h(-f(X4));
+```
+
+Those marked stars are fixed and put in an *interaction space*. The other
+unmarked stars form a *reference constellation*. The LSC takes copies of
+stars in the reference constellation and fire it to matching stars in the
+interaction space until no possible interaction is left by following these
+steps:
+1. select a ray `r` in a star `s` of the interaction space;
+2. look for possible connexions with rays `ri` in stars `si` in the reference
+   constellation but also in s (self-interaction);
+3. duplicate `s` for each `ri` and make them interact by fusion. In case `ri`
+   is matchable with other `rk` (co-branching), interaction is left undefined.
+
+At the end, the result of the interaction space is outputted without stars
+containing polarised rays (because they correspond to unfinished computation).
+
+> [!NOTE]
+> The interaction space can be seen as *linear* and the reference constellation
+> as *non-linear*.
+
+### Examples
+
+Consider the following constellation:
 ```
 +7(l:X) +7(r:X); 3(X) +8(l:X); @+8(r:X) 6(X);
 -7(X) -8(X);
