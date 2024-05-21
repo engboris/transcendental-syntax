@@ -24,3 +24,4 @@ let _ =
   (if !showsteps then output_string stdout "Press any button to move to the next step.\n");
   let result = exec ~withloops:!withloops ~showsteps:!showsteps cs in
   if not !showsteps then Stdlib.print_endline (string_of_constellation result)
+  else output_string stdout "No interaction left.\n"

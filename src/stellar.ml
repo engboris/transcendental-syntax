@@ -190,14 +190,13 @@ let interaction ?(withloops=true) cs space =
   in select_star [] space
 
 let display_steps content =
-  string_of_constellation content
+  string_of_constellation content ^ "\n"
   |> Out_channel.output_string Out_channel.stdout;
   Out_channel.flush Out_channel.stdout;
   let _ = In_channel.input_line In_channel.stdin in ()
 
 let rec exec ?(withloops=true) ?(showsteps=false) (cs, space) : constellation =
+  (if showsteps then display_steps space);
   let result = interaction ~withloops cs space in
   if Option.is_none result then space
-  else
-    (if showsteps then display_steps (Option.value_exn result);
-    exec ~withloops ~showsteps (cs, Option.value_exn result))
+  else exec ~withloops ~showsteps (cs, Option.value_exn result)
