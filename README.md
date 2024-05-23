@@ -43,7 +43,7 @@ always beginning by an alphabetic character) are function symbols.
 
 > [!NOTE]
 > There is a special infix binary symbol `:` used to concatenate constants.
-> For instance, the encoding of the word `0101` can be written `0:1:0:1` where
+> For instance, the encoding of the word `0101` can be written `0:1:0:1:e` where
 > `e` can represent the empty string. This is only syntactic sugar to make
 > programs clearer but any binary symbol can be used for concatenation and any
 > constant can represent the empty string. Another possible encoding is
