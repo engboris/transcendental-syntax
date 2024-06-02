@@ -203,8 +203,7 @@ opam install dune
 
 Install dependencies
 ```
-opam install base
-opam install menhir
+opam install . --deps-only
 ```
 
 Build the project
@@ -212,7 +211,10 @@ Build the project
 dune build
 ```
 
-The executable is `_build/default/bin/lsc.exe`.
+The executable is `_build/default/bin/lsc.exe`. You can launch it with:
+```bash
+dune exec lsc -- <args>
+```
 
 ## Commands
 
