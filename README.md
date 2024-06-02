@@ -5,30 +5,30 @@ Girard [1] in his transcendental syntax project as a basis for the study of the
 computational foundations of logic. It has been mainly developed by Eng later
 in his PhD thesis [2].
 
-It can be understood from several point of view:
+It can be understood from several points of view:
 - it is a logic-agnostic, asynchronous and very general version of Robinson's
-first order resolution with disjunctive clauses, which is used in logic
+first-order resolution with disjunctive clauses, which is used in logic
 programming;
-- it is a very elementary logic-agnostic contraint programming language;
-- it is a non-planar generalisation of Wang tiles (or LEGO bricks) using terms
+- it is a very elementary logic-agnostic constraint programming language;
+- it is a non-planar generalization of Wang tiles (or LEGO bricks) using terms
 instead of colours and term unification instead of colour matching;
 - it is a model of interactive agents behaving like molecules which interact
-with each other. It can be seen as a generalisation of Jonoska's flexible
+with each other. It can be seen as a generalization of Jonoska's flexible
 tiles used in DNA computing;
 - it is an assembly language for meaning.
 
 Stellar resolution is very elementary and an interpreter for it can be written
-in a very concise way since it mostly relies on an unification algorithm.
+in a very concise way since it mostly relies on a unification algorithm.
 
 # Large Star Collider
 
-The Large Star Collider (LSC) is an implementation of stellar resolution which
+The Large Star Collider (LSC) is an implementation of stellar resolution that
 interprets and executes objects called *constellations*, which are the programs
 of stellar resolution.
 
 ## Syntax
 
-A **ray** is a term which is either a variable or a possibly polarised function
+A **ray** is a term which is either a variable or a possibly polarized function
 symbol taking other rays as arguments (separated by comma or space). Example:
 ```
 X
@@ -37,9 +37,9 @@ f(X)
 -h(f(X Y))
 +a(+f(X) h(-f(X))
 ```
-Identifiers in uppercase (possibly with a suffix number are variables and
+Identifiers in uppercase (possibly with a suffix number) are variables and
 identifiers in lowercase (possibly containing a `_` symbol and digits, but
-always beginning by an alphabetic character) are function symbols.
+always starting with an alphabetic character) are function symbols.
 
 > [!NOTE]
 > There is a special infix binary symbol `:` used to concatenate constants.
@@ -50,18 +50,18 @@ always beginning by an alphabetic character) are function symbols.
 > `0(1(0(1(e))))`.
 
 > [!NOTE]
-> Function symbols does not have to be coherent. A same symbol can be used
+> Function symbols do not have to be coherent. The same symbol can be used
 > with several different arities. For instance, `f(X)` and `f(X, Y)` can occur
-> in a same program.
+> in the same program.
 
-A **star** is an unordered sequence of rays which can be separated by a comma:
+A **star** is an unordered sequence of rays separated by commas or whitespace:
 ```
 X, f(X), +a(X,Y), -h(f(X, Y))
 X f(X) +a(X,Y) -h(f(X, Y))
 ```
 
 A **constellation** is an unordered sequence of stars ending by a semicolon in
-which every variables are local to their star:
+which all variables are local to their star:
 ```
 X, f(X); +a(X Y);
 -h(f(X Y)) +a(+f(X) h(-f(X));
