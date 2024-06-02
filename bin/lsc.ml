@@ -3,10 +3,11 @@ open Lsc.Stellar
 open Lsc.Parser
 open Out_channel
 
-let usage_msg = "exec [-unfinished-computation] [-noloops] [-showsteps] <filename>"
+let usage_msg = "exec [-unfinished-computation] [-noloops] [-show-steps] [-show-trace] <filename>"
 let withloops = ref true
 let showsteps = ref false
 let unfincomp = ref false
+let showtrace = ref false
 let input_file = ref ""
 
 let anon_fun filename = input_file := filename
@@ -21,9 +22,12 @@ let speclist =
      Stdlib.Arg.Set unfincomp,
       "Show stars containing polarities which are left after execution
       (they correspond to unfinished computation and are omitted by default).");
-    ("-showsteps",
+    ("-show-steps",
      Stdlib.Arg.Set showsteps,
-     "Interactively show each steps of computation.")
+     "Interactively show each steps of computation.");
+    ("-show-trace",
+     Stdlib.Arg.Set showtrace,
+     "Interactively show steps of selection and unification.")
   ]
 
 let _ =
@@ -36,6 +40,8 @@ let _ =
   let result =
     exec ~unfincomp:!unfincomp
          ~withloops:!withloops
+         ~showtrace:!showtrace
          ~showsteps:!showsteps cs in
-  if not !showsteps then Stdlib.print_endline (string_of_constellation result)
+  if not !showsteps && not !showtrace then
+    Stdlib.print_endline (string_of_constellation result)
   else output_string stdout "No interaction left.\n"
