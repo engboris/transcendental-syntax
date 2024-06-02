@@ -5,23 +5,23 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github engboris/large-star-collider))
 
-(authors "Author Name")
+(authors "Boris Eng")
 
-(maintainers "Maintainer Name")
+(maintainers "Pablo Donato")
 
-(license LICENSE)
+(license GPL-3.0-only)
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/engboris/large-star-collider/blob/main/README.md)
 
 (package
  (name lsc)
- (synopsis "A short synopsis")
- (description "A longer description")
- (depends ocaml dune)
+ (synopsis "Stellar resolution implemented with interactive execution")
+ (description "The Large Star Collider (LSC) is an implementation of stellar resolution which interprets and executes objects called constellations, which are the programs of stellar resolution.")
+ (depends base menhir)
  (tags
-  (topics "to describe" your project)))
+  ("transcendental syntax" "logic programming" "constraint programming" "resolution logic" "unification" "asynchronous computation" "self-assembly")))
 
 (using menhir 2.1)
 
