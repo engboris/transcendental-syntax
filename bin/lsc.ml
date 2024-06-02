@@ -32,7 +32,7 @@ let _ =
   let mcs = marked_constellation Lsc.Lexer.read lexbuf in
   let cs = extract_intspace mcs in
   (if !showsteps
-  then output_string stdout "Press any button to move to the next step.\n");
+  then output_string stdout "Press any key to move to the next step.\n");
   let result =
     exec ~unfincomp:!unfincomp
          ~withloops:!withloops
