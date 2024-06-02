@@ -21,7 +21,7 @@
  (description "The Large Star Collider (LSC) is an implementation of stellar resolution which interprets and executes objects called constellations, which are the programs of stellar resolution.")
  (depends base menhir)
  (tags
-  ("transcendental syntax" "logic programming" "constraint programming" "resolution logic" "unification" "asynchronous computation" "self-assembly")))
+  ("transcendental syntax" "logic programming" "constraint programming" "resolution logic" "unification" "self-assembly")))
 
 (using menhir 2.1)
 
