@@ -33,9 +33,11 @@ let rec string_of_type = function
   | PAtom x -> x
   | NAtom x -> "~"^x
   | Tensor (t1, t2) ->
-    "(" ^ string_of_type t1 ^ " * " ^ string_of_type t2 ^ ")"
+    Prettyprinter.surround "(" ")" @@
+    string_of_type t1 ^ " * " ^ string_of_type t2
   | Par (t1, t2) ->
-    "(" ^ string_of_type t1 ^ " | " ^ string_of_type t2 ^ ")"
+    Prettyprinter.surround "(" ")" @@
+    string_of_type t1 ^ " | " ^ string_of_type t2
 
 let tensor t1 t2 : constellation =
   [[gterm Neg (string_of_type t1); gterm Neg (string_of_type t2);
