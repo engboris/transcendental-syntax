@@ -1,0 +1,12 @@
+'''vehicle'''
++3(l:X) +3(r:X);
+
+'''adapters'''
+-3(l:X) +1(g:X);
+-3(r:X) +2(g:X);
+
+'''test'''
+-1(g:X) -2(g:X) +3(g:X);
+
+'''conclusion'''
+@-3(g:X) 3(X);

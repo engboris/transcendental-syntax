@@ -1,0 +1,13 @@
+'''graph'''
++from(1) +to(2);
++from(1) +to(3);
++from(3) +to(2);
++from(3) +to(4);
+'+from(4) +to(3);
+
+'''edge composition'''
+-to(X) -from(X);
+
+'''query: asks for a path between 1 and 4'''
+@-from(1);
+-to(4) ok;

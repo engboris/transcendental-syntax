@@ -1,0 +1,13 @@
+'''circuits'''
+@-1(X) +c0(X); 'input
+-c0(X) -s(X Y Z) +c1(Y) +c2(Z); 'sharing gate
+-c1(X) -not(X R) +c3(R); 'not gate
+-c2(X) -c3(Y) -and(X Y R) +c4(R); 'and gate
+-c4(R) R; 'output
+
+'''logical functions'''
++1(1);
++0(0);
++s(X X X);
++not(1 0); +not(0 1);
++and(1 X X); +and(0 X 0);
