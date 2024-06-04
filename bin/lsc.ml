@@ -3,22 +3,23 @@ open Lsc.Stellar
 open Lsc.Parser
 open Out_channel
 
-let usage_msg = "exec [-unfinished-computation] [-noloops] [-show-steps] [-show-trace] <filename>"
+let usage_msg = "exec [-no-trivial-eq] [-allow-unfinished-computation] [-show-steps] [-show-trace] [-allow-self-interaction] <filename>"
 let withloops = ref true
 let showsteps = ref false
 let unfincomp = ref false
 let showtrace = ref false
+let selfint = ref false
 let input_file = ref ""
 
 let anon_fun filename = input_file := filename
 
 let speclist =
   [
-    ("-noloops",
+    ("-no-trivial-eq",
      Stdlib.Arg.Clear withloops,
      "Forbid equations X=X which yield trivial loops (they are allowed by
       default).");
-    ("-unfinished-computation",
+    ("-allow-unfinished-computation",
      Stdlib.Arg.Set unfincomp,
       "Show stars containing polarities which are left after execution
       (they correspond to unfinished computation and are omitted by default).");
@@ -27,7 +28,10 @@ let speclist =
      "Interactively show each steps of computation.");
     ("-show-trace",
      Stdlib.Arg.Set showtrace,
-     "Interactively show steps of selection and unification.")
+     "Interactively show steps of selection and unification.");
+    ("-allow-self-interaction",
+     Stdlib.Arg.Set selfint,
+     "Allow self-interaction of two rays from a same star.")
   ]
 
 let _ =
@@ -41,6 +45,7 @@ let _ =
     exec ~unfincomp:!unfincomp
          ~withloops:!withloops
          ~showtrace:!showtrace
+         ~selfint:!selfint
          ~showsteps:!showsteps cs in
   if not !showsteps && not !showtrace then
     Stdlib.print_endline (string_of_constellation result)

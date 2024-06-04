@@ -90,18 +90,6 @@ let string_of_constellation cs =
 (* ---------------------------------------
    Interactive execution
    --------------------------------------- *)
-(*
-The expressions which are evaluated are "stellar configurations":
-reference constellation |- interaction space
-
-1. Select a ray 'r' in a star 's' of the interaction space
-2. Look for possible connexions with rays 'ri' in stars 'si'
-   in the reference constellation and in 's'
-3. Duplicate 's' for each 'ri' and make them interact
-
-In case of co-branching ('ri' matchable with other 'rk')
-interaction is not defined (we will avoid such constellations in this version)
-*)
 
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
@@ -189,7 +177,7 @@ let search_partners ?(withloops=true) ?(showtrace=false) (r, other_rays) cs
   in select_star [] cs
 
 (* selects only one ray for which interaction is possible *)
-let interaction ?(withloops=true) ?(showtrace=false) cs space =
+let interaction ?(withloops=true) ?(showtrace=false) ?(selfint=false) cs space =
   let open Out_channel in
   let rec select_star accs = function
     | [] -> None
@@ -206,8 +194,11 @@ let interaction ?(withloops=true) ?(showtrace=false) cs space =
             output_string stdout "\n";
           end;
           let new_stars =
-            self_interaction ~withloops ~showtrace (r, accr@s')
-          @ search_partners ~withloops ~showtrace (r, accr@s') cs in
+            if selfint then
+              self_interaction ~withloops ~showtrace (r, accr@s') @
+              search_partners ~withloops ~showtrace (r, accr@s') cs
+            else
+              search_partners ~withloops ~showtrace (r, accr@s') cs in
           if List.is_empty new_stars then select_ray (r::accr) s'
           else Some new_stars
       in let new_stars = select_ray [] s in
@@ -226,13 +217,14 @@ let exec
   ?(unfincomp=false)
   ?(withloops=true)
   ?(showtrace=false)
+  ?(selfint=false)
   ?(showsteps=false)
   (cs, space) : constellation =
   let open Out_channel in
   let rec aux (cs, space) =
     (if showtrace then output_string stdout "\n_____result_____\n");
     (if showsteps || showtrace then display_steps space);
-    let result = interaction ~withloops ~showtrace cs space in
+    let result = interaction ~withloops ~showtrace ~selfint cs space in
     (if Option.is_none result then space
     else aux (cs, Option.value_exn result))
   in aux (cs, space)
