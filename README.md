@@ -119,22 +119,26 @@ prefixing them with a `@` symbol as in:
 ```
 X1, f(X1);
 +a(X2,Y2);
-@-h(f(X3, Y3)) +a(+f(X4), h(-f(X4));
+@-h(f(X3, Y3)) +a(+f(X4), h(-f(X4)));
 ```
 
-Those marked stars are fixed and put in an *interaction space*. The other
-unmarked stars form a *reference constellation*. The LSC takes copies of
-stars in the reference constellation and fire it to matching stars in the
+Those marked stars are fixed and put into an *interaction space*. The other
+unmarked stars form a *reference constellation*. The LSC takes copies of stars
+in the reference constellation and fires them to matching stars in the
 interaction space until no possible interaction is left by following these
 steps:
-1. select a ray `r` in a star `s` of the interaction space;
-2. look for possible connexions with rays `ri` in stars `si` in the reference
-   constellation but also in s (self-interaction);
-3. duplicate `s` for each `ri` and make them interact by fusion. In case `ri`
-   is matchable with other `rk` (co-branching), interaction is left undefined.
+1. select a ray `ri` in a star `s` of the interaction space;
+2. look for possible connections with rays `rj` belonging to stars in the
+   reference constellation;
+3. duplicate `s` so that there is exactly one copy of `s` in the interaction
+   space for every `rj`;
+4. replace every copy by its fusion `s <i,j> s'`, where `s'` is the star to
+   which `rj` belongs.
 
-At the end, the result of the interaction space is outputted without stars
-containing polarised rays (because they correspond to unfinished computation).
+The result of execution consists of all *neutral* stars that remain in the
+interaction space, i.e. those without any polarized rays. Indeed, polarized
+stars are ignored/removed because they correspond to *unfinished* (or stuck)
+computations.
 
 > [!NOTE]
 > The interaction space can be seen as *linear* and the reference constellation
@@ -228,7 +232,7 @@ Assume the executable is named `lsc.exe`. Execute the program with:
 
 Some example files with the `.stellar` extension in `/examples` are ready to be
 executed. Below, some explanations of how to create other examples are given.
-In Eng's thesis, ways to work with other models of computatio are described
+In Eng's thesis, ways to work with other models of computation are described
 (Turing machines, pushdown automata, transducers, alternating automata etc).
 
 ## Constructing logic programs
@@ -299,7 +303,7 @@ A cut connecting the conclusions `c1` and `c2` is simply encoded by a star
 `-c1(X) -c2(X)`.
 
 Since proof-structures can be traversed by starting from any free atom, it is
-sufficient to put a star with a free (even unpolarised) ray in the interaction
+sufficient to put a star with a free (even unpolarized) ray in the interaction
 space and put the other stars in the reference constellation.
 
 # References
