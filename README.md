@@ -30,8 +30,8 @@ Go to https://tsguide.refl.fr/ to learn more about how to write programs.
 
 # Use
 
-You can either download a released binary (or ask for a binary) or build the
-program from sources.
+You can either download a [released binary](https://github.com/engboris/large-star-collider/releases)
+(or ask for a binary) or build the program from sources.
 
 ## Build from sources
 
