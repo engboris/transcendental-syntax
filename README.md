@@ -52,10 +52,7 @@ Build the project
 dune build
 ```
 
-The executable is `_build/default/bin/lsc.exe`. You can launch it with:
-```bash
-dune exec lsc -- <args>
-```
+The executable is `_build/default/bin/lsc.exe`.
 
 ## Commands
 
