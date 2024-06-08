@@ -65,6 +65,7 @@ let is_prefixed ~by:_ : ray -> bool = function
 (* ---------------------------------------
    Pretty Printer
    --------------------------------------- *)
+
 let rec string_of_ray = function
   | Var x -> x
   | Func (pf, []) -> string_of_polsym pf
@@ -94,12 +95,16 @@ let string_of_constellation cs =
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
 
-let extract_intspace mcs =
+let extract_intspace (mcs : marked_constellation) =
   let rec aux (cs, space) = function
     | [] -> (List.rev cs, List.rev space)
     | (Marked s)::t -> aux (cs, s::space) t
     | (Unmarked s)::t -> aux (s::cs, space) t
-  in aux ([], []) mcs
+  in
+  match aux ([], []) mcs with 
+  | ([], _) as cfg -> cfg
+  | h::t, [] -> (t, [h])
+  | _ as cfg -> cfg
 
 let concealing =
   List.filter ~f:(List.for_all ~f:(Fn.compose not is_polarised))
