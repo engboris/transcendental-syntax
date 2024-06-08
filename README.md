@@ -26,7 +26,8 @@ The Large Star Collider (LSC) is an implementation of stellar resolution that
 interprets and executes objects called *constellations*, which are the programs
 of stellar resolution.
 
-Go to https://tsguide.refl.fr/ to learn more about how to write programs.
+Go to https://tsguide.refl.fr/ (guide currently in French only) to learn more
+about how to write programs.
 
 # Use
 
