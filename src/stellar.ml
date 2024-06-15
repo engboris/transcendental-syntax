@@ -31,6 +31,12 @@ open StellarRays
    Stars and Constellations
    --------------------------------------- *)
 
+let counter_placeholder = ref 0
+let fresh_placeholder () =
+  let r = !counter_placeholder in
+  (counter_placeholder := !counter_placeholder + 1);
+  (Int.to_string r)
+
 type ray = term
 type star = ray list
 type constellation = star list
@@ -58,10 +64,6 @@ let is_polarised r : bool =
   | (Null, _) -> false
   in exists_func aux r
 
-let is_prefixed ~by:_ : ray -> bool = function
-  | Func (_, _) -> true
-  | _ -> false
-
 (* ---------------------------------------
    Pretty Printer
    --------------------------------------- *)
@@ -69,6 +71,9 @@ let is_prefixed ~by:_ : ray -> bool = function
 let rec string_of_ray = function
   | Var x -> x
   | Func (pf, []) -> string_of_polsym pf
+  | Func ((Null, ":"), [Func ((Null, ":"), [r1; r2]); r3]) ->
+    "(" ^ (string_of_ray r1) ^ ":"  ^ (string_of_ray r2) ^ "):" ^
+    (string_of_ray r3)
   | Func ((Null, ":"), [r1; r2]) ->
     (string_of_ray r1) ^ ":"  ^ (string_of_ray r2)
   | Func (pf, ts) -> string_of_polsym pf ^
@@ -199,11 +204,13 @@ let interaction ?(withloops=true) ?(showtrace=false) ?(selfint=false) cs space =
             output_string stdout "\n";
           end;
           let new_stars =
+            search_partners ~withloops ~showtrace (r, accr@s') (cs@space')
+            |>
             if selfint then
-              self_interaction ~withloops ~showtrace (r, accr@s') @
-              search_partners ~withloops ~showtrace (r, accr@s') cs
+              List.append (self_interaction ~withloops ~showtrace (r, accr@s')) 
             else
-              search_partners ~withloops ~showtrace (r, accr@s') cs in
+              Fn.id
+            in
           if List.is_empty new_stars then select_ray (r::accr) s'
           else Some new_stars
       in let new_stars = select_ray [] s in

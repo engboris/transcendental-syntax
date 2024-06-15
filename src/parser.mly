@@ -7,6 +7,8 @@
 %token CONS
 %token AT
 %token SEMICOLON
+%token PLACEHOLDER
+%token EMPTY_SYM
 %token EOF
 
 %right CONS
@@ -33,6 +35,8 @@ symbol:
 | f = SYM { (Stellar.Null, f) }
 
 ray:
+| EMPTY_SYM { Stellar.to_func ((Stellar.Null, "$"), []) }
+| PLACEHOLDER { Stellar.to_var ("_"^(Stellar.fresh_placeholder ())) }
 | x = VAR { Stellar.to_var x }
 | r1 = ray; CONS; r2 = ray { Stellar.to_func ((Stellar.Null, ":"), [r1; r2]) }
 | pf = symbol; LEFT_PAR; ts = separated_nonempty_list(COMMA?, ray); RIGHT_PAR

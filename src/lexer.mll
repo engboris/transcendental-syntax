@@ -2,8 +2,8 @@
   open Parser
 }
 
-let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9']*
-let func_id  = ['a'-'z' '0'-'9' '_']+
+let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9' '_' '-']* '\''*
+let func_id  = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']* '\''* '?'?
 let space    = [' ' '\t']+
 let newline  = '\r' | '\n' | "\r\n"
 
@@ -12,6 +12,7 @@ rule read = parse
   | func_id  { SYM (Lexing.lexeme lexbuf) }
   | '\''     { comment lexbuf }
   | "'''"    { comments lexbuf }
+  | '_'      { PLACEHOLDER }
   | '['      { LEFT_BRACK }
   | ']'      { RIGHT_BRACK }
   | '('      { LEFT_PAR }
@@ -20,6 +21,7 @@ rule read = parse
   | '@'      { AT }
   | '+'      { PLUS }
   | '-'      { MINUS }
+  | '$'      { EMPTY_SYM }
   | ':'      { CONS }
   | ';'      { SEMICOLON }
   | space    { read lexbuf }
