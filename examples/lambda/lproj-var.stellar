@@ -1,0 +1,10 @@
+'left projection function
++lproj(l:X); 'weakening
+lproj(exp(r:l:X d)) +lproj(r:r:X);
+
+'variable (argument)
+x(exp(X Y)) +arg(exp(l:X Y));
+
+'application
+-lproj(X) -arg(X);
+@+arg(r:X) out(X);
