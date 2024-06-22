@@ -2,25 +2,20 @@ open Base
 
 type polarity = Pos | Neg | Null
 
-let string_of_polarity = function
-  | Pos -> "+"
-  | Neg -> "-"
-  | Null -> ""
-
-let string_of_polsym (p, f) = (string_of_polarity p) ^ f
-
 module StellarSig = struct
-  type idvar = string
+  type idvar = string * int option
   type idfunc = polarity * string
-  let equal_idvar = equal_string
-  let concat = (^)
+  let equal_idvar (s, i) (s', i') =
+    match i, i' with
+    | None, None -> equal_string s s'
+    | Some j, Some j' -> equal_string s s' && equal_int j j'
+    | _ -> false
   let compatible f g =
     match f, g with
     | (Pos, f), (Neg, g)
     | (Neg, f), (Pos, g) -> equal_string f g
     | (Null, f), (Null, g) -> equal_string f g
     | _ -> false
- let string_of_idfunc = string_of_polsym
 end
 
 module StellarRays = Unification.Make(StellarSig)
@@ -41,7 +36,7 @@ type ray = term
 type star = ray list
 type constellation = star list
 
-let to_var x = Var x
+let to_var x = Var (x, None)
 let to_func (pf, ts) = Func (pf, ts)
 
 let pos f = (Pos, f)
@@ -64,12 +59,27 @@ let is_polarised r : bool =
   | (Null, _) -> false
   in exists_func aux r
 
+let replace_indices (i : int) : ray -> ray =
+  map Fn.id (fun (x, _) -> Var (x, Some i))
+
 (* ---------------------------------------
    Pretty Printer
    --------------------------------------- *)
 
+let string_of_polarity = function
+  | Pos -> "+"
+  | Neg -> "-"
+  | Null -> ""
+
+let string_of_polsym (p, f) = (string_of_polarity p) ^ f
+
+let string_of_var (x, i) =
+  match i with
+  | None -> x
+  | Some i' -> x ^ (Int.to_string i')
+
 let rec string_of_ray = function
-  | Var x -> x
+  | Var xi -> string_of_var xi
   | Func (pf, []) -> string_of_polsym pf
   | Func ((Null, ":"), [Func ((Null, ":"), [r1; r2]); r3]) ->
     "(" ^ (string_of_ray r1) ^ ":"  ^ (string_of_ray r2) ^ "):" ^
@@ -82,7 +92,7 @@ let rec string_of_ray = function
 
 let string_of_subst sub =
   List.fold sub ~init:"" ~f:(fun _ (x, r) ->
-    x ^ "->" ^ (string_of_ray r))
+    (string_of_var x) ^ "->" ^ (string_of_ray r))
   |> Prettyprinter.surround "{" "}"
 
 let string_of_star s =
@@ -164,10 +174,10 @@ let search_partners ?(withloops=true) ?(showtrace=false) (r, other_rays) cs
             string_of_ray r' |> output_string stdout;
             output_string stdout "... "
           end;
-          let c1 = !counter in
-          let c2 = (!counter)+1 in
-          let renamed_r = extends_vars c1 r in
-          let renamed_r' = extends_vars c2 r' in
+          let i1 = !counter in
+          let i2 = (!counter)+1 in
+          let renamed_r = replace_indices i1 r in
+          let renamed_r' = replace_indices i2 r' in
           match raymatcher ~withloops renamed_r renamed_r' with
           | None ->
               if showtrace then output_string stdout "failed.\n";
@@ -179,8 +189,8 @@ let search_partners ?(withloops=true) ?(showtrace=false) (r, other_rays) cs
               output_string stdout ".\n"
             end;
             counter := !counter + 2;
-            let s1 = List.map other_rays ~f:(extends_vars c1) in
-            let s2 = List.map (accr@s') ~f:(extends_vars c2) in
+            let s1 = List.map other_rays ~f:(replace_indices i1) in
+            let s2 = List.map (accr@s') ~f:(replace_indices i2) in
             List.map (s1@s2) ~f:(subst theta)
             :: (select_ray (r'::accr) s')
       in (select_ray [] s) @ (select_star (s::accs) cs')

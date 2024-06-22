@@ -4,9 +4,7 @@ module type Signature = sig
   type idvar
   type idfunc
   val equal_idvar : idvar -> idvar -> bool
-  val concat : idvar -> string -> idvar
   val compatible : idfunc -> idfunc -> bool
-  val string_of_idfunc : idfunc -> string
 end
 
 (* ---------------------------------------
@@ -45,9 +43,6 @@ let exists_func pred = fold (fun y acc -> pred y || acc) skip false
 let for_all_func pred = fold (fun y acc -> pred y && acc) skip true
 
 let occurs x = exists_var (fun y -> Sig.equal_idvar x y)
-
-let extends_vars (i : int) =
-  map Fn.id (fun x -> Var (Sig.concat x (Int.to_string i)))
 
 let vars = fold skip List.cons []
 
