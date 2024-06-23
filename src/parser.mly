@@ -1,6 +1,6 @@
 %token COMMA
-%token LEFT_BRACK RIGHT_BRACK
-%token LEFT_PAR RIGHT_PAR
+%token LBRACK RBRACK
+%token LPAR RPAR
 %token <string> VAR
 %token <string> SYM
 %token PLUS MINUS
@@ -26,7 +26,7 @@ star:
 | s = star_content; SEMICOLON { Stellar.Unmarked s }
 
 star_content:
-| LEFT_BRACK; RIGHT_BRACK { [] }
+| LBRACK; RBRACK { [] }
 | rs = separated_nonempty_list(COMMA?, ray) { rs }
 
 symbol:
@@ -38,7 +38,15 @@ ray:
 | EMPTY_SYM { Stellar.to_func ((Stellar.Null, "$"), []) }
 | PLACEHOLDER { Stellar.to_var ("_"^(Stellar.fresh_placeholder ())) }
 | x = VAR { Stellar.to_var x }
-| r1 = ray; CONS; r2 = ray { Stellar.to_func ((Stellar.Null, ":"), [r1; r2]) }
-| pf = symbol; LEFT_PAR; ts = separated_nonempty_list(COMMA?, ray); RIGHT_PAR
+| e = func_expr { e }
+
+func_expr:
+| e = cons_expr { e }
+| pf = symbol; LPAR; ts = separated_nonempty_list(COMMA?, ray); RPAR
 	{ Stellar.to_func (pf, ts) }
 | pf = symbol { Stellar.to_func (pf, []) }
+
+cons_expr:
+| r1 = ray; CONS; r2 = ray { Stellar.to_func ((Stellar.Null, ":"), [r1; r2]) }
+| LPAR; e = cons_expr; RPAR; CONS; r = ray
+	{ Stellar.to_func ((Stellar.Null, ":"), [e; r]) }

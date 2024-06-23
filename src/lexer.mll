@@ -13,10 +13,10 @@ rule read = parse
   | '\''     { comment lexbuf }
   | "'''"    { comments lexbuf }
   | '_'      { PLACEHOLDER }
-  | '['      { LEFT_BRACK }
-  | ']'      { RIGHT_BRACK }
-  | '('      { LEFT_PAR }
-  | ')'      { RIGHT_PAR }
+  | '['      { LBRACK }
+  | ']'      { RBRACK }
+  | '('      { LPAR }
+  | ')'      { RPAR }
   | ','      { COMMA }
   | '@'      { AT }
   | '+'      { PLUS }
