@@ -1,2 +1,13 @@
 (test
- (name lsc))
+ (name test)
+ (modules test)
+ (deps
+   ../examples/automata/nfsa_ending00.stellar
+   ../examples/logicprogramming/prolog.stellar
+   ../examples/mll/cut.stellar
+   ../examples/mll/correctness.stellar
+ )
+ (libraries alcotest base lsclib))
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
