@@ -1,6 +1,6 @@
 (library
- (name lsclib)
- (libraries base))
+ (name stellogen)
+ (libraries base lsc))
 (env
   (dev
     (flags (:standard -warn-error -A))))

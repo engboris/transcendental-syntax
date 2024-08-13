@@ -1,11 +1,12 @@
 open Alcotest
 open Base
-open Lsclib.Stellar
-open Lsclib.Parser
+open Lsc.Ast
+open Lsc.Parser
+open Lsc.Lexer
 
 let test filename expected () =
   let lexbuf = Lexing.from_channel (Stdlib.open_in filename) in
-  let mcs = marked_constellation Lsclib.Lexer.read lexbuf in
+  let mcs = marked_constellation read lexbuf in
   let cs = extract_intspace mcs in
   let result =
     exec ~unfincomp:false

@@ -1,7 +1,7 @@
 (executables
- (public_names lsc ilsc)
- (names lsc ilsc)
- (libraries lsclib base))
+ (public_names lsc ilsc sgen)
+ (names lscrun ilsc sgen)
+ (libraries lsc stellogen base))
 (env
   (dev
     (flags (:standard -warn-error -A))))

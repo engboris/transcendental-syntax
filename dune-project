@@ -1,6 +1,6 @@
 (lang dune 3.7)
 
-(name lsc)
+(name tsyntax)
 
 (generate_opam_files true)
 
@@ -16,7 +16,7 @@
 (documentation https://github.com/engboris/large-star-collider/blob/main/README.md)
 
 (package
- (name lsc)
+ (name tsyntax)
  (synopsis "Stellar resolution implemented with interactive execution")
  (description "The Large Star Collider (LSC) is an implementation of stellar resolution which interprets and executes objects called constellations, which are the programs of stellar resolution.")
  (depends base menhir)
