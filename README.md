@@ -53,9 +53,11 @@ Build the project
 dune build
 ```
 
-The executable is `_build/default/bin/lsc.exe`.
+Executables are in `_build/default/bin/`.
 
 ## Commands
+
+### Constellation collider
 
 Assume the executable is named `lsc.exe`. Execute the program with:
 
@@ -68,6 +70,24 @@ or if you use Dune:
 ```
 dune exec lsc -- [-options] <inputfile>
 ```
+
+### Interactive collider
+
+Dynamically add, remove, clear stars and make them collide.
+
+Assume the executable is named `ilsc.exe`. Execute the program with:
+
+```
+./ilsc.exe
+```
+
+or if you use Dune:
+
+```
+dune exec ilsc
+```
+
+The instructions are provided in the program.
 
 # Examples
 

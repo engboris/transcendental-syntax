@@ -1,7 +1,7 @@
-(executable
- (public_name lsc)
- (name lsc)
- (libraries lsc))
+(executables
+ (public_names lsc ilsc)
+ (names lsc ilsc)
+ (libraries lsclib base))
 (env
   (dev
     (flags (:standard -warn-error -A))))

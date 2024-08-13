@@ -1,5 +1,5 @@
 (library
- (name lsc)
+ (name lsclib)
  (libraries base))
 (env
   (dev
