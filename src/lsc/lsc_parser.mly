@@ -1,5 +1,5 @@
 %{
-open Ast
+open Lsc_ast
 %}
 
 %token COMMA
@@ -13,17 +13,20 @@ open Ast
 %token SEMICOLON
 %token PLACEHOLDER
 %token EMPTY_SYM
-%token EOF
 
 %right CONS
 
+%start <marked_constellation> constellation_file
 %start <marked_constellation> marked_constellation
 
 %%
 
-%public marked_constellation:
+constellation_file:
 | EOF { [] }
-| cs = nonempty_list(star); EOF { cs }
+| cs = marked_constellation; EOF { cs }
+
+marked_constellation:
+| cs = nonempty_list(star) { cs }
 
 star:
 | AT; s = star_content; SEMICOLON { Marked s }

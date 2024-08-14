@@ -1,7 +1,7 @@
 open Base
-(* open Stellogen.Ast *)
-open Stellogen.Parser
-open Stellogen.Lexer
+open Stellogen.Sgen_ast
+open Stellogen.Sgen_parser
+open Stellogen.Sgen_lexer
 
 let usage_msg = "sgen <filename>"
 let input_file = ref ""
@@ -13,5 +13,5 @@ let speclist = []
 let _ =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
-  let prog = program read lexbuf in
-  ()
+  let p = program read lexbuf in
+  eval_program p

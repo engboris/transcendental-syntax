@@ -1,7 +1,7 @@
 open Base
-open Lsc.Ast
-open Lsc.Parser
-open Lsc.Lexer
+open Lsc.Lsc_ast
+open Lsc.Lsc_parser
+open Lsc.Lsc_lexer
 
 let welcome () =
   Stdlib.print_string "Commands :--------------------------------------\n";
@@ -25,10 +25,6 @@ let rec delete cs =
   with Failure _ ->
     Stdlib.print_string "This is not a positive integer. Please retry.\n";
     delete cs
-
-let unmark = function
-  | Marked s -> s
-  | Unmarked s -> s
 
 let rec add cs =
   let input = prompt "Add stars" in

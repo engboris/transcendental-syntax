@@ -111,6 +111,10 @@ let string_of_constellation cs =
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
 
+let unmark = function
+  | Marked s -> s
+  | Unmarked s -> s
+
 let extract_intspace (mcs : marked_constellation) =
   let rec aux (cs, space) = function
     | [] -> (List.rev cs, List.rev space)

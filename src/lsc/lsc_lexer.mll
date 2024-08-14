@@ -1,5 +1,5 @@
 {
-  open Parser
+  open Lsc_parser
 }
 
 let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9' '_' '-']* '\''*

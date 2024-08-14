@@ -1,7 +1,7 @@
 open Base
-open Lsc.Ast
-open Lsc.Parser
-open Lsc.Lexer
+open Lsc.Lsc_ast
+open Lsc.Lsc_parser
+open Lsc.Lsc_lexer
 open Out_channel
 
 let usage_msg = "exec [-no-trivial-eq] [-allow-unfinished-computation] [-show-steps] [-show-trace] [-allow-self-interaction] <filename>"
@@ -38,7 +38,7 @@ let speclist =
 let _ =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
-  let mcs = marked_constellation read lexbuf in
+  let mcs = constellation_file read lexbuf in
   let cs = extract_intspace mcs in
   (if !showsteps
   then output_string stdout "Press any key to move to the next step.\n");
