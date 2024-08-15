@@ -1,11 +1,11 @@
 (lang dune 3.7)
 
-(name lsc)
+(name tsyntax)
 
 (generate_opam_files true)
 
 (source
- (github engboris/large-star-collider))
+ (github engboris/transcendental-syntax))
 
 (authors "Boris Eng")
 
@@ -13,12 +13,12 @@
 
 (license GPL-3.0-only)
 
-(documentation https://github.com/engboris/large-star-collider/blob/main/README.md)
+(documentation https://github.com/engboris/transcendental-syntax/blob/main/README.md)
 
 (package
- (name lsc)
- (synopsis "Stellar resolution implemented with interactive execution")
- (description "The Large Star Collider (LSC) is an implementation of stellar resolution which interprets and executes objects called constellations, which are the programs of stellar resolution.")
+ (name tsyntax)
+ (synopsis "Technical interpretation of Girard's transcendental syntax")
+ (description "The transcendental syntax provides a low-level language called stellar resolution used to build higher-level abstractions defining types, formulas, proofs and any other logical concepts.")
  (depends base menhir)
  (tags
   ("transcendental syntax" "logic programming" "constraint programming" "resolution logic" "unification" "self-assembly")))

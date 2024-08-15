@@ -1,4 +1,5 @@
 open Base
+open Pretty
 
 type polarity = Pos | Neg | Null
 
@@ -87,21 +88,21 @@ let rec string_of_ray = function
   | Func ((Null, ":"), [r1; r2]) ->
     (string_of_ray r1) ^ ":"  ^ (string_of_ray r2)
   | Func (pf, ts) -> string_of_polsym pf ^
-    Prettyprinter.surround "(" ")" @@
-    Prettyprinter.string_of_list string_of_ray " " ts
+    surround "(" ")" @@
+    string_of_list string_of_ray " " ts
 
 let string_of_subst sub =
   List.fold sub ~init:"" ~f:(fun _ (x, r) ->
     (string_of_var x) ^ "->" ^ (string_of_ray r))
-  |> Prettyprinter.surround "{" "}"
+  |> surround "{" "}"
 
 let string_of_star s =
   if List.is_empty s then "[]"
-  else Prettyprinter.string_of_list string_of_ray " " s
+  else string_of_list string_of_ray " " s
 
 let string_of_constellation cs =
   if List.is_empty cs then "{}"
-  else (Prettyprinter.string_of_list string_of_star ";\n" cs) ^ ";"
+  else (string_of_list string_of_star ";\n" cs) ^ ";"
 
 (* ---------------------------------------
    Interactive execution
@@ -109,6 +110,10 @@ let string_of_constellation cs =
 
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
+
+let unmark = function
+  | Marked s -> s
+  | Unmarked s -> s
 
 let extract_intspace (mcs : marked_constellation) =
   let rec aux (cs, space) = function

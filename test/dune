@@ -7,7 +7,7 @@
    ../examples/mll/cut.stellar
    ../examples/mll/correctness.stellar
  )
- (libraries alcotest base lsclib))
+ (libraries alcotest base lsc))
 (env
   (dev
     (flags (:standard -warn-error -A))))

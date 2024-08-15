@@ -1,0 +1,10 @@
+(library
+ (name stellogen)
+ (libraries base lsc))
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
+(menhir (modules common_tokens lsc_parser sgen_parser)
+        (merge_into sgen_parser)
+        (flags --explain --dump))
+(ocamllex sgen_lexer)

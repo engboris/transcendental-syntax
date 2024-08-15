@@ -1,6 +1,7 @@
 open Base
-open Lsclib.Stellar
-open Lsclib.Parser
+open Lsc.Lsc_ast
+open Lsc.Lsc_parser
+open Lsc.Lsc_lexer
 
 let welcome () =
   Stdlib.print_string "Commands :--------------------------------------\n";
@@ -25,15 +26,11 @@ let rec delete cs =
     Stdlib.print_string "This is not a positive integer. Please retry.\n";
     delete cs
 
-let unmark = function
-  | Marked s -> s
-  | Unmarked s -> s
-
 let rec add cs =
   let input = prompt "Add stars" in
   try
     let lexbuf = Lexing.from_string input in
-    let mcs = marked_constellation Lsclib.Lexer.read lexbuf in
+    let mcs = marked_constellation read lexbuf in
     cs @ (List.map ~f:unmark mcs)
   with _ ->
     Stdlib.print_string "Error. Please retry.\n";
@@ -56,7 +53,7 @@ let rec loop (cs : constellation) =
       let base = List.map ~f:(fun s -> Marked s) cs in
       let lexbuf = Lexing.from_string input in
       try
-        let mcs = marked_constellation Lsclib.Lexer.read lexbuf in
+        let mcs = marked_constellation read lexbuf in
         let cs = extract_intspace (base @ mcs) in
         let result =
           exec ~unfincomp:true
