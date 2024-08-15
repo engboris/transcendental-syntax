@@ -1,4 +1,18 @@
-# Context: stellar resolution
+# Transcendental Syntax
+
+The transcendental syntax is a method of constructing logical abstractions from
+a low-level elementary and "logic-agnostic" language.
+
+This elementary language we use to build abstractions is called
+"stellar resolution" and its elementary objects corresponding to programs are
+called "constellations".
+
+Those constellations are used in a higher-level language called "Stellogen" in
+which notions such as proofs and formulas are defined (this is basically a
+metaprogramming language for constellations). By the proof-as-program
+correspondence, this can be extended to programs and types.
+
+## Stellar resolution
 
 The stellar resolution (RS) is a model of computation introduced by Jean-Yves
 Girard [1] in his transcendental syntax project as a basis for the study of the
@@ -20,14 +34,13 @@ tiles used in DNA computing;
 Stellar resolution is very elementary and an interpreter for it can be written
 in a very concise way since it mostly relies on a unification algorithm.
 
-# Large Star Collider
+## Learn
 
-The Large Star Collider (LSC) is an implementation of stellar resolution that
-interprets and executes objects called *constellations*, which are the programs
-of stellar resolution.
+This project is still in development, hence the syntax and features are still
+changing.
 
 Go to https://tsguide.refl.fr/ (guide currently in French only) to learn more
-about how to write programs.
+about how to play with the current implementation of transcendental syntax.
 
 # Use
 
@@ -57,7 +70,11 @@ Executables are in `_build/default/bin/`.
 
 ## Commands
 
-### Constellation collider
+The project provides three programs.
+
+### Large Star Collider (LSC)
+
+This program is an interpreter for stellar resolution.
 
 Assume the executable is named `lsc.exe`. Execute the program with:
 
@@ -89,11 +106,26 @@ dune exec ilsc
 
 The instructions are provided in the program.
 
+### Stellogen interpreter
+
+Assume the executable is named `sgen.exe`. Interpreter Stellogen programs with:
+
+```
+./sgen.exe
+```
+
+or if you use Dune:
+
+```
+dune exec sgen -- <inputfile>
+```
+
 # Examples
 
 Some example files with the `.stellar` extension in `/examples` are ready to be
-executed. In Eng's thesis, ways to work with other models of computation are described
-(Turing machines, pushdown automata, transducers, alternating automata etc).
+executed. In Eng's thesis, ways to work with other models of computation are
+described (Turing machines, pushdown automata, transducers, alternating
+automata etc).
 
 # References
 
