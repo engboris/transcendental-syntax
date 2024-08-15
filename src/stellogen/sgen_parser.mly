@@ -3,11 +3,12 @@ open Sgen_ast
 %}
 
 %token LBRACE RBRACE
-%token <string> ID
-%token <string >STRING
+%token <string> STRING
 %token PRINT
-%token INT
+%token EXEC
 %token DEF END
+
+%right PLUS
 
 %start <Sgen_ast.program> program
 
@@ -15,25 +16,29 @@ open Sgen_ast
 
 program:
 | EOF { [] }
-| ds=nonempty_list(declaration); EOF { ds }
+| ds=declaration+; EOF { ds }
 
 declaration:
-| DEF; x=ID; e=stellar_expr; END { Def (x, e) }
-| DEF; x=ID; cs=marked_constellation; END { Def (x, Raw cs) }
+| DEF; x=SYM; e=stellar_expr; END? { Def (x, e) }
+| DEF; x=SYM; cs=marked_constellation; END { Def (x, Raw cs) }
 | c=command { Command c }
 
 command:
-| PRINT; e=stellar_expr { PrintStellar e }
+| PRINT; e=stellar_expr; END? { PrintStellar e }
 | PRINT; cs=marked_constellation; END { PrintStellar (Raw cs) }
-| PRINT; s=STRING { PrintMessage s }
+| PRINT; s=STRING; END? { PrintMessage s }
 
 stellar_expr:
+| LPAR; e=stellar_expr; RPAR
+  { e }
 | LBRACE; RBRACE
   { Raw [] }
 | LBRACE; cs=marked_constellation; RBRACE
   { Raw cs }
-| x=ID
+| x=SYM
   { Id x }
-| INT; e1=stellar_expr; e2=stellar_expr
-  { Int (e1, e2) }
+| EXEC; e=stellar_expr
+  { Exec e }
+| e1=stellar_expr; AT; e2=stellar_expr
+  { Union (e1, e2) }
 

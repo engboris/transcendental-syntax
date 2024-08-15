@@ -1,0 +1,28 @@
+''''
+Syntax of Stellogen programs
+''''
+
+'print text
+print "Welcome"
+
+'definition of constellation
+def x
+	+a; -a b;
+end
+def y x
+
+'union
+def union_x_y
+	x@y
+end
+
+'execution
+def exec_x
+	exec x
+end
+
+'print contellations
+print { a; b; c; }
+print a; b; c; end
+print (x @ x)
+print (exec x)

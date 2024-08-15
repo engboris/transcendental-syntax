@@ -26,7 +26,7 @@ constellation_file:
 | cs = marked_constellation; EOF { cs }
 
 marked_constellation:
-| cs = nonempty_list(star) { cs }
+| cs = star+ { cs }
 
 star:
 | AT; s = star_content; SEMICOLON { Marked s }

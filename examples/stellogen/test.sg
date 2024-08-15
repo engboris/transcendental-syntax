@@ -1,9 +1,0 @@
-''''
-Example of Stellogen program
-''''
-
-print "Welcome"
-print { []; }
-print
-	a; b; c;
-end

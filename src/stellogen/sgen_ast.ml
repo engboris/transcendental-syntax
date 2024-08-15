@@ -6,7 +6,8 @@ type ident = string
 type stellar_expr =
   | Raw of marked_constellation
   | Id of ident
-  | Int of stellar_expr * stellar_expr
+  | Exec of stellar_expr
+  | Union of stellar_expr * stellar_expr
 
 type env = (ident * stellar_expr) list
 
@@ -24,12 +25,19 @@ let rec eval_stellar_expr (env : env)
   : stellar_expr -> marked_constellation = function
   | Raw mcs -> mcs
   | Id x ->
-    List.Assoc.find_exn ~equal:equal_string env x
-    |> eval_stellar_expr env
-  | Int (e, e') ->
+    begin try
+      List.Assoc.find_exn ~equal:equal_string env x
+      |> eval_stellar_expr env
+    with Sexplib0__Sexp.Not_found_s _ ->
+      failwith ("Error: undefined identifier " ^ x ^ ".");
+    end
+  | Union (e, e') ->
     let mcs  = eval_stellar_expr env e  in
     let mcs' = eval_stellar_expr env e' in
-    let cs = extract_intspace (mcs@mcs') in
+    mcs@mcs'
+  | Exec e  ->
+    let mcs = eval_stellar_expr env e in
+    let cs = extract_intspace mcs in
     exec ~unfincomp:false ~withloops:false ~showtrace:false
          ~selfint:false ~showsteps:false cs
     |> List.map ~f:(fun x -> Unmarked x)

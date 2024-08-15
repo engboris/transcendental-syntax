@@ -3,7 +3,6 @@
   exception SyntaxError of string
 }
 
-let func_id  = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']* '\''* '?'?
 let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']* '\''* '?'?
 let space    = [' ' '\t']+
 let newline  = '\r' | '\n' | "\r\n"
@@ -14,7 +13,7 @@ rule read = parse
   | '}'      { RBRACE }
   | "def"    { DEF }
   | "end"    { END }
-  | "int"    { INT }
+  | "exec"   { EXEC }
   | "print"  { PRINT }
   | '"'      { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
@@ -30,14 +29,19 @@ rule read = parse
   | '$'      { EMPTY_SYM }
   | ':'      { CONS }
   | ';'      { SEMICOLON }
-  | func_id  { SYM (Lexing.lexeme lexbuf) }
+  | ident    { SYM (Lexing.lexeme lexbuf) }
   (* Common *)
   | '\''     { comment lexbuf }
   | "'''"    { comments lexbuf }
-  | ident    { ID (Lexing.lexeme lexbuf) }
   | space    { read lexbuf }
   | newline  { read lexbuf }
   | eof      { EOF }
+  | _        {
+    raise (SyntaxError
+      ("Unexpected character '" ^
+      (Lexing.lexeme lexbuf) ^
+      "' during lexing"))
+  }
 
 and read_string buf =
   parse
@@ -53,7 +57,10 @@ and read_string buf =
     { Buffer.add_string buf (Lexing.lexeme lexbuf);
       read_string buf lexbuf
     }
-  | _ { raise (SyntaxError ("Illegal string character: " ^ Lexing.lexeme lexbuf)) }
+  | _ {
+    raise (SyntaxError
+      ("Illegal string character: " ^ Lexing.lexeme lexbuf))
+    }
   | eof { raise (SyntaxError ("String is not terminated")) }
 
 and comment = parse
