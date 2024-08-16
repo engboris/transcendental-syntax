@@ -10,6 +10,7 @@ type stellar_expr =
   | Id of ident
   | Exec of stellar_expr
   | Union of stellar_expr * stellar_expr
+  | TestAccess of spec_ident * ident
 
 type test = spec_ident * stellar_expr
 
@@ -31,6 +32,7 @@ let add_obj env x e = List.Assoc.add ~equal:equal_string env.objs x e
 let add_spec env x e = List.Assoc.add ~equal:equal_string env.specs x e
 let get_obj env x = List.Assoc.find_exn ~equal:equal_string env.objs x
 let get_spec env x = List.Assoc.find_exn ~equal:equal_string env.specs x
+let get_test x tests = List.Assoc.find_exn ~equal:equal_string tests x
 
 let rec eval_stellar_expr (env : env)
   : stellar_expr -> marked_constellation = function
@@ -49,6 +51,18 @@ let rec eval_stellar_expr (env : env)
     exec ~unfincomp:false ~withloops:false ~showtrace:false
          ~selfint:false ~showsteps:false cs
     |> unmark_all
+  | TestAccess (spec, test) ->
+    begin try
+      let tests = get_spec env spec in
+      begin try
+        get_test test tests
+        |> eval_stellar_expr env
+      with Sexplib0__Sexp.Not_found_s _ ->
+        failwith ("Error: undefined test " ^ test ^ ".");
+      end
+    with Sexplib0__Sexp.Not_found_s _ ->
+      failwith ("Error: undefined specification identifier " ^ spec ^ ".");
+    end
 
 let eval_decl env : declaration -> env = function
   | Def (x, e) -> { objs=add_obj env x e; specs=env.specs }

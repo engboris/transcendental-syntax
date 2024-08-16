@@ -63,3 +63,6 @@ def orth
 end
 
 test vehicle : mllid with orth
+
+'access to test of some specification
+print mllid[lpar]

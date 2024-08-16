@@ -52,4 +52,6 @@ stellar_expr:
   { Exec e }
 | e1=stellar_expr; AT; e2=stellar_expr
   { Union (e1, e2) }
+| spec=SYM; LBRACK; test=SYM; RBRACK
+  { TestAccess (spec, test) }
 
