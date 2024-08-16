@@ -4,6 +4,7 @@ module type Signature = sig
   type idvar
   type idfunc
   val equal_idvar : idvar -> idvar -> bool
+  val equal_idfunc : idfunc -> idfunc -> bool
   val compatible : idfunc -> idfunc -> bool
 end
 
@@ -16,13 +17,18 @@ module Make (Sig : Signature) = struct
 type term =
   | Var of Sig.idvar
   | Func of (Sig.idfunc * term list)
-  [@@deriving equal, compare]
+
+let rec equal_term t u =
+  match t, u with
+  | Var x, Var y -> Sig.equal_idvar x y
+  | Func (f, ts), Func (g, us) ->
+    Sig.equal_idfunc f g &&
+    List.for_all2_exn ~f:(fun t u -> equal_term t u) ts us
+  | _ -> false
 
 type substitution = (Sig.idvar * term) list
 type equation = term * term
 type problem = equation list
-
-exception Incoherent_use_of_symbol
 
 let rec fold fnode fbase acc = function
   | Var x -> fbase x acc

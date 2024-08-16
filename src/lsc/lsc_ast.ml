@@ -11,6 +11,12 @@ module StellarSig = struct
     | None, None -> equal_string s s'
     | Some j, Some j' -> equal_string s s' && equal_int j j'
     | _ -> false
+
+  let equal_idfunc (p, f) (p', f') =
+    match p, p' with
+    | Pos, Pos | Neg, Neg | Null, Null -> equal_string f f'
+    | _ -> false
+
   let compatible f g =
     match f, g with
     | (Pos, f), (Neg, g)
@@ -36,6 +42,8 @@ let fresh_placeholder () =
 type ray = term
 type star = ray list
 type constellation = star list
+
+let equal_ray = equal_term
 
 let to_var x = Var (x, None)
 let to_func (pf, ts) = Func (pf, ts)
@@ -111,9 +119,18 @@ let string_of_constellation cs =
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
 
-let unmark = function
+let map_mstar ~f : marked_star -> marked_star = function
+  | Marked s -> Marked (List.map ~f:f s)
+  | Unmarked s -> Unmarked (List.map ~f:f s)
+
+let unmark = function s -> Unmarked s
+
+let remove_mark = function
   | Marked s -> s
   | Unmarked s -> s
+
+let unmark_all = List.map ~f:(fun s -> Unmarked s)
+let remove_mark_all = List.map ~f:remove_mark
 
 let extract_intspace (mcs : marked_constellation) =
   let rec aux (cs, space) = function
