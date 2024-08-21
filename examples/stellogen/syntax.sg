@@ -26,3 +26,43 @@ print { a; b; c; }
 print a; b; c; end
 print (x @ x)
 print (exec x)
+
+'specifications
+spec mllid
+	lpar -> {
+		-5(l:X) +1(X);
+		-5(r:X) +2(X);
+		-6(l:X) +3(X);
+		-6(r:X) +4(X);
+		-1(X) -2(X) +c5(X);
+		-3(X); -4(X) +c6(X);
+		-c6(X) c6(X);
+		@-c5(X) c5(X);
+	}
+	rpar -> {
+		-5(l:X) +1(X);
+		-5(r:X) +2(X);
+		-6(l:X) +3(X);
+		-6(r:X) +4(X);
+		-1(X) -2(X) +c5(X);
+		-4(X); -3(X) +c6(X);
+		-c6(X) c6(X);
+		@-c5(X) c5(X);
+	}
+end
+
+'test
+def vehicle
+	+5(l:X) +6(l:X);
+	+5(r:X) +6(r:X);
+end
+
+def orth
+	-test?(c5(X)) ok;
+	-test?(c6(X)) ok;
+end
+
+test vehicle : mllid with orth
+
+'access to test of some specification
+print mllid[lpar]

@@ -4,6 +4,7 @@
 }
 
 let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']* '\''* '?'?
+let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9' '_' '-']* '\''*
 let space    = [' ' '\t']+
 let newline  = '\r' | '\n' | "\r\n"
 
@@ -15,6 +16,10 @@ rule read = parse
   | "end"    { END }
   | "exec"   { EXEC }
   | "print"  { PRINT }
+  | "spec"   { SPEC }
+  | "test"   { TEST }
+  | "with"   { WITH }
+  | "->"     { RARROW }
   | '"'      { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
   | '_'      { PLACEHOLDER }
@@ -29,6 +34,7 @@ rule read = parse
   | '$'      { EMPTY_SYM }
   | ':'      { CONS }
   | ';'      { SEMICOLON }
+  | var_id   { VAR (Lexing.lexeme lexbuf) }
   | ident    { SYM (Lexing.lexeme lexbuf) }
   (* Common *)
   | '\''     { comment lexbuf }
