@@ -40,6 +40,7 @@ symbol:
 | PLUS; f = SYM { (Pos, f) }
 | MINUS; f = SYM { (Neg, f) }
 | f = SYM { (Null, f) }
+| s=STRING { (Null, "\""^s^"\"") }
 
 ray:
 | EMPTY_SYM { to_func ((Null, "$"), []) }

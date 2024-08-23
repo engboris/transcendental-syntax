@@ -3,7 +3,6 @@ open Sgen_ast
 %}
 
 %token LBRACE RBRACE
-%token <string> STRING
 %token PRINT
 %token EXEC
 %token SPEC
