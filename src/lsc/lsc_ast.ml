@@ -23,6 +23,18 @@ module StellarSig = struct
     | (Neg, f), (Pos, g) -> equal_string f g
     | (Null, f), (Null, g) -> equal_string f g
     | _ -> false
+
+  let apply_effect f args =
+    match f, args with
+    | (_, "print"), (Null, s)::_ ->
+        let size = String.length s in
+        if equal_char (String.get s 0) '"' &&
+           equal_char (String.get s (size-1)) '"' then
+          s
+          |> String.lstrip ~drop:(equal_char '"')
+          |> String.rstrip ~drop:(equal_char '"')
+          |> Stdlib.print_string
+    | _ -> ()
 end
 
 module StellarRays = Unification.Make(StellarSig)

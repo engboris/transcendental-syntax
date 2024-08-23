@@ -15,7 +15,7 @@ rule read = parse
   | "def"    { DEF }
   | "end"    { END }
   | "exec"   { EXEC }
-  | "print"  { PRINT }
+  | "show"   { SHOW }
   | "spec"   { SPEC }
   | "test"   { TEST }
   | "with"   { WITH }

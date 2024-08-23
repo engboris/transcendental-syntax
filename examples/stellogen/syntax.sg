@@ -2,9 +2,6 @@
 Syntax of Stellogen programs
 ''''
 
-'print text
-print "Welcome"
-
 'definition of constellation
 def x
 	+a; -a b;
@@ -21,11 +18,11 @@ def exec_x
 	exec x
 end
 
-'print contellations
-print { a; b; c; }
-print a; b; c; end
-print (x @ x)
-print (exec x)
+'show contellations
+show { a; b; c; }
+show a; b; c; end
+show (x @ x)
+show (exec x)
 
 'specifications
 spec mllid
@@ -65,4 +62,4 @@ end
 test vehicle : mllid with orth
 
 'access to test of some specification
-print mllid[lpar]
+show mllid[lpar]

@@ -6,6 +6,7 @@ module type Signature = sig
   val equal_idvar : idvar -> idvar -> bool
   val equal_idfunc : idfunc -> idfunc -> bool
   val compatible : idfunc -> idfunc -> bool
+  val apply_effect : idfunc -> idfunc list -> unit
 end
 
 (* ---------------------------------------
@@ -71,6 +72,14 @@ let lift_pair f p = p |> lift_pairl f |> lift_pairr f
    Unification algorithm
    --------------------------------------- *)
 
+let extract_idfuncs ts =
+  List.fold_left ~f:(fun acc x ->
+    match x with
+    | Var _ -> acc
+    | Func (f, _) -> f::acc
+  ) ~init:[] ts
+  |> List.rev
+
 let rec solve ?(withloops=true) sub : problem -> substitution option = function
   | [] -> Some sub
   (* Clear *)
@@ -81,7 +90,11 @@ let rec solve ?(withloops=true) sub : problem -> substitution option = function
   (* Open *)
   | (Func (f, ts), Func (g, us))::pbs when
     Sig.compatible f g && List.length ts = List.length us ->
-      solve ~withloops sub ((List.zip_exn ts us)@pbs)
+      begin match solve ~withloops sub ((List.zip_exn ts us)@pbs) with
+      | None -> None
+      | Some s ->
+        Sig.apply_effect f (extract_idfuncs @@ List.map ~f:snd s); Some s
+      end
   | _ -> None
 (* Replace *)
 and elim ?(withloops=true) x t pbs sub : substitution option =

@@ -23,8 +23,7 @@ type declaration =
   | Def of ident * stellar_expr
   | Spec of ident * test list
   | Typecheck of ident * spec_ident * pred_ident
-  | PrintStellar of stellar_expr
-  | PrintMessage of string
+  | ShowStellar of stellar_expr
 
 type program = declaration list
 
@@ -92,15 +91,11 @@ let eval_decl env : declaration -> env = function
         "' not of type '" ^ t ^ "'."
       );
     env
-  | PrintStellar e ->
+  | ShowStellar e ->
     eval_stellar_expr env e
     |> List.map ~f:remove_mark
     |> string_of_constellation
     |> Stdlib.print_string;
-    Stdlib.print_newline ();
-    env
-  | PrintMessage m ->
-    Stdlib.print_string m;
     Stdlib.print_newline ();
     env
 
