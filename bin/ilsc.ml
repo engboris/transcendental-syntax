@@ -31,7 +31,7 @@ let rec add cs =
   try
     let lexbuf = Lexing.from_string input in
     let mcs = marked_constellation read lexbuf in
-    cs @ (List.map ~f:unmark mcs)
+    cs @ (List.map ~f:remove_mark mcs)
   with _ ->
     Stdlib.print_string "Error. Please retry.\n";
     add cs
