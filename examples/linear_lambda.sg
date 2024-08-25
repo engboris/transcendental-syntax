@@ -1,0 +1,30 @@
+' ----- id id
+id_func = { +id(l:X) +id(r:X); }
+id_arg = { id'(l:X) +arg(l:r:X); }
+linker = { -id(X) -arg(X); @+arg(r:X) out(X); }
+print (id_func id_arg linker)
+
+' ----- id x
+var_x = { x(X) +arg(l:X); }
+linker = { -id(X) -arg(X); @+arg(r:X) out(X); }
+print (id_func var_x linker)
+
+' ----- typing of (id id)
+adapter = { -id(l:X) +x(X); -id(r:X) +y(X); }
+spec mllid =
+	test1 -> {
+		-x(X) +par-xy(X); -y(X); 'swiching left
+		@-par-xy(X) par-xy(X);
+	}
+	test2 -> {
+		-x(X); -y(X) +par-xy(X); 'swiching right
+		@-par-xy(X) par-xy(X);
+	}
+end
+
+vehicle = id_func adapter
+checker = {
+	-test?(par-xy(X)) ok;
+	-test?(par-xy(X)) ok;
+}
+test vehicle : mllid with checker

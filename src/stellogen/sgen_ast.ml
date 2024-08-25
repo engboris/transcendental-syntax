@@ -49,7 +49,7 @@ let rec eval_stellar_expr (env : env)
   | Exec e  ->
     let mcs = eval_stellar_expr env e in
     let cs = extract_intspace mcs in
-    exec ~unfincomp:false ~withloops:false ~showtrace:false
+    exec ~unfincomp:true ~withloops:false ~showtrace:false
          ~selfint:false ~showsteps:false cs
     |> unmark_all
   | TestAccess (spec, test) ->
@@ -91,8 +91,7 @@ let rec eval_decl env : declaration -> env = function
       (not @@ List.is_empty res)
     ) etests then
       failwith (
-        "TypeError: '" ^ ics ^
-        "' not of type '" ^ t ^ "'."
+        "TypeError: '" ^ ics ^ "' not of type '" ^ t ^ "'."
       );
     env
   | ShowStellar e ->
