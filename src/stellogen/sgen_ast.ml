@@ -91,8 +91,7 @@ let rec eval_decl env : declaration -> env = function
       (not @@ List.is_empty res)
     ) etests then
       failwith (
-        "TypeError: '" ^ ics ^
-        "' not of type '" ^ t ^ "'."
+        "TypeError: '" ^ ics ^ "' not of type '" ^ t ^ "'."
       );
     env
   | ShowStellar e ->
