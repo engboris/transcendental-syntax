@@ -1,9 +1,0 @@
-'identity function
-+id(exp(l:X d)) +id(r:X);
-
-'variable x (argument)
-id'(exp(l:X Y)) +arg(exp(l:r:X Y));
-
-'application
--id(X) -arg(X);
-@+arg(r:X) out(X);

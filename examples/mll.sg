@@ -23,9 +23,9 @@ vehicle = {
 	+5(r:X) +6(r:X);
 }
 
-orth = {
+checker = {
 	-test?(c5(X)) ok;
 	-test?(c6(X)) ok;
 }
 
-test vehicle : mllid with orth
+test vehicle : mllid with checker

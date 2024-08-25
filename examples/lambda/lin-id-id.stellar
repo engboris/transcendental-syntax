@@ -1,9 +1,0 @@
-'linear identity function
-+id(l:X) +id(r:X);
-
-'linear identity function (argument)
-id'(l:X) +arg(l:r:X);
-
-'application
--id(X) -arg(X);
-@+arg(r:X) out(X);

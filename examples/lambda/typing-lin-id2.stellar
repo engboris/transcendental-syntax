@@ -1,7 +1,0 @@
-'linear identity function
-+id(l:X) +id(r:X);
-
-'test 2
--id(l:X) +x(X); -id(r:X) +y(X); 'adapter
--x(X); -y(X) +par-xy(X); 'swiching right
-@-par-xy(X) par-xy(X);
