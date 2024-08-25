@@ -3,63 +3,29 @@ Syntax of Stellogen programs
 ''''
 
 'definition of constellation
-def x
-	+a; -a b;
-end
-def y x
+x = { +a; -a b; }
+y = x
+z = {
+	-f(X);
+}
 
-'union
-def union_x_y
-	x@y
-end
-
-'execution
-def exec_x
-	exec x
-end
-
-'show contellations
+'show (literal) contellations
 show { a; b; c; }
-show a; b; c; end
-show (x @ x)
-show (exec x)
+
+'print result of execution
+print { a; b; c; }
 
 'specifications
-spec mllid
-	lpar -> {
-		-5(l:X) +1(X);
-		-5(r:X) +2(X);
-		-6(l:X) +3(X);
-		-6(r:X) +4(X);
-		-1(X) -2(X) +c5(X);
-		-3(X); -4(X) +c6(X);
-		-c6(X) c6(X);
-		@-c5(X) c5(X);
-	}
-	rpar -> {
-		-5(l:X) +1(X);
-		-5(r:X) +2(X);
-		-6(l:X) +3(X);
-		-6(r:X) +4(X);
-		-1(X) -2(X) +c5(X);
-		-4(X); -3(X) +c6(X);
-		-c6(X) c6(X);
-		@-c5(X) c5(X);
-	}
+spec sp =
+	test1 -> { +f(a) ok; }
+	test2 -> { +f(b) ok; }
 end
 
-'test
-def vehicle
-	+5(l:X) +6(l:X);
-	+5(r:X) +6(r:X);
-end
-
-def orth
-	-test?(c5(X)) ok;
-	-test?(c6(X)) ok;
-end
-
-test vehicle : mllid with orth
+'testing
+orth = { -test?(ok) ok; }
+test z : sp with orth
+'test x : sp with orth 'causes type error
 
 'access to test of some specification
-show mllid[lpar]
+show sp.test1
+show sp.test2

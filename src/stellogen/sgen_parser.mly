@@ -3,13 +3,13 @@ open Sgen_ast
 %}
 
 %token LBRACE RBRACE
-%token SHOW
-%token EXEC
+%token SHOW PRINT
 %token SPEC
 %token RARROW
 %token TEST
 %token WITH
-%token DEF
+%token EQ
+%token DOT
 %token END
 
 %start <Sgen_ast.program> program
@@ -17,37 +17,37 @@ open Sgen_ast
 %%
 
 program:
-| EOF { [] }
-| ds=declaration+; EOF { ds }
+| EOL*; EOF { [] }
+| EOL*; d=declaration; EOL+; p=program { d::p }
+| EOL*; d=declaration; EOF { [d] }
 
 declaration:
-| DEF; x=SYM; e=stellar_expr; END? { Def (x, e) }
-| DEF; x=SYM; cs=marked_constellation; END { Def (x, Raw cs) }
-| SPEC; x=SYM;
-  tests=test_definition+;
-  END
+| e=stellar_expr
+  { RawComp e }
+| x=SYM; EQ; e=stellar_expr
+  { Def (x, e) }
+| SPEC; x=SYM; EQ; EOL*; tests=test_definition+; END
   { Spec (x, tests) }
 | TEST; x=SYM; CONS; t=SYM; WITH; pred=SYM
   { Typecheck (x, t, pred) }
-| SHOW; e=stellar_expr; END? { ShowStellar e }
-| SHOW; cs=marked_constellation; END { ShowStellar (Raw cs) }
+| SHOW; e=stellar_expr
+  { ShowStellar e }
+| PRINT; e=stellar_expr
+  { PrintStellar e }
 
 test_definition:
-| name=SYM; RARROW; e=stellar_expr { (name, e) }
+| name=SYM; RARROW; e=stellar_expr; EOL+ { (name, e) }
 
 stellar_expr:
 | LPAR; e=stellar_expr; RPAR
   { e }
-| LBRACE; RBRACE
+| LBRACE; EOL*; RBRACE
   { Raw [] }
-| LBRACE; cs=marked_constellation; RBRACE
+| LBRACE; EOL*; cs=marked_constellation; EOL* RBRACE
   { Raw cs }
 | x=SYM
   { Id x }
-| EXEC; e=stellar_expr
-  { Exec e }
-| e1=stellar_expr; AT; e2=stellar_expr
-  { Union (e1, e2) }
-| spec=SYM; LBRACK; test=SYM; RBRACK
+| spec=SYM; DOT; test=SYM
   { TestAccess (spec, test) }
-
+| e1=stellar_expr; e2=stellar_expr
+  { Union (e1, e2) }

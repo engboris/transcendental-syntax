@@ -12,14 +12,14 @@ rule read = parse
   (* Stellogen *)
   | '{'      { LBRACE }
   | '}'      { RBRACE }
-  | "def"    { DEF }
   | "end"    { END }
-  | "exec"   { EXEC }
   | "show"   { SHOW }
+  | "print"  { PRINT }
   | "spec"   { SPEC }
   | "test"   { TEST }
   | "with"   { WITH }
   | "->"     { RARROW }
+  | "."      { DOT }
   | '"'      { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
   | '_'      { PLACEHOLDER }
@@ -31,6 +31,7 @@ rule read = parse
   | '@'      { AT }
   | '+'      { PLUS }
   | '-'      { MINUS }
+  | '='      { EQ }
   | '$'      { EMPTY_SYM }
   | ':'      { CONS }
   | ';'      { SEMICOLON }
@@ -40,7 +41,7 @@ rule read = parse
   | '\''     { comment lexbuf }
   | "'''"    { comments lexbuf }
   | space    { read lexbuf }
-  | newline  { read lexbuf }
+  | newline  { EOL }
   | eof      { EOF }
   | _        {
     raise (SyntaxError
@@ -49,8 +50,7 @@ rule read = parse
       "' during lexing"))
   }
 
-and read_string buf =
-  parse
+and read_string buf = parse
   | '"'       { STRING (Buffer.contents buf) }
   | '\\' '/'  { Buffer.add_char buf '/'; read_string buf lexbuf }
   | '\\' '\\' { Buffer.add_char buf '\\'; read_string buf lexbuf }
