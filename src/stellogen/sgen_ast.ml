@@ -20,10 +20,12 @@ type env = {
 }
 
 type declaration =
+  | RawComp of stellar_expr
   | Def of ident * stellar_expr
   | Spec of ident * test list
   | Typecheck of ident * spec_ident * pred_ident
   | ShowStellar of stellar_expr
+  | PrintStellar of stellar_expr
 
 type program = declaration list
 
@@ -63,7 +65,9 @@ let rec eval_stellar_expr (env : env)
       failwith ("Error: undefined specification identifier " ^ spec ^ ".");
     end
 
-let eval_decl env : declaration -> env = function
+let rec eval_decl env : declaration -> env = function
+  | RawComp e ->
+    let _ = Exec e |> eval_stellar_expr env in env
   | Def (x, e) -> { objs=add_obj env x e; specs=env.specs }
   | Spec (x, es) -> { objs=env.objs; specs=add_spec env x es }
   | Typecheck (ics, t, ipred) ->
@@ -98,6 +102,8 @@ let eval_decl env : declaration -> env = function
     |> Stdlib.print_string;
     Stdlib.print_newline ();
     env
+ | PrintStellar e ->
+    eval_decl env (ShowStellar (Exec e))
 
 let eval_program p =
   let empty_env = { objs=[]; specs=[] } in

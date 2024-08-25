@@ -29,12 +29,12 @@ marked_constellation:
 | cs = star+ { cs }
 
 star:
-| AT; s = star_content; SEMICOLON { Marked s }
-| s = star_content; SEMICOLON { Unmarked s }
+| AT; s = star_content; SEMICOLON; EOL* { Marked s }
+| s = star_content; SEMICOLON; EOL* { Unmarked s }
 
 star_content:
 | LBRACK; RBRACK { [] }
-| rs = separated_nonempty_list(COMMA?, ray) { rs }
+| rs = separated_nonempty_list(pair(COMMA?, EOL*), ray) { rs }
 
 symbol:
 | PLUS; f = SYM { (Pos, f) }
