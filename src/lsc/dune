@@ -6,5 +6,5 @@
     (flags (:standard -warn-error -A))))
 (menhir (modules common_tokens lsc_parser)
         (merge_into lsc_parser)
-        (flags --explain --dump))
+        (flags --dump --explain))
 (ocamllex lsc_lexer)

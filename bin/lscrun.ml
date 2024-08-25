@@ -38,7 +38,7 @@ let speclist =
 let _ =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
-  let mcs = constellation_file read lexbuf in
+  let mcs = marked_constellation read lexbuf in
   let cs = extract_intspace mcs in
   (if !showsteps
   then output_string stdout "Press any key to move to the next step.\n");
