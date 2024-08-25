@@ -28,5 +28,5 @@ orth2 = { -test?(arg) ok; -test?(out) ok; }
 test add1 : nat2nat with orth2
 
 print (add1 n2)
-print (is_empty n0)
-print (is_empty n1)
+print is_empty n0
+print is_empty n1
