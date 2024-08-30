@@ -59,6 +59,13 @@ let apply sub x =
   | Some t -> t
 
 let subst sub = map Fn.id (apply sub)
+let replace_func from_pf to_pf = map
+  (fun pf -> if Sig.equal_idfunc pf from_pf then to_pf else pf)
+  (fun x -> Var x)
+let replace_funcs (sub : (Sig.idfunc * Sig.idfunc) list) t =
+  List.fold_left ~f:(fun acc (from_pf, to_pf) ->
+    replace_func from_pf to_pf acc
+  ) ~init:t sub
 
 (* ---------------------------------------
    A few useful functions

@@ -38,7 +38,14 @@ declaration:
 test_definition:
 | name=SYM; RARROW; e=stellar_expr; EOL+ { (name, e) }
 
+assoc:
+| pf1=symbol; RARROW; pf2=symbol { AssocFunc (pf1, pf2) }
+| x=VAR; RARROW; r=ray { AssocVar ((x, None), r) }
+
 stellar_expr:
+| e=stellar_expr;
+  LBRACK; sub=separated_list(COMMA, assoc) RBRACK
+  { Subst (sub, e) }
 | LPAR; e=stellar_expr; RPAR
   { e }
 | LBRACE; EOL*; RBRACE
