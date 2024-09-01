@@ -43,6 +43,8 @@ assoc:
 | x=VAR; RARROW; r=ray { AssocVar ((x, None), r) }
 
 stellar_expr:
+| DOLLAR; e=stellar_expr
+  { Kill e }
 | e=stellar_expr;
   LBRACK; sub=separated_list(COMMA, assoc) RBRACK
   { Subst (sub, e) }

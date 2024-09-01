@@ -8,6 +8,7 @@ type spec_ident = string
 type pred_ident = string
 
 type stellar_expr =
+  | Kill of stellar_expr
   | Raw of marked_constellation
   | Id of ident
   | Exec of stellar_expr
@@ -35,6 +36,13 @@ type declaration =
 
 type program = declaration list
 
+let rec remove_kill = function
+  | Kill e -> e
+  | Exec e -> remove_kill e
+  | Union (e, e') -> Union (remove_kill e, remove_kill e')
+  | Subst (l, e) -> Subst (l, remove_kill e)
+  | x -> x
+
 let add_obj env x e = List.Assoc.add ~equal:equal_string env.objs x e
 let add_spec env x e = List.Assoc.add ~equal:equal_string env.specs x e
 let get_obj env x = List.Assoc.find_exn ~equal:equal_string env.objs x
@@ -44,6 +52,9 @@ let get_test x tests = List.Assoc.find_exn ~equal:equal_string tests x
 let rec eval_stellar_expr (env : env)
   : stellar_expr -> marked_constellation = function
   | Raw mcs -> mcs
+  | Kill e ->
+    eval_stellar_expr env e
+    |> List.filter ~f:(fun ms -> Lsc_ast.all_polarized @@ remove_mark ms)
   | Id x ->
     begin try
       get_obj env x |> eval_stellar_expr env
@@ -118,7 +129,8 @@ let rec eval_decl env : declaration -> env = function
       );
     env
   | ShowStellar e ->
-    eval_stellar_expr env e
+    remove_kill e
+    |> eval_stellar_expr env
     |> List.map ~f:remove_mark
     |> string_of_constellation
     |> Stdlib.print_string;

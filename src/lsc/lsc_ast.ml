@@ -158,8 +158,8 @@ let extract_intspace (mcs : marked_constellation) =
   | h::t, [] -> (t, [h])
   | _ as cfg -> cfg
 
-let concealing =
-  List.filter ~f:(List.for_all ~f:(Fn.compose not is_polarised))
+let all_polarized = List.for_all ~f:(Fn.compose not is_polarised)
+let concealing = List.filter ~f:all_polarized
 
 (* counter used for renaming with unique identifiers *)
 let counter = ref 0
