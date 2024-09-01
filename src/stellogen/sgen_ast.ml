@@ -39,10 +39,13 @@ type program = declaration list
 
 let rec remove_kill = function
   | Kill e -> e
-  | Exec e -> remove_kill e
+  | Raw mcs -> Raw mcs
+  | Id id -> Id id
+  | Exec e -> Exec (remove_kill e)
   | Union (e, e') -> Union (remove_kill e, remove_kill e')
+  | TestAccess (spec, id) -> TestAccess (spec, id)
   | Subst (l, e) -> Subst (l, remove_kill e)
-  | x -> x
+  | Extend (id, e) -> Extend (id, remove_kill e)
 
 let add_obj env x e = List.Assoc.add ~equal:equal_string env.objs x e
 let add_spec env x e = List.Assoc.add ~equal:equal_string env.specs x e
@@ -55,7 +58,7 @@ let rec eval_stellar_expr (env : env)
   | Raw mcs -> mcs
   | Kill e ->
     eval_stellar_expr env e
-    |> List.filter ~f:(fun ms -> Lsc_ast.all_polarized @@ remove_mark ms)
+    |> List.filter ~f:Lsc_ast.unpolarized_mstar
   | Id x ->
     begin try
       get_obj env x |> eval_stellar_expr env
@@ -103,7 +106,7 @@ let rec eval_stellar_expr (env : env)
     eval_stellar_expr env e
     |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [r]))
 
-let rec eval_decl env : declaration -> env = function
+let eval_decl env : declaration -> env = function
   | RawComp e ->
     let _ = Exec e |> eval_stellar_expr env in env
   | Def (x, e) -> { objs=add_obj env x e; specs=env.specs }
@@ -133,15 +136,19 @@ let rec eval_decl env : declaration -> env = function
       );
     env
   | ShowStellar e ->
-    remove_kill e
-    |> eval_stellar_expr env
+    eval_stellar_expr env (remove_kill e)
     |> List.map ~f:remove_mark
     |> string_of_constellation
     |> Stdlib.print_string;
     Stdlib.print_newline ();
     env
  | PrintStellar e ->
-    eval_decl env (ShowStellar (Exec e))
+    eval_stellar_expr env (Exec e)
+    |> List.map ~f:remove_mark
+    |> string_of_constellation
+    |> Stdlib.print_string;
+    Stdlib.print_newline ();
+    env
 
 let eval_program p =
   let empty_env = { objs=[]; specs=[] } in
