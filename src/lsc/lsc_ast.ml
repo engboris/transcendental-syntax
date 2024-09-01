@@ -277,7 +277,6 @@ let display_steps content =
   let _ = In_channel.input_line In_channel.stdin in ()
 
 let exec
-  ?(unfincomp=false)
   ?(withloops=true)
   ?(showtrace=false)
   ?(selfint=false)
@@ -291,7 +290,6 @@ let exec
     (if Option.is_none result then space
     else aux (cs, Option.value_exn result))
   in aux (cs, space)
-    |> (if unfincomp then Fn.id else concealing)
     |> if showtrace || showsteps then
       (fun x ->
         (if showtrace then output_string stdout "\n");

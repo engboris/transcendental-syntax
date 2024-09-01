@@ -22,7 +22,6 @@ rule read = parse
   | '@'      { AT }
   | '+'      { PLUS }
   | '-'      { MINUS }
-  | '$'      { DOLLAR }
   | ':'      { CONS }
   | ';'      { SEMICOLON }
   | '"'      { read_string (Buffer.create 255) lexbuf }

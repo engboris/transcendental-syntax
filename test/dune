@@ -5,7 +5,6 @@
    ../examples/automata/nfsa_ending00.stellar
    ../examples/logicprogramming/prolog.stellar
    ../examples/mll/cut.stellar
-   ../examples/mll/correctness.stellar
  )
  (libraries alcotest base lsc))
 (env

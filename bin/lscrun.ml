@@ -43,11 +43,13 @@ let _ =
   (if !showsteps
   then output_string stdout "Press any key to move to the next step.\n");
   let result =
-    exec ~unfincomp:!unfincomp
-         ~withloops:!withloops
+    exec ~withloops:!withloops
          ~showtrace:!showtrace
          ~selfint:!selfint
          ~showsteps:!showsteps cs in
   if not !showsteps && not !showtrace then
-    Stdlib.print_endline (string_of_constellation result)
+    result
+    |> (if !unfincomp then concealing else Fn.id)
+    |> string_of_constellation
+    |> Stdlib.print_endline
   else output_string stdout "No interaction left.\n"

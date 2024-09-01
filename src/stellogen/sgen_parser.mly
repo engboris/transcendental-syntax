@@ -10,6 +10,7 @@ open Sgen_ast
 %token WITH
 %token EQ
 %token DOT
+%token DOLLAR
 %token END
 
 %start <Sgen_ast.program> program

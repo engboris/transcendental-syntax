@@ -70,7 +70,7 @@ let rec eval_stellar_expr (env : env)
   | Exec e  ->
     let mcs = eval_stellar_expr env e in
     let cs = extract_intspace mcs in
-    exec ~unfincomp:true ~withloops:false ~showtrace:false
+    exec ~withloops:false ~showtrace:false
          ~selfint:false ~showsteps:false cs
     |> unmark_all
   | TestAccess (spec, test) ->

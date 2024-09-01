@@ -12,7 +12,6 @@ open Lsc_ast
 %token AT
 %token SEMICOLON
 %token PLACEHOLDER
-%token DOLLAR
 
 %right CONS
 
