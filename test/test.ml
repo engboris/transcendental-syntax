@@ -6,7 +6,7 @@ open Lsc.Lsc_lexer
 
 let test filename expected () =
   let lexbuf = Lexing.from_channel (Stdlib.open_in filename) in
-  let mcs = marked_constellation read lexbuf in
+  let mcs = constellation_file read lexbuf in
   let cs = extract_intspace mcs in
   let result =
     exec ~withloops:false

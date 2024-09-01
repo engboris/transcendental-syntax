@@ -15,13 +15,17 @@ open Lsc_ast
 
 %right CONS
 
+%start <marked_constellation> constellation_file
 %start <marked_constellation> marked_constellation
 
 %%
 
-marked_constellation:
+constellation_file:
 | EOF { [] }
-| cs = star+; EOF { cs }
+| cs = marked_constellation; EOF { cs }
+
+marked_constellation:
+| cs = star+ { cs }
 
 star:
 | AT; s = star_content; SEMICOLON; EOL* { Marked s }
@@ -44,12 +48,11 @@ star_content:
 
 func_expr:
 | e = cons_expr { e }
-| pf = symbol; LPAR; ts=separated_nonempty_list(COMMA?, ray); RPAR
+| pf = symbol; LPAR; ts = separated_nonempty_list(COMMA?, ray); RPAR
 	{ to_func (pf, ts) }
 | pf = symbol { to_func (pf, []) }
 
 cons_expr:
 | r1 = ray; CONS; r2 = ray { to_func ((Null, ":"), [r1; r2]) }
-(* FIXME: causes shift/reduce conflict
 | LPAR; e = cons_expr; RPAR; CONS; r = ray
-	{ to_func ((Null, ":"), [e; r]) } *)
+	{ to_func ((Null, ":"), [e; r]) }

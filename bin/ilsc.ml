@@ -30,7 +30,7 @@ let rec add cs =
   let input = prompt "Add stars" in
   try
     let lexbuf = Lexing.from_string input in
-    let mcs = marked_constellation read lexbuf in
+    let mcs = constellation_file read lexbuf in
     cs @ (List.map ~f:remove_mark mcs)
   with _ ->
     Stdlib.print_string "Error. Please retry.\n";
@@ -53,7 +53,7 @@ let rec loop (cs : constellation) =
       let base = List.map ~f:(fun s -> Marked s) cs in
       let lexbuf = Lexing.from_string input in
       try
-        let mcs = marked_constellation read lexbuf in
+        let mcs = constellation_file read lexbuf in
         let cs = extract_intspace (base @ mcs) in
         let result =
           exec ~withloops:false
