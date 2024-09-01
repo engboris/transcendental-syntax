@@ -12,7 +12,7 @@ open Lsc_ast
 %token AT
 %token SEMICOLON
 %token PLACEHOLDER
-%token EMPTY_SYM
+%token DOLLAR
 
 %right CONS
 
@@ -39,7 +39,6 @@ star_content:
 | s=STRING { (Null, "\""^s^"\"") }
 
 %public ray:
-| EMPTY_SYM { to_func ((Null, "$"), []) }
 | PLACEHOLDER { to_var ("_"^(fresh_placeholder ())) }
 | x = VAR { to_var x }
 | e = func_expr { e }

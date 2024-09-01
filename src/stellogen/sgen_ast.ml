@@ -8,12 +8,14 @@ type spec_ident = string
 type pred_ident = string
 
 type stellar_expr =
+  | Kill of stellar_expr
   | Raw of marked_constellation
   | Id of ident
   | Exec of stellar_expr
   | Union of stellar_expr * stellar_expr
   | TestAccess of spec_ident * ident
   | Subst of assoc list * stellar_expr
+  | Extend of idfunc * stellar_expr
 and assoc =
   | AssocVar of idvar * ray
   | AssocFunc of idfunc * idfunc
@@ -35,6 +37,16 @@ type declaration =
 
 type program = declaration list
 
+let rec remove_kill = function
+  | Kill e -> e
+  | Raw mcs -> Raw mcs
+  | Id id -> Id id
+  | Exec e -> Exec (remove_kill e)
+  | Union (e, e') -> Union (remove_kill e, remove_kill e')
+  | TestAccess (spec, id) -> TestAccess (spec, id)
+  | Subst (l, e) -> Subst (l, remove_kill e)
+  | Extend (id, e) -> Extend (id, remove_kill e)
+
 let add_obj env x e = List.Assoc.add ~equal:equal_string env.objs x e
 let add_spec env x e = List.Assoc.add ~equal:equal_string env.specs x e
 let get_obj env x = List.Assoc.find_exn ~equal:equal_string env.objs x
@@ -44,6 +56,9 @@ let get_test x tests = List.Assoc.find_exn ~equal:equal_string tests x
 let rec eval_stellar_expr (env : env)
   : stellar_expr -> marked_constellation = function
   | Raw mcs -> mcs
+  | Kill e ->
+    eval_stellar_expr env e
+    |> List.filter ~f:Lsc_ast.unpolarized_mstar
   | Id x ->
     begin try
       get_obj env x |> eval_stellar_expr env
@@ -87,8 +102,11 @@ let rec eval_stellar_expr (env : env)
     ) subfunc in
     Lsc_ast.subst_all_vars subvar mcs
     |> Lsc_ast.subst_all_funcs subfunc
+  | Extend (pf, e) ->
+    eval_stellar_expr env e
+    |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [r]))
 
-let rec eval_decl env : declaration -> env = function
+let eval_decl env : declaration -> env = function
   | RawComp e ->
     let _ = Exec e |> eval_stellar_expr env in env
   | Def (x, e) -> { objs=add_obj env x e; specs=env.specs }
@@ -118,14 +136,19 @@ let rec eval_decl env : declaration -> env = function
       );
     env
   | ShowStellar e ->
-    eval_stellar_expr env e
+    eval_stellar_expr env (remove_kill e)
     |> List.map ~f:remove_mark
     |> string_of_constellation
     |> Stdlib.print_string;
     Stdlib.print_newline ();
     env
  | PrintStellar e ->
-    eval_decl env (ShowStellar (Exec e))
+    eval_stellar_expr env (Exec e)
+    |> List.map ~f:remove_mark
+    |> string_of_constellation
+    |> Stdlib.print_string;
+    Stdlib.print_newline ();
+    env
 
 let eval_program p =
   let empty_env = { objs=[]; specs=[] } in

@@ -147,6 +147,10 @@ let remove_mark = function
 let unmark_all = List.map ~f:(fun s -> Unmarked s)
 let remove_mark_all = List.map ~f:remove_mark
 
+let unpolarized_mstar ms =
+  remove_mark ms
+  |> List.for_all ~f:(Fn.compose not is_polarised)
+
 let extract_intspace (mcs : marked_constellation) =
   let rec aux (cs, space) = function
     | [] -> (List.rev cs, List.rev space)
@@ -158,8 +162,8 @@ let extract_intspace (mcs : marked_constellation) =
   | h::t, [] -> (t, [h])
   | _ as cfg -> cfg
 
-let concealing =
-  List.filter ~f:(List.for_all ~f:(Fn.compose not is_polarised))
+let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
+let concealing = List.filter ~f:unpolarized_star
 
 (* counter used for renaming with unique identifiers *)
 let counter = ref 0

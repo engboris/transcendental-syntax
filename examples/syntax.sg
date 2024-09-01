@@ -29,3 +29,9 @@ show sp.test2
 'substitutions
 print { +f(X); }[X -> +a(X)]
 print { +f(X); }[+f -> +g]
+
+'kill unfinished (polarized) stars
+print ${ +f(X); f(X); }
+
+'extend rays with a function symbol
+print +a:{ +f(X); f(X); }
