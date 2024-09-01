@@ -15,6 +15,7 @@ type stellar_expr =
   | Union of stellar_expr * stellar_expr
   | TestAccess of spec_ident * ident
   | Subst of assoc list * stellar_expr
+  | Extend of idfunc * stellar_expr
 and assoc =
   | AssocVar of idvar * ray
   | AssocFunc of idfunc * idfunc
@@ -98,6 +99,9 @@ let rec eval_stellar_expr (env : env)
     ) subfunc in
     Lsc_ast.subst_all_vars subvar mcs
     |> Lsc_ast.subst_all_funcs subfunc
+  | Extend (pf, e) ->
+    eval_stellar_expr env e
+    |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [r]))
 
 let rec eval_decl env : declaration -> env = function
   | RawComp e ->

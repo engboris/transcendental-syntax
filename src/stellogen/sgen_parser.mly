@@ -43,6 +43,8 @@ assoc:
 | x=VAR; RARROW; r=ray { AssocVar ((x, None), r) }
 
 stellar_expr:
+| pf=symbol; CONS; e=stellar_expr
+  { Extend (pf, e) }
 | DOLLAR; e=stellar_expr
   { Kill e }
 | e=stellar_expr;
