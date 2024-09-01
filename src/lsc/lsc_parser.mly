@@ -32,13 +32,13 @@ star_content:
 | LBRACK; RBRACK { [] }
 | rs = separated_nonempty_list(pair(COMMA?, EOL*), ray) { rs }
 
-symbol:
+%public symbol:
 | PLUS; f = SYM { (Pos, f) }
 | MINUS; f = SYM { (Neg, f) }
 | f = SYM { (Null, f) }
 | s=STRING { (Null, "\""^s^"\"") }
 
-ray:
+%public ray:
 | EMPTY_SYM { to_func ((Null, "$"), []) }
 | PLACEHOLDER { to_var ("_"^(fresh_placeholder ())) }
 | x = VAR { to_var x }

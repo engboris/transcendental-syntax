@@ -2,6 +2,8 @@ open Base
 open Lsc_ast
 
 type ident = string
+type idvar = string * int option
+type idfunc = polarity * string
 type spec_ident = string
 type pred_ident = string
 
@@ -11,6 +13,10 @@ type stellar_expr =
   | Exec of stellar_expr
   | Union of stellar_expr * stellar_expr
   | TestAccess of spec_ident * ident
+  | Subst of assoc list * stellar_expr
+and assoc =
+  | AssocVar of idvar * ray
+  | AssocFunc of idfunc * idfunc
 
 type test = spec_ident * stellar_expr
 
@@ -64,6 +70,23 @@ let rec eval_stellar_expr (env : env)
     with Sexplib0__Sexp.Not_found_s _ ->
       failwith ("Error: undefined specification identifier " ^ spec ^ ".");
     end
+  | Subst (sub, e) ->
+    let mcs = eval_stellar_expr env e in
+    let (subvar, subfunc) =
+      List.partition_tf ~f:(function
+        | AssocVar _ -> true
+        | AssocFunc _ -> false
+      ) sub in
+    let subvar = List.map ~f:(function
+      | AssocVar (x, r) -> (x, r)
+      | AssocFunc _ -> failwith "Error: invalid substitution"
+    ) subvar in
+    let subfunc = List.map ~f:(function
+      | AssocFunc (pf, pf') -> (pf, pf')
+      | AssocVar _ -> failwith "Error: invalid substitution"
+    ) subfunc in
+    Lsc_ast.subst_all_vars subvar mcs
+    |> Lsc_ast.subst_all_funcs subfunc
 
 let rec eval_decl env : declaration -> env = function
   | RawComp e ->

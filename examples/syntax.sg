@@ -25,3 +25,7 @@ test z : sp with checker
 'access to test of some specification
 show sp.test1
 show sp.test2
+
+'substitutions
+print { +f(X); }[X -> +a(X)]
+print { +f(X); }[+f -> +g]

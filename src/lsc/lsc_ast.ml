@@ -135,6 +135,9 @@ let map_mstar ~f : marked_star -> marked_star = function
   | Marked s -> Marked (List.map ~f:f s)
   | Unmarked s -> Unmarked (List.map ~f:f s)
 
+let subst_all_vars sub = List.map ~f:(map_mstar ~f:(subst sub))
+let subst_all_funcs sub = List.map ~f:(map_mstar ~f:(replace_funcs sub))
+
 let unmark = function s -> Unmarked s
 
 let remove_mark = function
