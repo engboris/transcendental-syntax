@@ -32,7 +32,7 @@ rule read = parse
   | '+'      { PLUS }
   | '-'      { MINUS }
   | '='      { EQ }
-  | '$'      { EMPTY_SYM }
+  | '$'      { DOLLAR }
   | ':'      { CONS }
   | ';'      { SEMICOLON }
   | var_id   { VAR (Lexing.lexeme lexbuf) }
