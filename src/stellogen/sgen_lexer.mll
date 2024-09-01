@@ -70,7 +70,8 @@ and read_string buf = parse
   | eof { raise (SyntaxError ("String is not terminated")) }
 
 and comment = parse
-  | (newline|eof)  { read lexbuf }
+  | newline        { EOL }
+  | eof            { EOF }
   | _              { comment lexbuf }
 
 and comments = parse
