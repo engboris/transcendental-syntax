@@ -51,7 +51,7 @@ rule read = parse
   }
 
 and read_string buf = parse
-  | '"'       { STRING (Buffer.contents buf) }
+  | '"'       { SYM ("\""^(Buffer.contents buf)^"\"") }
   | '\\' '/'  { Buffer.add_char buf '/'; read_string buf lexbuf }
   | '\\' '\\' { Buffer.add_char buf '\\'; read_string buf lexbuf }
   | '\\' 'b'  { Buffer.add_char buf '\b'; read_string buf lexbuf }

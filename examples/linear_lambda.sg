@@ -11,7 +11,7 @@ print (id_func var_x linker)
 
 ' ----- typing of (id id)
 adapter = { -id(l:X) +x(X); -id(r:X) +y(X); }
-spec mllid =
+spec "a -o a" =
 	test1 -> {
 		-x(X) +par-xy(X); -y(X); 'swiching left
 		@-par-xy(X) par-xy(X);
@@ -27,4 +27,4 @@ checker = {
 	-test?(par-xy(X)) ok;
 	-test?(par-xy(X)) ok;
 }
-test vehicle : mllid with checker
+test vehicle : "a -o a" with checker

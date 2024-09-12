@@ -2,15 +2,15 @@ spec nat =
 	test1 -> { -nat(0) ok; -nat(s(N)) +nat(N); }
 end
 
-n0 = { +nat(0); }
-n1 = { +nat(s(0)); }
-n2 = { +nat(s(s(0))); }
+0 = { +nat(0); }
+1 = { +nat(s(0)); }
+2 = { +nat(s(s(0))); }
 
 orth = { -test?(ok) ok; }
 
-test n0 : nat with orth
-test n1 : nat with orth
-test n2 : nat with orth
+test 0 : nat with orth
+test 1 : nat with orth
+test 2 : nat with orth
 
 add1 = { -nat(X) +nat(s(X)); }
 
@@ -19,14 +19,14 @@ is_empty = {
 	@-nat(s(_)) res(0);
 }
 
-spec nat2nat =
+spec "nat -> nat" =
 	test1 -> { -nat(X) arg; +nat(X) out; }
 end
 
 orth2 = { -test?(arg) ok; -test?(out) ok; }
 
-test add1 : nat2nat with orth2
+test add1 : "nat -> nat" with orth2
 
-print (add1 n2)
-print is_empty n0
-print is_empty n1
+print (add1 2)
+print is_empty 0
+print is_empty 1

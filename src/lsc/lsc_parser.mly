@@ -39,7 +39,6 @@ star_content:
 | PLUS; f = SYM { (Pos, f) }
 | MINUS; f = SYM { (Neg, f) }
 | f = SYM { (Null, f) }
-| s=STRING { (Null, "\""^s^"\"") }
 
 %public ray:
 | PLACEHOLDER { to_var ("_"^(fresh_placeholder ())) }
