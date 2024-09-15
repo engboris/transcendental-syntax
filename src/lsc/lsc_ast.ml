@@ -168,39 +168,12 @@ let concealing = List.filter ~f:unpolarized_star
 (* counter used for renaming with unique identifiers *)
 let counter = ref 0
 
-let raymatcher ?(withloops=true) r r' : substitution option =
+let raymatcher r r' : substitution option =
   if is_polarised r && is_polarised r' then
-    solution ~withloops [(r, r')]
+    solution [(r, r')]
   else None
 
-let self_interaction ?(withloops=true) ?(showtrace=false) (r, other_rays)
-: star list =
-  let open Out_channel in
-  let rec select_ray accr = function
-    | [] -> []
-    | r'::s' when not (is_polarised r') -> select_ray (r'::accr) s'
-    | r'::s' ->
-      if showtrace then begin
-        output_string stdout "try self ";
-        string_of_ray r' |> output_string stdout;
-        output_string stdout "... "
-      end;
-      begin match raymatcher ~withloops r r' with
-      | None ->
-        if showtrace then output_string stdout "failed.\n";
-        select_ray (r'::accr) s'
-      | Some theta ->
-        if showtrace then begin
-          output_string stdout "success with ";
-          string_of_subst theta |> output_string stdout;
-          output_string stdout ".\n"
-        end;
-        (List.map (accr@s') ~f:(subst theta))
-        :: (select_ray (r'::accr) s')
-      end
-  in select_ray [] other_rays
-
-let search_partners ?(withloops=true) ?(showtrace=false) (r, other_rays) cs
+let search_partners ?(showtrace=false) (r, other_rays) cs
 : star list =
   let open Out_channel in
   let rec select_star accs = function
@@ -219,7 +192,7 @@ let search_partners ?(withloops=true) ?(showtrace=false) (r, other_rays) cs
           let i2 = (!counter)+1 in
           let renamed_r = replace_indices i1 r in
           let renamed_r' = replace_indices i2 r' in
-          match raymatcher ~withloops renamed_r renamed_r' with
+          match raymatcher renamed_r renamed_r' with
           | None ->
               if showtrace then output_string stdout "failed.\n";
             select_ray (r'::accr) s';
@@ -238,7 +211,7 @@ let search_partners ?(withloops=true) ?(showtrace=false) (r, other_rays) cs
   in select_star [] cs
 
 (* selects only one ray for which interaction is possible *)
-let interaction ?(withloops=true) ?(showtrace=false) ?(selfint=false) cs space =
+let interaction ?(showtrace=false) cs space =
   let open Out_channel in
   let rec select_star accs = function
     | [] -> None
@@ -255,12 +228,7 @@ let interaction ?(withloops=true) ?(showtrace=false) ?(selfint=false) cs space =
             output_string stdout "\n";
           end;
           let new_stars =
-            search_partners ~withloops ~showtrace (r, accr@s') (cs@space')
-            |>
-            if selfint then
-              List.append (self_interaction ~withloops ~showtrace (r, accr@s')) 
-            else
-              Fn.id
+            search_partners ~showtrace (r, accr@s') (cs@space')
             in
           if List.is_empty new_stars then select_ray (r::accr) s'
           else Some new_stars
@@ -277,16 +245,14 @@ let display_steps content =
   let _ = In_channel.input_line In_channel.stdin in ()
 
 let exec
-  ?(withloops=true)
   ?(showtrace=false)
-  ?(selfint=false)
   ?(showsteps=false)
   (cs, space) : constellation =
   let open Out_channel in
   let rec aux (cs, space) =
     (if showtrace then output_string stdout "\n_____result_____\n");
     (if showsteps || showtrace then display_steps space);
-    let result = interaction ~withloops ~showtrace ~selfint cs space in
+    let result = interaction ~showtrace cs space in
     (if Option.is_none result then space
     else aux (cs, Option.value_exn result))
   in aux (cs, space)

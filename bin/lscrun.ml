@@ -4,22 +4,16 @@ open Lsc.Lsc_parser
 open Lsc.Lsc_lexer
 open Out_channel
 
-let usage_msg = "exec [-no-trivial-eq] [-allow-unfinished-computation] [-show-steps] [-show-trace] [-allow-self-interaction] <filename>"
-let withloops = ref true
+let usage_msg = "exec [-allow-unfinished-computation] [-show-steps] [-show-trace] <filename>"
 let showsteps = ref false
 let unfincomp = ref false
 let showtrace = ref false
-let selfint = ref false
 let input_file = ref ""
 
 let anon_fun filename = input_file := filename
 
 let speclist =
   [
-    ("-no-trivial-eq",
-     Stdlib.Arg.Clear withloops,
-     "Forbid equations X=X which yield trivial loops (they are allowed by
-      default).");
     ("-allow-unfinished-computation",
      Stdlib.Arg.Set unfincomp,
       "Show stars containing polarities which are left after execution
@@ -29,10 +23,7 @@ let speclist =
      "Interactively show each steps of computation.");
     ("-show-trace",
      Stdlib.Arg.Set showtrace,
-     "Interactively show steps of selection and unification.");
-    ("-allow-self-interaction",
-     Stdlib.Arg.Set selfint,
-     "Allow self-interaction of two rays from a same star.")
+     "Interactively show steps of selection and unification.")
   ]
 
 let _ =
@@ -43,9 +34,7 @@ let _ =
   (if !showsteps
   then output_string stdout "Press any key to move to the next step.\n");
   let result =
-    exec ~withloops:!withloops
-         ~showtrace:!showtrace
-         ~selfint:!selfint
+    exec ~showtrace:!showtrace
          ~showsteps:!showsteps cs in
   if not !showsteps && not !showtrace then
     result

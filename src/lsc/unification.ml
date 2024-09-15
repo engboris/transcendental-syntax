@@ -87,31 +87,31 @@ let extract_idfuncs ts =
   ) ~init:[] ts
   |> List.rev
 
-let rec solve ?(withloops=true) sub : problem -> substitution option = function
+let rec solve sub : problem -> substitution option = function
   | [] -> Some sub
   (* Clear *)
   | (Var x, Var y)::pbs when Sig.equal_idvar x y ->
-  if withloops then solve ~withloops sub pbs else None
+    solve sub pbs
   (* Orient + Replace *)
-  | (Var x, t)::pbs | (t, Var x)::pbs -> elim ~withloops x t pbs sub
+  | (Var x, t)::pbs | (t, Var x)::pbs -> elim x t pbs sub
   (* Open *)
   | (Func (f, ts), Func (g, us))::pbs when
     Sig.compatible f g && List.length ts = List.length us ->
-      begin match solve ~withloops sub ((List.zip_exn ts us)@pbs) with
+      begin match solve sub ((List.zip_exn ts us)@pbs) with
       | None -> None
       | Some s ->
         Sig.apply_effect f (extract_idfuncs @@ List.map ~f:snd s); Some s
       end
   | _ -> None
 (* Replace *)
-and elim ?(withloops=true) x t pbs sub : substitution option =
+and elim x t pbs sub : substitution option =
   if occurs x t then None (* Circularity *)
   else
     let new_prob = List.map ~f:(lift_pair (subst [(x, t)])) pbs in
     let new_sub = (x, t) :: List.map ~f:(lift_pairr (subst [(x, t)])) sub in
-    solve ~withloops new_sub new_prob
+    solve new_sub new_prob
 
-let solution ?(withloops=true) : problem -> substitution option =
-  solve ~withloops []
+let solution : problem -> substitution option =
+  solve []
 
 end

@@ -56,9 +56,7 @@ let rec loop (cs : constellation) =
         let mcs = constellation_file read lexbuf in
         let cs = extract_intspace (base @ mcs) in
         let result =
-          exec ~withloops:false
-               ~showtrace:false
-               ~selfint:false
+          exec ~showtrace:false
                ~showsteps:false cs in
         loop result
       with _ ->

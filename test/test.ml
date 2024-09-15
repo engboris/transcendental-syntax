@@ -9,9 +9,7 @@ let test filename expected () =
   let mcs = constellation_file read lexbuf in
   let cs = extract_intspace mcs in
   let result =
-    exec ~withloops:false
-         ~showtrace:false
-         ~selfint:false
+    exec ~showtrace:false
          ~showsteps:false cs
          |> concealing
          |> string_of_constellation in
