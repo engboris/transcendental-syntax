@@ -30,12 +30,11 @@ let _ =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
   let mcs = marked_constellation read lexbuf in
-  let cs = extract_intspace mcs in
   (if !showsteps
   then output_string stdout "Press any key to move to the next step.\n");
   let result =
     exec ~showtrace:!showtrace
-         ~showsteps:!showsteps cs in
+         ~showsteps:!showsteps mcs in
   if not !showsteps && not !showtrace then
     result
     |> (if !unfincomp then concealing else Fn.id)

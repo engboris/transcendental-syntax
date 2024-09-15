@@ -68,9 +68,8 @@ let rec eval_stellar_expr (env : env)
   | Union (e, e') ->
     (eval_stellar_expr env e) @ (eval_stellar_expr env e')
   | Exec e  ->
-    let mcs = eval_stellar_expr env e in
-    let cs = extract_intspace mcs in
-    exec ~showtrace:false ~showsteps:false cs
+    eval_stellar_expr env e
+    |> exec ~showtrace:false ~showsteps:false
     |> unmark_all
   | TestAccess (spec, test) ->
     begin try

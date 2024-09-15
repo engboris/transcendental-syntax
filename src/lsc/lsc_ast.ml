@@ -125,7 +125,7 @@ let string_of_constellation cs =
   else (string_of_list string_of_star ";\n" cs) ^ ";"
 
 (* ---------------------------------------
-   Interactive execution
+   Operation on marked stars
    --------------------------------------- *)
 
 type marked_star = Marked of star | Unmarked of star
@@ -162,15 +162,17 @@ let extract_intspace (mcs : marked_constellation) =
   | h::t, [] -> (t, [h])
   | _ as cfg -> cfg
 
+(* ---------------------------------------
+   Interactive execution
+   --------------------------------------- *)
+
 let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
 let concealing = List.filter ~f:unpolarized_star
 
-(* counter used for renaming with unique identifiers *)
-let counter = ref 0
+let ident_counter = ref 0
 
 let raymatcher r r' : substitution option =
-  if is_polarised r && is_polarised r' then
-    solution [(r, r')]
+  if is_polarised r && is_polarised r' then solution [(r, r')]
   else None
 
 let search_partners ?(showtrace=false) (r, other_rays) cs
@@ -181,15 +183,15 @@ let search_partners ?(showtrace=false) (r, other_rays) cs
     | s::cs' ->
       let rec select_ray accr = function
         | [] -> []
-        | r'::s' when not (is_polarised r') -> (select_ray (r'::accr) s') 
+        | r'::s' when not (is_polarised r') -> (select_ray (r'::accr) s')
         | r'::s' ->
           if showtrace then begin
             output_string stdout "try ";
             string_of_ray r' |> output_string stdout;
             output_string stdout "... "
           end;
-          let i1 = !counter in
-          let i2 = (!counter)+1 in
+          let i1 = !ident_counter in
+          let i2 = (!ident_counter)+1 in
           let renamed_r = replace_indices i1 r in
           let renamed_r' = replace_indices i2 r' in
           match raymatcher renamed_r renamed_r' with
@@ -202,7 +204,7 @@ let search_partners ?(showtrace=false) (r, other_rays) cs
               string_of_subst theta |> output_string stdout;
               output_string stdout ".\n"
             end;
-            counter := !counter + 2;
+            ident_counter := !ident_counter + 2;
             let s1 = List.map other_rays ~f:(replace_indices i1) in
             let s2 = List.map (accr@s') ~f:(replace_indices i2) in
             List.map (s1@s2) ~f:(subst theta)
@@ -227,9 +229,7 @@ let interaction ?(showtrace=false) cs space =
             (string_of_star s |> output_string stdout);
             output_string stdout "\n";
           end;
-          let new_stars =
-            search_partners ~showtrace (r, accr@s') (cs@space')
-            in
+          let new_stars = search_partners ~showtrace (r, accr@s') (cs@space') in
           if List.is_empty new_stars then select_ray (r::accr) s'
           else Some new_stars
       in let new_stars = select_ray [] s in
@@ -244,10 +244,7 @@ let display_steps content =
   flush stdout;
   let _ = In_channel.input_line In_channel.stdin in ()
 
-let exec
-  ?(showtrace=false)
-  ?(showsteps=false)
-  (cs, space) : constellation =
+let exec ?(showtrace=false) ?(showsteps=false) mcs =
   let open Out_channel in
   let rec aux (cs, space) =
     (if showtrace then output_string stdout "\n_____result_____\n");
@@ -255,7 +252,7 @@ let exec
     let result = interaction ~showtrace cs space in
     (if Option.is_none result then space
     else aux (cs, Option.value_exn result))
-  in aux (cs, space)
+  in aux (extract_intspace mcs)
     |> if showtrace || showsteps then
       (fun x ->
         (if showtrace then output_string stdout "\n");

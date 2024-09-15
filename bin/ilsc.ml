@@ -54,10 +54,9 @@ let rec loop (cs : constellation) =
       let lexbuf = Lexing.from_string input in
       try
         let mcs = constellation_file read lexbuf in
-        let cs = extract_intspace (base @ mcs) in
         let result =
           exec ~showtrace:false
-               ~showsteps:false cs in
+               ~showsteps:false (base @ mcs) in
         loop result
       with _ ->
         Stdlib.print_string "Error. Please retry.\n";
