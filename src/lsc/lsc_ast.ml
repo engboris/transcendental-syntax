@@ -56,6 +56,7 @@ type star = ray list
 type constellation = star list
 
 let equal_ray = equal_term
+let equal_star = List.equal equal_ray
 
 let to_var x = Var (x, None)
 let to_func (pf, ts) = Func (pf, ts)
@@ -82,6 +83,10 @@ let is_polarised r : bool =
 
 let replace_indices (i : int) : ray -> ray =
   map Fn.id (fun (x, _) -> Var (x, Some i))
+
+let raymatcher r r' : substitution option =
+  if is_polarised r && is_polarised r' then solution [(r, r')]
+  else None
 
 (* ---------------------------------------
    Pretty Printer
@@ -151,15 +156,48 @@ let unpolarized_mstar ms =
   remove_mark ms
   |> List.for_all ~f:(Fn.compose not is_polarised)
 
+let ident_counter = ref 0
+
+let connectable (s1 : star) (s2 : star) : bool =
+  let (>>=) = List.Monad_infix.(>>=) in
+  begin
+    s1 >>= fun r1 ->
+    s2 >>= fun r2 ->
+    let renamed_r  = replace_indices !ident_counter r1 in
+    let renamed_r' = replace_indices (!ident_counter+1) r2 in
+    let matching = raymatcher renamed_r renamed_r' in
+    if Option.is_some matching then (ident_counter := !ident_counter+1);
+    [matching]
+  end
+  |> List.exists ~f:Option.is_some
+
+let cc_representatives cs =
+  let rec saturation queue marked remains =
+    match queue with
+    | [] -> (marked, remains)
+    | h::t ->
+      let (marked', remains') = List.partition_tf remains ~f:(connectable h) in
+      saturation (marked'@t) (h::marked) remains'
+  in
+  let rec selection reps marked remains =
+    match remains with
+    | [] -> (marked, reps)
+    | h::t ->
+      let (marked', remains') = List.partition_tf t ~f:(connectable h) in
+      let (marked'', remains'') = saturation marked' marked remains' in
+      selection (h::reps) marked'' remains''
+  in selection [] [] cs
+
 let extract_intspace (mcs : marked_constellation) =
   let rec aux (cs, space) = function
     | [] -> (List.rev cs, List.rev space)
     | (Marked s)::t -> aux (cs, s::space) t
     | (Unmarked s)::t -> aux (s::cs, space) t
   in
-  match aux ([], []) mcs with 
-  | ([], _) as cfg -> cfg
-  | h::t, [] -> (t, [h])
+  match aux ([], []) mcs with
+  (* autonomous interaction *)
+  | cs, [] -> cc_representatives cs
+  (* directed interaction *)
   | _ as cfg -> cfg
 
 (* ---------------------------------------
@@ -169,73 +207,44 @@ let extract_intspace (mcs : marked_constellation) =
 let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
 let concealing = List.filter ~f:unpolarized_star
 
-let ident_counter = ref 0
-
-let raymatcher r r' : substitution option =
-  if is_polarised r && is_polarised r' then solution [(r, r')]
-  else None
-
-let search_partners ?(showtrace=false) (r, other_rays) cs
+let search_partners ?(showtrace=false) (r, other_rays) candidates
 : star list =
-  let open Out_channel in
-  let rec select_star accs = function
+  let rec select_ray queue = function
     | [] -> []
-    | s::cs' ->
-      let rec select_ray accr = function
-        | [] -> []
-        | r'::s' when not (is_polarised r') -> (select_ray (r'::accr) s')
-        | r'::s' ->
-          if showtrace then begin
-            output_string stdout "try ";
-            string_of_ray r' |> output_string stdout;
-            output_string stdout "... "
-          end;
-          let i1 = !ident_counter in
-          let i2 = (!ident_counter)+1 in
-          let renamed_r = replace_indices i1 r in
-          let renamed_r' = replace_indices i2 r' in
-          match raymatcher renamed_r renamed_r' with
-          | None ->
-              if showtrace then output_string stdout "failed.\n";
-            select_ray (r'::accr) s';
-          | Some theta ->
-            if showtrace then begin
-              output_string stdout "success with ";
-              string_of_subst theta |> output_string stdout;
-              output_string stdout ".\n"
-            end;
-            ident_counter := !ident_counter + 2;
-            let s1 = List.map other_rays ~f:(replace_indices i1) in
-            let s2 = List.map (accr@s') ~f:(replace_indices i2) in
-            List.map (s1@s2) ~f:(subst theta)
-            :: (select_ray (r'::accr) s')
-      in (select_ray [] s) @ (select_star (s::accs) cs')
-  in select_star [] cs
+    | r'::s' when not (is_polarised r') -> select_ray (r'::queue) s'
+    | r'::s' ->
+      let i1 = !ident_counter in
+      let i2 = !ident_counter + 1 in
+      let renamed_r = replace_indices i1 r in
+      let renamed_r' = replace_indices i2 r' in
+      match raymatcher renamed_r renamed_r' with
+      | None -> select_ray (r'::queue) s'
+      | Some theta ->
+        ident_counter := !ident_counter + 2;
+        let s1 = List.map other_rays ~f:(replace_indices i1) in
+        let s2 = List.map (queue@s') ~f:(replace_indices i2) in
+        List.map (s1@s2) ~f:(subst theta)
+        :: (select_ray (r'::queue) s')
+  in List.concat_map ~f:(select_ray []) candidates
 
-(* selects only one ray for which interaction is possible *)
 let interaction ?(showtrace=false) cs space =
-  let open Out_channel in
-  let rec select_star accs = function
+  let rec interact_on_rays space' queue = function
+    | [] -> None
+    | r::rs when not (is_polarised r) -> interact_on_rays space' (r::queue) rs
+    | r::rs ->
+      begin match search_partners ~showtrace (r, queue@rs) (cs@space') with
+      | [] -> interact_on_rays space' (r::queue) rs
+      | new_stars -> Some new_stars
+      end
+  in
+  let rec fst_interaction_on_star queue = function
     | [] -> None
     | s::space' ->
-      let rec select_ray accr = function
-        | [] -> None
-        | r::s' when not (is_polarised r) -> select_ray (r::accr) s'
-        | r::s' ->
-          if showtrace then begin
-            output_string stdout ">>>>> focus on ray ";
-            (string_of_ray r |> output_string stdout);
-            output_string stdout " of @";
-            (string_of_star s |> output_string stdout);
-            output_string stdout "\n";
-          end;
-          let new_stars = search_partners ~showtrace (r, accr@s') (cs@space') in
-          if List.is_empty new_stars then select_ray (r::accr) s'
-          else Some new_stars
-      in let new_stars = select_ray [] s in
-      if Option.is_none new_stars then select_star (s::accs) space'
-      else Some (accs@space'@(Option.value_exn new_stars))
-  in select_star [] space
+      begin match interact_on_rays space' [] s with
+      | None -> fst_interaction_on_star (s::queue) space'
+      | Some new_stars -> Some ((List.rev queue)@space'@new_stars)
+      end
+  in fst_interaction_on_star [] space
 
 let display_steps content =
   let open Out_channel in
@@ -249,9 +258,10 @@ let exec ?(showtrace=false) ?(showsteps=false) mcs =
   let rec aux (cs, space) =
     (if showtrace then output_string stdout "\n_____result_____\n");
     (if showsteps || showtrace then display_steps space);
-    let result = interaction ~showtrace cs space in
-    (if Option.is_none result then space
-    else aux (cs, Option.value_exn result))
+    begin match interaction ~showtrace cs space with
+    | None -> space
+    | Some result' -> aux (cs, result')
+    end
   in aux (extract_intspace mcs)
     |> if showtrace || showsteps then
       (fun x ->
