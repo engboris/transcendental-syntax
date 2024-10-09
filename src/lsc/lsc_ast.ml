@@ -209,17 +209,30 @@ let concealing = List.filter ~f:unpolarized_star
 
 let search_partners ?(showtrace=false) (r, other_rays) candidates
 : star list =
+  let open Out_channel in
   let rec select_ray queue = function
     | [] -> []
     | r'::s' when not (is_polarised r') -> select_ray (r'::queue) s'
     | r'::s' ->
+      if showtrace then begin
+        output_string stdout "try ";
+        string_of_ray r' |> output_string stdout;
+        output_string stdout "... "
+      end;
       let i1 = !ident_counter in
       let i2 = !ident_counter + 1 in
       let renamed_r = replace_indices i1 r in
       let renamed_r' = replace_indices i2 r' in
       match raymatcher renamed_r renamed_r' with
-      | None -> select_ray (r'::queue) s'
+      | None ->
+        if showtrace then output_string stdout "failed.\n";
+        select_ray (r'::queue) s'
       | Some theta ->
+        if showtrace then begin
+          output_string stdout "success with ";
+          string_of_subst theta |> output_string stdout;
+          output_string stdout ".\n"
+        end;
         ident_counter := !ident_counter + 2;
         let s1 = List.map other_rays ~f:(replace_indices i1) in
         let s2 = List.map (queue@s') ~f:(replace_indices i2) in
