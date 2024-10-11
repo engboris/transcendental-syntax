@@ -196,9 +196,11 @@ let extract_intspace (mcs : marked_constellation) =
   in
   match aux ([], []) mcs with
   (* autonomous interaction *)
-  | cs, [] -> cc_representatives cs
+  | unmarked, [] -> cc_representatives unmarked
   (* directed interaction *)
-  | _ as cfg -> cfg
+  | unmarked, marked ->
+      let (cs, reps) = cc_representatives unmarked in
+      (cs, reps@marked)
 
 (* ---------------------------------------
    Interactive execution
@@ -207,38 +209,73 @@ let extract_intspace (mcs : marked_constellation) =
 let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
 let concealing = List.filter ~f:unpolarized_star
 
+let pairs_with_rest l =
+  let rec aux acc = function
+    | [] -> []
+    | h::t -> (h, acc@t) :: aux (acc@[h]) t
+  in aux [] l
+
+let fusion repl1 repl2 s1 s2 theta =
+  let new1 = List.map s1 ~f:repl1 in
+  let new2 = List.map s2 ~f:repl2 in
+  List.map (new1@new2) ~f:(subst theta)
+
+(* co-branching : useless ?
+let connexions (r, other_rays) stars =
+  let rec select_ray acc other_rays' repl1 repl2 = function
+    | [] -> acc
+    | r'::remains ->
+      match raymatcher (repl1 r) (repl2 r') with
+      | None -> select_ray acc (r'::other_rays') repl1 repl2 remains
+      | Some theta ->
+        let res = fusion repl1 repl2 other_rays other_rays' theta in
+        ident_counter := !ident_counter + 2;
+        select_ray (res::acc) (r'::other_rays') repl1 repl2 remains
+  in
+  let repl1 = replace_indices !ident_counter in
+  List.concat_map stars ~f:(fun s ->
+    let repl2 = replace_indices (!ident_counter+1) in
+    select_ray [] [] repl1 repl2 s
+  )
+*)
+
 let search_partners ?(showtrace=false) (r, other_rays) candidates
 : star list =
   let open Out_channel in
-  let rec select_ray queue = function
+  let print_string = output_string stdout in
+  let rec select_ray queue other_stars repl1 repl2 = function
     | [] -> []
-    | r'::s' when not (is_polarised r') -> select_ray (r'::queue) s'
+    | r'::s' when not (is_polarised r') ->
+        select_ray (r'::queue) other_stars repl1 repl2 s'
     | r'::s' ->
       if showtrace then begin
-        output_string stdout "try ";
-        string_of_ray r' |> output_string stdout;
-        output_string stdout "... "
+        print_string "try ";
+        string_of_ray r' |> print_string;
+        print_string "... "
       end;
-      let i1 = !ident_counter in
-      let i2 = !ident_counter + 1 in
-      let renamed_r = replace_indices i1 r in
-      let renamed_r' = replace_indices i2 r' in
-      match raymatcher renamed_r renamed_r' with
+      match raymatcher (repl1 r) (repl2 r') with
       | None ->
-        if showtrace then output_string stdout "failed.\n";
-        select_ray (r'::queue) s'
+        if showtrace then print_string "failed.\n";
+        select_ray (r'::queue) other_stars repl1 repl2 s'
       | Some theta ->
         if showtrace then begin
-          output_string stdout "success with ";
-          string_of_subst theta |> output_string stdout;
-          output_string stdout ".\n"
+          print_string "success with ";
+          string_of_subst theta |> print_string;
+          print_string ".\n"
         end;
+        let other_rays' = queue@s' in
+        let res = fusion repl1 repl2 other_rays other_rays' theta
+        :: (* (connexions (r', other_rays') other_stars) @ *)
+           (select_ray (r'::queue) other_stars repl1 repl2 s') in
         ident_counter := !ident_counter + 2;
-        let s1 = List.map other_rays ~f:(replace_indices i1) in
-        let s2 = List.map (queue@s') ~f:(replace_indices i2) in
-        List.map (s1@s2) ~f:(subst theta)
-        :: (select_ray (r'::queue) s')
-  in List.concat_map ~f:(select_ray []) candidates
+        res
+  in
+  let repl1 = replace_indices !ident_counter in
+  pairs_with_rest candidates
+    |> List.concat_map ~f:(fun (s, cs) ->
+      let repl2 = replace_indices (!ident_counter+1) in
+      select_ray [] cs repl1 repl2 s
+    )
 
 let interaction ?(showtrace=false) cs space =
   let rec interact_on_rays space' queue = function
@@ -268,8 +305,9 @@ let display_steps content =
 
 let exec ?(showtrace=false) ?(showsteps=false) mcs =
   let open Out_channel in
+  let print_string = output_string stdout in
   let rec aux (cs, space) =
-    (if showtrace then output_string stdout "\n_____result_____\n");
+    (if showtrace then print_string "\n_____result_____\n");
     (if showsteps || showtrace then display_steps space);
     begin match interaction ~showtrace cs space with
     | None -> space
@@ -278,6 +316,6 @@ let exec ?(showtrace=false) ?(showsteps=false) mcs =
   in aux (extract_intspace mcs)
     |> if showtrace || showsteps then
       (fun x ->
-        (if showtrace then output_string stdout "\n");
-        (output_string stdout "_____result_____\n");
+        (if showtrace then print_string "\n");
+        (print_string "_____result_____\n");
         (display_steps x); x) else Fn.id
