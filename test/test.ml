@@ -19,7 +19,7 @@ let example filename = "../examples/" ^ filename
 let suite =
   [ "Automata", `Quick, test (example "automata/nfsa_ending00.stellar") "accept;"
   ; "Prolog", `Quick, test (example "logicprogramming/prolog.stellar") "s(s(s(s(0))));"
-  ; "MLL (cut-elim)", `Quick, test (example "mll/cut.stellar") "6(X45) 3(X45);"
+  ; "MLL (cut-elim)", `Quick, test (example "mll/cut.stellar") "6(X7) 3(X7);"
   ]
 
 let () =

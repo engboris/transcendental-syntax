@@ -199,6 +199,7 @@ let extract_intspace (mcs : marked_constellation) =
   | unmarked, marked ->
     let (marked', remains) = saturation marked [] unmarked in
     let (cs, reps) = cc_representatives marked' remains in
+    ident_counter := 0;
     (cs, reps@marked)
 
 (* ---------------------------------------
