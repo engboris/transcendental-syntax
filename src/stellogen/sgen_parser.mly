@@ -71,6 +71,8 @@ stellar_expr:
   { Seq (h::t) }
 | CLEAN
   { Clean }
+| AT; e=stellar_expr
+  { Focus e }
 
 stellar_item:
 | DARROW; e=stellar_expr; EOL* { e }

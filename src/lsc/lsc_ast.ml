@@ -145,6 +145,7 @@ let subst_all_funcs sub = List.map ~f:(map_mstar ~f:(replace_funcs sub))
 
 let unmark = function s -> Unmarked s
 let mark = function s -> Marked s
+let focus = List.map ~f:(fun r -> mark r)
 
 let remove_mark = function
   | Marked s -> s

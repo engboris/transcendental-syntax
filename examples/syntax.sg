@@ -37,8 +37,12 @@ print +a:{ +f(X); f(X); }
 print seq
 	{ +n0(0); }
 	>> { -n0(X) +n1(s(X)); }
+	>> { -n1(X) +n2(s(X)); }
 end
 
 'options
 set cleaner
 unset cleaner
+
+'full focus
+@ { +f(X); }

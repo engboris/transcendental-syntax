@@ -17,6 +17,7 @@ type stellar_expr =
   | Extend of idfunc * stellar_expr
   | Seq of stellar_expr list
   | Clean
+  | Focus of stellar_expr
 and assoc =
   | AssocVar of idvar * ray
   | AssocFunc of idfunc * idfunc
@@ -99,7 +100,6 @@ let rec eval_stellar_expr (env : env)
     |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [r]))
   | Seq [] -> failwith "ExprError: empty stellar sequence."
   | Seq (h::t) ->
-    let focus = List.map ~f:(fun r -> mark r) in
     let init = eval_stellar_expr env h
       |> remove_mark_all
       |> focus in
@@ -115,6 +115,7 @@ let rec eval_stellar_expr (env : env)
         eval_stellar_expr env (Exec (Union (x, Raw origin)))
     )
   | Clean -> failwith "'Clean' special cannot occur outside stellar sequences."
+  | Focus e -> eval_stellar_expr env e |> remove_mark_all |> focus
 
 let eval_decl env : declaration -> env = function
   | RawComp e ->
