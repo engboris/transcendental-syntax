@@ -10,40 +10,44 @@ let newline  = '\r' | '\n' | "\r\n"
 
 rule read = parse
   (* Stellogen *)
-  | '{'      { LBRACE }
-  | '}'      { RBRACE }
-  | "end"    { END }
-  | "show"   { SHOW }
-  | "print"  { PRINT }
-  | "spec"   { SPEC }
-  | "test"   { TEST }
-  | "with"   { WITH }
-  | "->"     { RARROW }
-  | "."      { DOT }
-  | '"'      { read_string (Buffer.create 255) lexbuf }
+  | '{'       { LBRACE }
+  | '}'       { RBRACE }
+  | "clean"   { CLEAN }
+  | "end"     { END }
+  | "show"    { SHOW }
+  | "print"   { PRINT }
+  | "set"     { SET }
+  | "seq"     { SEQ }
+  | "spec"    { SPEC }
+  | "test"    { TEST }
+  | "unset"   { UNSET }
+  | "with"    { WITH }
+  | "=>"      { DRARROW }
+  | ">>"      { DARROW }
+  | "."       { DOT }
+  | '"'       { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
-  | '_'      { PLACEHOLDER }
-  | '['      { LBRACK }
-  | ']'      { RBRACK }
-  | '('      { LPAR }
-  | ')'      { RPAR }
-  | ','      { COMMA }
-  | '@'      { AT }
-  | '+'      { PLUS }
-  | '-'      { MINUS }
-  | '='      { EQ }
-  | '$'      { DOLLAR }
-  | ':'      { CONS }
-  | ';'      { SEMICOLON }
-  | var_id   { VAR (Lexing.lexeme lexbuf) }
-  | ident    { SYM (Lexing.lexeme lexbuf) }
+  | '_'       { PLACEHOLDER }
+  | '['       { LBRACK }
+  | ']'       { RBRACK }
+  | '('       { LPAR }
+  | ')'       { RPAR }
+  | ','       { COMMA }
+  | '@'       { AT }
+  | '+'       { PLUS }
+  | '-'       { MINUS }
+  | '='       { EQ }
+  | ':'       { CONS }
+  | ';'       { SEMICOLON }
+  | var_id    { VAR (Lexing.lexeme lexbuf) }
+  | ident     { SYM (Lexing.lexeme lexbuf) }
   (* Common *)
-  | '\''     { comment lexbuf }
-  | "'''"    { comments lexbuf }
-  | space    { read lexbuf }
-  | newline  { EOL }
-  | eof      { EOF }
-  | _        {
+  | '\''      { comment lexbuf }
+  | "'''"     { comments lexbuf }
+  | space     { read lexbuf }
+  | newline   { EOL }
+  | eof       { EOF }
+  | _         {
     raise (SyntaxError
       ("Unexpected character '" ^
       (Lexing.lexeme lexbuf) ^

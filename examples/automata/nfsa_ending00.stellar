@@ -1,9 +1,8 @@
--i(W) +a(W q0); 'initial state
--a(e q2) accept; 'final state
+@+i(0:0:0:e); 'input word
 
+-i(W) +a(W q0); 'initial state
 -a(0:W q0) +a(W q0);
 -a(0:W q0) +a(W q1);
--a(0:W q1) +a(W q2);
 -a(1:W q0) +a(W q0);
-
-@+i(0:0:0:e); 'input word
+-a(0:W q1) +a(W q2);
+-a(e q2) accept; 'final state

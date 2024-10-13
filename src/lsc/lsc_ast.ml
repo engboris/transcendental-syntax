@@ -144,6 +144,7 @@ let subst_all_vars sub = List.map ~f:(map_mstar ~f:(subst sub))
 let subst_all_funcs sub = List.map ~f:(map_mstar ~f:(replace_funcs sub))
 
 let unmark = function s -> Unmarked s
+let mark = function s -> Marked s
 
 let remove_mark = function
   | Marked s -> s
@@ -151,10 +152,6 @@ let remove_mark = function
 
 let unmark_all = List.map ~f:(fun s -> Unmarked s)
 let remove_mark_all = List.map ~f:remove_mark
-
-let unpolarized_mstar ms =
-  remove_mark ms
-  |> List.for_all ~f:(Fn.compose not is_polarised)
 
 let ident_counter = ref 0
 
@@ -171,14 +168,14 @@ let connectable (s1 : star) (s2 : star) : bool =
   end
   |> List.exists ~f:Option.is_some
 
-let cc_representatives cs =
-  let rec saturation queue marked remains =
-    match queue with
-    | [] -> (marked, remains)
-    | h::t ->
-      let (marked', remains') = List.partition_tf remains ~f:(connectable h) in
-      saturation (marked'@t) (h::marked) remains'
-  in
+let rec saturation queue marked remains =
+  match queue with
+  | [] -> (marked, remains)
+  | h::t ->
+    let (marked', remains') = List.partition_tf remains ~f:(connectable h) in
+    saturation (marked'@t) (h::marked) remains'
+
+let cc_representatives from cs =
   let rec selection reps marked remains =
     match remains with
     | [] -> (marked, reps)
@@ -186,21 +183,22 @@ let cc_representatives cs =
       let (marked', remains') = List.partition_tf t ~f:(connectable h) in
       let (marked'', remains'') = saturation marked' marked remains' in
       selection (h::reps) marked'' remains''
-  in selection [] [] cs
+  in selection [] from cs
 
 let extract_intspace (mcs : marked_constellation) =
-  let rec aux (cs, space) = function
+  let rec sort (cs, space) = function
     | [] -> (List.rev cs, List.rev space)
-    | (Marked s)::t -> aux (cs, s::space) t
-    | (Unmarked s)::t -> aux (s::cs, space) t
+    | (Marked s)::t -> sort (cs, s::space) t
+    | (Unmarked s)::t -> sort (s::cs, space) t
   in
-  match aux ([], []) mcs with
+  match sort ([], []) mcs with
   (* autonomous interaction *)
-  | unmarked, [] -> cc_representatives unmarked
+  | unmarked, [] -> cc_representatives [] unmarked
   (* directed interaction *)
   | unmarked, marked ->
-      let (cs, reps) = cc_representatives unmarked in
-      (cs, reps@marked)
+    let (marked', remains) = saturation marked [] unmarked in
+    let (cs, reps) = cc_representatives marked' remains in
+    (cs, reps@marked)
 
 (* ---------------------------------------
    Interactive execution

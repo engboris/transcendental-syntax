@@ -8,7 +8,6 @@ type spec_ident = string
 type pred_ident = string
 
 type stellar_expr =
-  | Kill of stellar_expr
   | Raw of marked_constellation
   | Id of ident
   | Exec of stellar_expr
@@ -16,6 +15,8 @@ type stellar_expr =
   | TestAccess of spec_ident * ident
   | Subst of assoc list * stellar_expr
   | Extend of idfunc * stellar_expr
+  | Seq of stellar_expr list
+  | Clean
 and assoc =
   | AssocVar of idvar * ray
   | AssocFunc of idfunc * idfunc
@@ -34,18 +35,13 @@ type declaration =
   | Typecheck of ident * spec_ident * pred_ident
   | ShowStellar of stellar_expr
   | PrintStellar of stellar_expr
+  | SetOption of ident * bool
 
 type program = declaration list
 
-let rec remove_kill = function
-  | Kill e -> e
-  | Raw mcs -> Raw mcs
-  | Id id -> Id id
-  | Exec e -> Exec (remove_kill e)
-  | Union (e, e') -> Union (remove_kill e, remove_kill e')
-  | TestAccess (spec, id) -> TestAccess (spec, id)
-  | Subst (l, e) -> Subst (l, remove_kill e)
-  | Extend (id, e) -> Extend (id, remove_kill e)
+let showsteps = ref false
+let showtrace = ref false
+let cleaner = ref false
 
 let add_obj env x e = List.Assoc.add ~equal:equal_string env.objs x e
 let add_spec env x e = List.Assoc.add ~equal:equal_string env.specs x e
@@ -56,9 +52,6 @@ let get_test x tests = List.Assoc.find_exn ~equal:equal_string tests x
 let rec eval_stellar_expr (env : env)
   : stellar_expr -> marked_constellation = function
   | Raw mcs -> mcs
-  | Kill e ->
-    eval_stellar_expr env e
-    |> List.filter ~f:Lsc_ast.unpolarized_mstar
   | Id x ->
     begin try
       get_obj env x |> eval_stellar_expr env
@@ -69,7 +62,8 @@ let rec eval_stellar_expr (env : env)
     (eval_stellar_expr env e) @ (eval_stellar_expr env e')
   | Exec e  ->
     eval_stellar_expr env e
-    |> exec ~showtrace:false ~showsteps:false
+    |> exec ~showtrace:!showtrace ~showsteps:!showsteps
+    |> (if !cleaner then concealing else Fn.id)
     |> unmark_all
   | TestAccess (spec, test) ->
     begin try
@@ -103,6 +97,24 @@ let rec eval_stellar_expr (env : env)
   | Extend (pf, e) ->
     eval_stellar_expr env e
     |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [r]))
+  | Seq [] -> failwith "ExprError: empty stellar sequence."
+  | Seq (h::t) ->
+    let focus = List.map ~f:(fun r -> mark r) in
+    let init = eval_stellar_expr env h
+      |> remove_mark_all
+      |> focus in
+    List.fold_left t ~init:init ~f:(fun acc x ->
+      match x with
+      | Clean ->
+        acc
+        |> remove_mark_all
+        |> concealing
+        |> focus
+      | _ ->
+        let origin = acc |> remove_mark_all |> focus in
+        eval_stellar_expr env (Exec (Union (x, Raw origin)))
+    )
+  | Clean -> failwith "'Clean' special cannot occur outside stellar sequences."
 
 let eval_decl env : declaration -> env = function
   | RawComp e ->
@@ -134,7 +146,7 @@ let eval_decl env : declaration -> env = function
       );
     env
   | ShowStellar e ->
-    eval_stellar_expr env (remove_kill e)
+    eval_stellar_expr env e
     |> List.map ~f:remove_mark
     |> string_of_constellation
     |> Stdlib.print_string;
@@ -146,6 +158,14 @@ let eval_decl env : declaration -> env = function
     |> string_of_constellation
     |> Stdlib.print_string;
     Stdlib.print_newline ();
+    env
+  | SetOption (id, b) ->
+    begin
+      if (equal_string id "show-steps") then (showsteps := b)
+      else if (equal_string id "show-trace") then (showtrace := b)
+      else if (equal_string id "cleaner") then (cleaner := b)
+      else failwith ("OptionEror: unrecognized option '" ^ id ^ "'.")
+    end;
     env
 
 let eval_program p =

@@ -13,8 +13,8 @@ print { a; b; c; }
 
 'specifications
 spec sp =
-	test1 -> { +f(a) ok; }
-	test2 -> { +f(b) ok; }
+	test1 => { +f(a) ok; }
+	test2 => { +f(b) ok; }
 end
 
 'testing
@@ -27,11 +27,18 @@ show sp.test1
 show sp.test2
 
 'substitutions
-print { +f(X); }[X -> +a(X)]
-print { +f(X); }[+f -> +g]
-
-'kill unfinished (polarized) stars
-print ${ +f(X); f(X); }
+print { +f(X); }[X=>+a(X)]
+print { +f(X); }[+f=>+g]
 
 'extend rays with a function symbol
 print +a:{ +f(X); f(X); }
+
+'sequences
+print seq
+	{ +n0(0); }
+	>> { -n0(X) +n1(s(X)); }
+end
+
+'options
+set cleaner
+unset cleaner
