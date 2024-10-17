@@ -6,7 +6,6 @@ module type Signature = sig
   val equal_idvar : idvar -> idvar -> bool
   val equal_idfunc : idfunc -> idfunc -> bool
   val compatible : idfunc -> idfunc -> bool
-  val apply_effect : idfunc -> idfunc list -> unit
 end
 
 (* ---------------------------------------
@@ -15,14 +14,26 @@ end
 
 module Make (Sig : Signature) = struct
 
+type fmark = Noisy | Muted
+
 type term =
   | Var of Sig.idvar
-  | Func of (Sig.idfunc * term list)
+  | Func of (fmark * Sig.idfunc) * term list
+
+let equal_mark m m' =
+  match m, m' with
+  | Noisy, Noisy
+  | Muted, Muted -> true
+  | _ -> false
+
+let equal_func (m, f) (m', f') =
+  equal_mark m m' && Sig.equal_idfunc f f'
 
 let rec equal_term t u =
   match t, u with
   | Var x, Var y -> Sig.equal_idvar x y
-  | Func (f, ts), Func (g, us) ->
+  | Func ((Muted, f), ts), Func ((Muted, g), us)
+  | Func ((Noisy, f), ts), Func ((Noisy, g), us) ->
     Sig.equal_idfunc f g &&
     List.for_all2_exn ~f:(fun t u -> equal_term t u) ts us
   | _ -> false
@@ -60,12 +71,12 @@ let apply sub x =
 
 let subst sub = map Fn.id (apply sub)
 let replace_func from_pf to_pf = map
-  (fun pf -> if Sig.equal_idfunc pf from_pf then to_pf else pf)
+  (fun pf -> if equal_func pf from_pf then to_pf else pf)
   (fun x -> Var x)
-let replace_funcs (sub : (Sig.idfunc * Sig.idfunc) list) t =
+let replace_funcs fsub t =
   List.fold_left ~f:(fun acc (from_pf, to_pf) ->
     replace_func from_pf to_pf acc
-  ) ~init:t sub
+  ) ~init:t fsub
 
 (* ---------------------------------------
    A few useful functions
@@ -87,6 +98,13 @@ let extract_idfuncs ts =
   ) ~init:[] ts
   |> List.rev
 
+let signals = ref []
+
+(* FIXME: does work as expected *)
+let emit_signals sub =
+  let new_signals = List.map ~f:(fun (_, t) -> t) sub in
+  signals := new_signals @ !signals
+
 let rec solve sub : problem -> substitution option = function
   | [] -> Some sub
   (* Clear *)
@@ -95,12 +113,17 @@ let rec solve sub : problem -> substitution option = function
   (* Orient + Replace *)
   | (Var x, t)::pbs | (t, Var x)::pbs -> elim x t pbs sub
   (* Open *)
-  | (Func (f, ts), Func (g, us))::pbs when
-    Sig.compatible f g && List.length ts = List.length us ->
+  | (Func ((m, f), ts), Func ((m', g), us))::pbs when
+    equal_mark m m' &&
+    Sig.compatible f g &&
+    List.length ts = List.length us ->
       begin match solve sub ((List.zip_exn ts us)@pbs) with
       | None -> None
       | Some s ->
-        Sig.apply_effect f (extract_idfuncs @@ List.map ~f:snd s); Some s
+        begin match m with
+        | Noisy -> (emit_signals s; Some s)
+        | _ -> Some s
+        end
       end
   | _ -> None
 (* Replace *)

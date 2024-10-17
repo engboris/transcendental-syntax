@@ -31,8 +31,6 @@ declaration:
   { Def (x, e) }
 | SPEC; x=SYM; EQ; EOL*; tests=test_definition+; END
   { Spec (x, tests) }
-| TEST; x=SYM; CONS; t=SYM; WITH; pred=SYM
-  { Typecheck (x, t, pred) }
 | SHOW; e=stellar_expr
   { ShowStellar e }
 | PRINT; e=stellar_expr
@@ -52,9 +50,6 @@ assoc:
 stellar_expr:
 | pf=symbol; CONS; e=stellar_expr
   { Extend (pf, e) }
-| e=stellar_expr;
-  LBRACK; sub=separated_list(COMMA, assoc) RBRACK
-  { Subst (sub, e) }
 | LPAR; e=stellar_expr; RPAR
   { e }
 | LBRACE; EOL*; RBRACE

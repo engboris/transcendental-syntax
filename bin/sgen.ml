@@ -10,8 +10,8 @@ let anon_fun filename = input_file := filename
 
 let speclist = []
 
-let _ =
+let () =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
   let p = program read lexbuf in
-  eval_program p
+  let _ = eval_program p in ()

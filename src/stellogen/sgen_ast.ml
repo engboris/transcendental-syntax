@@ -5,7 +5,6 @@ type ident = string
 type idvar = string * int option
 type idfunc = polarity * string
 type spec_ident = string
-type pred_ident = string
 
 type stellar_expr =
   | Raw of marked_constellation
@@ -13,8 +12,7 @@ type stellar_expr =
   | Exec of stellar_expr
   | Union of stellar_expr * stellar_expr
   | TestAccess of spec_ident * ident
-  | Subst of assoc list * stellar_expr
-  | Extend of idfunc * stellar_expr
+  | Extend of (StellarRays.fmark * idfunc) * stellar_expr
   | Seq of stellar_expr list
   | Clean
   | Focus of stellar_expr
@@ -23,6 +21,11 @@ and assoc =
   | AssocFunc of idfunc * idfunc
 
 type test = spec_ident * stellar_expr
+
+type universe = (string, galaxy) Hashtbl.t
+and galaxy =
+  | Val of stellar_expr
+  | Gal of (string, galaxy) Hashtbl.t
 
 type env = {
   objs: (ident * stellar_expr) list;
@@ -33,7 +36,6 @@ type declaration =
   | RawComp of stellar_expr
   | Def of ident * stellar_expr
   | Spec of ident * test list
-  | Typecheck of ident * spec_ident * pred_ident
   | ShowStellar of stellar_expr
   | PrintStellar of stellar_expr
   | SetOption of ident * bool
@@ -78,23 +80,6 @@ let rec eval_stellar_expr (env : env)
     with Sexplib0__Sexp.Not_found_s _ ->
       failwith ("Error: undefined specification identifier " ^ spec ^ ".");
     end
-  | Subst (sub, e) ->
-    let mcs = eval_stellar_expr env e in
-    let (subvar, subfunc) =
-      List.partition_tf ~f:(function
-        | AssocVar _ -> true
-        | AssocFunc _ -> false
-      ) sub in
-    let subvar = List.map ~f:(function
-      | AssocVar (x, r) -> (x, r)
-      | AssocFunc _ -> failwith "Error: invalid substitution"
-    ) subvar in
-    let subfunc = List.map ~f:(function
-      | AssocFunc (pf, pf') -> (pf, pf')
-      | AssocVar _ -> failwith "Error: invalid substitution"
-    ) subfunc in
-    Lsc_ast.subst_all_vars subvar mcs
-    |> Lsc_ast.subst_all_funcs subfunc
   | Extend (pf, e) ->
     eval_stellar_expr env e
     |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [r]))
@@ -122,30 +107,6 @@ let eval_decl env : declaration -> env = function
     let _ = Exec e |> eval_stellar_expr env in env
   | Def (x, e) -> { objs=add_obj env x e; specs=env.specs }
   | Spec (x, es) -> { objs=env.objs; specs=add_spec env x es }
-  | Typecheck (ics, t, ipred) ->
-    let mcs = get_obj env ics |> eval_stellar_expr env in
-    let pred = get_obj env ipred |> eval_stellar_expr env in
-    let etests = get_spec env t in
-    let prepare : marked_constellation -> marked_constellation =
-      List.map ~f:(fun ms -> map_mstar ~f:(fun r -> pfunc "test?" [r]) ms) in
-    let interaction x y =
-      Exec (Union (Raw x, Raw y)) |> eval_stellar_expr env in
-    let test_with x t' =
-      let res = interaction x t' in
-      let prepared = prepare res in
-      interaction prepared pred
-    in
-    let all_rays_ok rays = List.for_all ~f:(equal_ray (const "ok")) rays in
-    if not @@ List.for_all ~f:(fun (_, et') ->
-      let t' = eval_stellar_expr env et' in
-      let res : marked_constellation = test_with mcs t' in
-      all_rays_ok (List.concat @@ (remove_mark_all res)) &&
-      (not @@ List.is_empty res)
-    ) etests then
-      failwith (
-        "TypeError: '" ^ ics ^ "' not of type '" ^ t ^ "'."
-      );
-    env
   | ShowStellar e ->
     eval_stellar_expr env e
     |> List.map ~f:remove_mark

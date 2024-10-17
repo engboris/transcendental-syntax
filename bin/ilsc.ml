@@ -63,6 +63,6 @@ let rec loop (cs : constellation) =
         loop cs
     end
 
-let _ =
+let () =
   welcome ();
   loop [];

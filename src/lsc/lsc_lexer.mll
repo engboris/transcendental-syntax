@@ -20,6 +20,7 @@ rule read = parse
   | ')'      { RPAR }
   | ','      { COMMA }
   | '@'      { AT }
+  | '#'      { SHARP }
   | '+'      { PLUS }
   | '-'      { MINUS }
   | ':'      { CONS }

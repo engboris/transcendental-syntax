@@ -19,9 +19,7 @@ rule read = parse
   | "set"     { SET }
   | "seq"     { SEQ }
   | "spec"    { SPEC }
-  | "test"    { TEST }
   | "unset"   { UNSET }
-  | "with"    { WITH }
   | "=>"      { DRARROW }
   | ">>"      { DARROW }
   | "."       { DOT }

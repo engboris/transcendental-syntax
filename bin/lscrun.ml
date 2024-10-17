@@ -26,7 +26,7 @@ let speclist =
      "Interactively show steps of selection and unification.")
   ]
 
-let _ =
+let () =
   Stdlib.Arg.parse speclist anon_fun usage_msg;
   let lexbuf = Lexing.from_channel (Stdlib.open_in !input_file) in
   let mcs = constellation_file read lexbuf in

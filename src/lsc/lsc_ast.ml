@@ -23,18 +23,6 @@ module StellarSig = struct
     | (Neg, f), (Pos, g) -> equal_string f g
     | (Null, f), (Null, g) -> equal_string f g
     | _ -> false
-
-  let apply_effect f args =
-    match f, args with
-    | (_, "print"), (Null, s)::_ ->
-        let size = String.length s in
-        if equal_char (String.get s 0) '"' &&
-           equal_char (String.get s (size-1)) '"' then
-          s
-          |> String.lstrip ~drop:(equal_char '"')
-          |> String.rstrip ~drop:(equal_char '"')
-          |> Stdlib.print_string
-    | _ -> ()
 end
 
 module StellarRays = Unification.Make(StellarSig)
@@ -65,10 +53,13 @@ let pos f = (Pos, f)
 let neg f = (Neg, f)
 let null f = (Null, f)
 
+let muted pf = (Muted, pf)
+let noisy pf = (Noisy, pf)
+
 let gfunc c ts = Func (c, ts)
-let pfunc f ts = gfunc (pos f) ts
-let nfunc f ts = gfunc (neg f) ts
-let func f ts = gfunc (null f) ts
+let pfunc f ts = gfunc (muted (pos f)) ts
+let nfunc f ts = gfunc (muted (neg f)) ts
+let func f ts = gfunc (muted (null f)) ts
 let var x = Var x
 let pconst f = pfunc f []
 let nconst f = nfunc f []
@@ -77,8 +68,8 @@ let dot t u = nfunc ":" [t; u]
 
 let is_polarised r : bool =
   let aux = function
-  | (Pos, _) | (Neg, _) -> true
-  | (Null, _) -> false
+  | (_, (Pos, _)) | (_, (Neg, _)) -> true
+  | _ -> false
   in exists_func aux r
 
 let replace_indices (i : int) : ray -> ray =
@@ -97,7 +88,10 @@ let string_of_polarity = function
   | Neg -> "-"
   | Null -> ""
 
-let string_of_polsym (p, f) = (string_of_polarity p) ^ f
+let string_of_polsym (m, (p, f)) =
+  match m with
+  | Noisy -> (string_of_polarity p) ^ "#" ^ f
+  | Muted -> (string_of_polarity p) ^ f
 
 let string_of_var (x, i) =
   match i with
@@ -107,10 +101,10 @@ let string_of_var (x, i) =
 let rec string_of_ray = function
   | Var xi -> string_of_var xi
   | Func (pf, []) -> string_of_polsym pf
-  | Func ((Null, ":"), [Func ((Null, ":"), [r1; r2]); r3]) ->
+  | Func ((_, (Null, ":")), [Func ((_, (Null, ":")), [r1; r2]); r3]) ->
     "(" ^ (string_of_ray r1) ^ ":"  ^ (string_of_ray r2) ^ "):" ^
     (string_of_ray r3)
-  | Func ((Null, ":"), [r1; r2]) ->
+  | Func ((_, (Null, ":")), [r1; r2]) ->
     (string_of_ray r1) ^ ":"  ^ (string_of_ray r2)
   | Func (pf, ts) -> string_of_polsym pf ^
     surround "(" ")" @@
@@ -140,7 +134,7 @@ let map_mstar ~f : marked_star -> marked_star = function
   | Marked s -> Marked (List.map ~f:f s)
   | Unmarked s -> Unmarked (List.map ~f:f s)
 
-let subst_all_vars sub = List.map ~f:(map_mstar ~f:(subst sub))
+let subst_all_vars sub  = List.map ~f:(map_mstar ~f:(subst sub))
 let subst_all_funcs sub = List.map ~f:(map_mstar ~f:(replace_funcs sub))
 
 let unmark = function s -> Unmarked s
