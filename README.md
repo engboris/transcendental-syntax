@@ -72,40 +72,6 @@ Executables are in `_build/default/bin/`.
 
 The project provides three programs.
 
-### Large Star Collider (LSC)
-
-This program is an interpreter for stellar resolution.
-
-Assume the executable is named `lsc.exe`. Execute the program with:
-
-```
-./lsc.exe [-options] <inputfile>
-```
-
-or if you use Dune:
-
-```
-dune exec lsc -- [-options] <inputfile>
-```
-
-### Interactive collider
-
-Dynamically add, remove, clear stars and make them collide.
-
-Assume the executable is named `ilsc.exe`. Execute the program with:
-
-```
-./ilsc.exe
-```
-
-or if you use Dune:
-
-```
-dune exec ilsc
-```
-
-The instructions are provided in the program.
-
 ### Stellogen interpreter
 
 Assume the executable is named `sgen.exe`. Interpreter Stellogen programs with:
@@ -122,7 +88,7 @@ dune exec sgen -- <inputfile>
 
 # Examples
 
-Some example files with the `.stellar` extension in `/examples` are ready to be
+Some example files with the `.sg` extension in `/examples` are ready to be
 executed. In Eng's thesis, ways to work with other models of computation are
 described (Turing machines, pushdown automata, transducers, alternating
 automata etc).

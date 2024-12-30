@@ -3,8 +3,8 @@
   exception SyntaxError of string
 }
 
-let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']* '\''* '?'?
-let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9' '_' '-']* '\''*
+let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_']* '\''* '?'?
+let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9' '_']* '\''*
 let space    = [' ' '\t']+
 let newline  = '\r' | '\n' | "\r\n"
 
@@ -15,13 +15,13 @@ rule read = parse
   | "clean"   { CLEAN }
   | "end"     { END }
   | "show"    { SHOW }
+  | "galaxy"  { GALAXY }
   | "print"   { PRINT }
   | "set"     { SET }
-  | "seq"     { SEQ }
-  | "spec"    { SPEC }
+  | "process" { PROCESS }
   | "unset"   { UNSET }
+  | "->"      { RARROW }
   | "=>"      { DRARROW }
-  | ">>"      { DARROW }
   | "."       { DOT }
   | '"'       { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
@@ -32,6 +32,7 @@ rule read = parse
   | ')'       { RPAR }
   | ','       { COMMA }
   | '@'       { AT }
+  | '$'       { DOLLAR }
   | '+'       { PLUS }
   | '-'       { MINUS }
   | '='       { EQ }

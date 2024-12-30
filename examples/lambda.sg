@@ -1,18 +1,28 @@
-' ----- id id
-id_func = { +id(exp(l:X d)) +id(r:X); }
-id_arg = { id'(exp(l:X Y)) +arg(exp(l:r:X Y)); }
-linker = { -id(X) -arg(X); @+arg(r:X) out(X); }
-print (id_func id_arg linker)
+'''
+TO CLEAN
+'''
 
-' ----- id x
-var_x = { x(exp(X Y)) +arg(exp(l:X Y)); }
-linker = { -id(X) -arg(X); @+arg(r:X) out(X); }
-print (id_func var_x linker)
+'''
+id id
+'''
+id_func = +id($exp($l:X $d)) +id($r:X).
+id_arg = $id'($exp($l:X Y)) +arg($exp($l:$r:X Y)).
+linker = -id(X) -arg(X); @+arg($r:X) $out(X).
+print id_func id_arg linker.
 
-' ----- lproj x
-lproj = {
-	+lproj(l:X); 'weakening
-	lproj(exp(r:l:X d)) +lproj(r:r:X);
-}
-linker = { -lproj(X) -arg(X); @+arg(r:X) out(X); }
-print (lproj var_x linker)
+'''
+id x
+'''
+var_x = $x($exp(X Y)) +arg($exp($l:X Y)).
+linker = -id(X) -arg(X); @+arg($r:X) $out(X).
+print id_func var_x linker.
+
+'''
+lproj x
+'''
+lproj =
+	+lproj($l:X); 'weakening
+	$lproj($exp($r:$l:X $d)) +lproj($r:$r:X).
+
+linker = -lproj(X) -arg(X); @+arg($r:X) $out(X).
+print lproj var_x linker.

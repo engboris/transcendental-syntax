@@ -4,13 +4,11 @@ open Sgen_ast
 
 %token LBRACE RBRACE
 %token SHOW PRINT
-%token SPEC
 %token CLEAN
-%token SEQ
+%token PROCESS
+%token GALAXY
 %token SET UNSET
-%token DRARROW DARROW
-%token TEST
-%token WITH
+%token RARROW DRARROW
 %token EQ
 %token DOT
 %token END
@@ -25,49 +23,63 @@ program:
 | EOL*; d=declaration; EOF { [d] }
 
 declaration:
-| e=stellar_expr
-  { RawComp e }
-| x=SYM; EQ; e=stellar_expr
+| x=SYM; EQ; EOL*; e=galaxy_expr;
   { Def (x, e) }
-| SPEC; x=SYM; EQ; EOL*; tests=test_definition+; END
-  { Spec (x, tests) }
-| SHOW; e=stellar_expr
-  { ShowStellar e }
-| PRINT; e=stellar_expr
-  { PrintStellar e }
+| SHOW; EOL*; e=galaxy_expr;
+  { ShowGalaxy e }
+| PRINT; EOL*; e=galaxy_expr;
+  { PrintGalaxy e }
 | SET; x=SYM
   { SetOption (x, true) }
 | UNSET; x=SYM
   { SetOption (x, false) }
+| x=SYM; CONS; CONS; t=SYM; EOL*; ck=checker_def?;
+  { TypeDef (x, t, ck) }
+| x=SYM; CONS; CONS; t=SYM; EOL*; LBRACK; RBRACK; EOL;
+  { TypeDef (x, t, None) }
 
-test_definition:
-| name=SYM; DRARROW; e=stellar_expr; EOL+ { (name, e) }
+checker_def:
+| LBRACK; x=SYM; RBRACK; { x }
 
-assoc:
-| pf1=symbol; DRARROW; pf2=symbol { AssocFunc (pf1, pf2) }
-| x=VAR; DRARROW; r=ray { AssocVar ((x, None), r) }
+galaxy_expr:
+| gc=galaxy_content; DOT; { gc }
+| gb=galaxy_block; END; { gb }
+| gd=galaxy_def; END; { Raw (Galaxy gd) }
 
-stellar_expr:
-| pf=symbol; CONS; e=stellar_expr
-  { Extend (pf, e) }
-| LPAR; e=stellar_expr; RPAR
-  { e }
-| LBRACE; EOL*; RBRACE
-  { Raw [] }
-| LBRACE; EOL*; cs=marked_constellation; EOL* RBRACE
-  { Raw cs }
-| x=SYM
-  { Id x }
-| spec=SYM; DOT; test=SYM
-  { TestAccess (spec, test) }
-| e1=stellar_expr; e2=stellar_expr
-  { Union (e1, e2) }
-| SEQ; EOL*; h=stellar_expr; EOL*; t=stellar_item*; END
-  { Seq (h::t) }
-| CLEAN
-  { Clean }
-| AT; e=stellar_expr
-  { Focus e }
+galaxy_content:
+| LPAR; e=galaxy_content; RPAR        { e }
+| LBRACE; EOL*; RBRACE                { Raw (Const []) }
+| LBRACE; x=SYM; RBRACE               { Token x }
+| cs=marked_constellation;            { Raw (Const cs) }
+| x=SYM                               { Id x }
+| e1=galaxy_content;
+  e2=galaxy_content                   { Union (e1, e2) }
+| g=galaxy_content; RARROW; x=SYM     { Access (g, x) }
+| e=galaxy_content;
+  LBRACK; DRARROW; pf=symbol; RBRACK; { Extend (pf, e) }
+| e=galaxy_content;
+  LBRACK; pf=symbol; DRARROW; RBRACK; { Reduce (pf, e) }
+| AT; e=galaxy_content;               { Focus e }
+| e=galaxy_content;
+  LBRACK; x=VAR; DRARROW;
+  r=ray; RBRACK;                      { SubstVar (x, r, e) }
+| e=galaxy_content;
+  LBRACK; pf1=symbol; DRARROW;
+  pf2=symbol; RBRACK;                 { SubstFunc (pf1, pf2, e) }
+| e=galaxy_content;
+  LBRACK; _from=SYM; DRARROW;
+  _to=galaxy_content; RBRACK;         { SubstGal (_from, _to, e) }
 
-stellar_item:
-| DARROW; e=stellar_expr; EOL* { e }
+galaxy_def:
+| GALAXY; EOL*; gis=galaxy_item+; { gis }
+
+galaxy_item:
+| x=SYM; CONS; EOL*; e=galaxy_content; DOT; EOL*; { (x, e) }
+| x=SYM; CONS; EOL*; gb=galaxy_block; END; EOL*;  { (x, gb) }
+
+galaxy_block:
+| PROCESS; EOL*; l=process_item+; { Process l }
+
+process_item:
+| e=galaxy_content; DOT; EOL*; { e }
+| CLEAN; DOT; EOL*; { Clean }

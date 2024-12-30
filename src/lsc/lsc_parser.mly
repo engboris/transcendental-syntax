@@ -13,6 +13,7 @@ open Lsc_ast
 %token SHARP
 %token SEMICOLON
 %token PLACEHOLDER
+%token DOLLAR
 
 %right CONS
 
@@ -23,25 +24,26 @@ open Lsc_ast
 
 constellation_file:
 | EOF { [] }
-| cs = marked_constellation; EOF { cs }
+| cs=marked_constellation; EOF { cs }
 
 marked_constellation:
-| cs = star+ { cs }
+| cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?
+  { cs }
 
 star:
-| AT; s = star_content; SEMICOLON; EOL* { Marked s }
-| s = star_content; SEMICOLON; EOL* { Unmarked s }
+| AT; s=star_content; EOL* { Marked s }
+| s=star_content; EOL* { Unmarked s }
 
 star_content:
 | LBRACK; RBRACK { [] }
-| rs = separated_nonempty_list(pair(COMMA?, EOL*), ray) { rs }
+| rs=separated_nonempty_list(pair(COMMA?, EOL*), ray) { rs }
 
 %public symbol:
 | PLUS; SHARP; f = SYM { noisy (Pos, f) }
 | PLUS; f = SYM { muted (Pos, f) }
 | MINUS; SHARP; f = SYM { noisy (Neg, f) }
 | MINUS; f = SYM { muted (Neg, f) }
-| f = SYM { muted (Null, f) }
+| DOLLAR; f = SYM { muted (Null, f) }
 
 %public ray:
 | PLACEHOLDER { to_var ("_"^(fresh_placeholder ())) }

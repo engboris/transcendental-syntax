@@ -9,8 +9,12 @@ module StellarSig = struct
   let equal_idvar (s, i) (s', i') =
     match i, i' with
     | None, None -> equal_string s s'
-    | Some j, Some j' -> equal_string s s' && equal_int j j'
-    | _ -> false
+    | Some j, Some j' ->
+      equal_string (s ^ Int.to_string j) (s' ^ Int.to_string j')
+    | None, Some j' ->
+      equal_string s (s' ^ Int.to_string j')
+    | Some j, None ->
+      equal_string (s ^ Int.to_string j) s'
 
   let equal_idfunc (p, f) (p', f') =
     match p, p' with
@@ -45,6 +49,7 @@ type constellation = star list
 
 let equal_ray = equal_term
 let equal_star = List.equal equal_ray
+let equal_constellation = List.equal equal_star
 
 let to_var x = Var (x, None)
 let to_func (pf, ts) = Func (pf, ts)
@@ -129,6 +134,13 @@ let string_of_constellation cs =
 
 type marked_star = Marked of star | Unmarked of star
 type marked_constellation = marked_star list
+
+let equal_mstar ms ms' = match ms, ms' with
+  | Marked s, Marked s' | Unmarked s, Unmarked s' ->
+    equal_star s s'
+  | _ -> false
+
+let equal_mconstellation = List.equal equal_mstar
 
 let map_mstar ~f : marked_star -> marked_star = function
   | Marked s -> Marked (List.map ~f:f s)

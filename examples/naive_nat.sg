@@ -1,32 +1,35 @@
-spec nat =
-	test1 -> { -nat(0) ok; -nat(s(N)) +nat(N); }
+nat = -nat($0) $ok; -nat($s(N)) +nat(N).
+
+checker = galaxy
+	interaction: {tested} {test}.
+	expect: $ok.
 end
 
-0 = { +nat(0); }
-1 = { +nat(s(0)); }
-2 = { +nat(s(s(0))); }
-
-orth = { -test?(ok) ok; }
-
-test 0 : nat with orth
-test 1 : nat with orth
-test 2 : nat with orth
-
-add1 = { -nat(X) +nat(s(X)); }
-
-is_empty = {
-	@-nat(0) res(1);
-	@-nat(s(_)) res(0);
-}
-
-spec "nat -> nat" =
-	test1 -> { -nat(X) arg; +nat(X) out; }
+fchecker = galaxy
+	interaction: {tested} {test}.
+	expect: $arg $out.
 end
 
-orth2 = { -test?(arg) ok; -test?(out) ok; }
+"nat -> nat" =
+	+nat(X) $arg;
+	-nat(X) $out.
 
-test add1 : "nat -> nat" with orth2
+0 :: nat [checker]
+0 = +nat($0).
 
-print (add1 2)
-print is_empty 0
-print is_empty 1
+1 :: nat [checker]
+1 = +nat($s($0)).
+
+2 :: nat [checker]
+2 = +nat($s($s($0))).
+
+add1 :: "nat -> nat" [fchecker]
+add1 = -nat(X) +nat($s(X)).
+
+is_empty =
+	@-nat($0) $res($1);
+	@-nat($s(_)) $res($0).
+
+print (add1 2).
+print (is_empty 0).
+print (is_empty 1).
