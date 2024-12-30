@@ -1,30 +1,44 @@
-' ----- id id
-id_func = { +id(l:X) +id(r:X); }
-id_arg = { id'(l:X) +arg(l:r:X); }
-linker = { -id(X) -arg(X); @+arg(r:X) out(X); }
-print (id_func id_arg linker)
+'''
+TO CLEAN
+'''
 
-' ----- id x
-var_x = { x(X) +arg(l:X); }
-linker = { -id(X) -arg(X); @+arg(r:X) out(X); }
-print (id_func var_x linker)
+'''
+id id
+'''
+id_func = +id($l:X) +id($r:X).
+id_arg = $id'($l:X) +arg($l:$r:X).
+linker = -id(X) -arg(X); @+arg($r:X) $out(X).
+print id_func id_arg linker.
 
-' ----- typing of (id id)
-adapter = { -id(l:X) +x(X); -id(r:X) +y(X); }
-spec "a -o a" =
-	test1 -> {
-		-x(X) +par-xy(X); -y(X); 'swiching left
-		@-par-xy(X) par-xy(X);
-	}
-	test2 -> {
-		-x(X); -y(X) +par-xy(X); 'swiching right
-		@-par-xy(X) par-xy(X);
-	}
+'''
+id x
+'''
+var_x = $x(X) +arg($l:X).
+linker = -id(X) -arg(X); @+arg($r:X) $out(X).
+print id_func var_x linker.
+
+'''
+typing of (id id)
+'''
+
+"a -o a" = galaxy
+	test1:
+		-x(X) +parxy(X); -y(X);
+		@-par-xy(X) +cparxy(X).
+	test2:
+		-x(X); -y(X) +parxy(X);
+		@-parxy(X) +cparxy(X).
 end
 
-vehicle = id_func adapter
-checker = {
-	-test?(par-xy(X)) ok;
-	-test?(par-xy(X)) ok;
-}
-test vehicle : "a -o a" with checker
+adapter_test = -cparxy(X) $ok.
+
+checker = galaxy
+	interaction:
+		{test} {tested} adapter_test.
+	expect: $ok; $ok.
+end
+
+adapter = -id($l:X) +x(X); -id($r:X) +y(X).
+
+'vehicle :: "a -o a" [checker]
+vehicle = id_func adapter.

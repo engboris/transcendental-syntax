@@ -1,0 +1,39 @@
+binary =
+	-b($e) $ok;
+	-b($0:X) +b(X);
+	-b($1:X) +b(X).
+
+checker = galaxy
+	interaction: ({tested} {test})[+i=>+b].
+	expect: $ok.
+end
+
+'input words
+e :: binary [checker]
+e = +i($e).
+
+e :: binary [checker]
+000 = +i($0:$0:$0:$e).
+
+e :: binary [checker]
+010 = +i($0:$1:$0:$e).
+
+e :: binary [checker]
+110 = +i($1:$1:$0:$e).
+
+a1 = galaxy
+	initial:
+		-i(W) +a(W $q0).
+	final:
+		-a($e $q2) $accept.
+	transitions:
+		-a($0:W $q0) +a(W $q0);
+		-a($0:W $q0) +a(W $q1);
+		-a($1:W $q0) +a(W $q0);
+		-a($0:W $q1) +a(W $q2).
+end
+
+show process e.   a1. clean. end
+show process 000. a1. clean. end
+show process 010. a1. clean. end
+show process 110. a1. clean. end

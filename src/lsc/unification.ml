@@ -74,9 +74,9 @@ let replace_func from_pf to_pf = map
   (fun pf -> if equal_func pf from_pf then to_pf else pf)
   (fun x -> Var x)
 let replace_funcs fsub t =
-  List.fold_left ~f:(fun acc (from_pf, to_pf) ->
+  List.fold_left fsub ~init:t ~f:(fun acc (from_pf, to_pf) ->
     replace_func from_pf to_pf acc
-  ) ~init:t fsub
+  )
 
 (* ---------------------------------------
    A few useful functions
