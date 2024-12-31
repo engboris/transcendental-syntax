@@ -2,3 +2,4 @@ _build/*
 *.cmi
 *.cmo
 _opam/
+examples/test.sg
