@@ -70,10 +70,6 @@ Executables are in `_build/default/bin/`.
 
 ## Commands
 
-The project provides three programs.
-
-### Stellogen interpreter
-
 Assume the executable is named `sgen.exe`. Interpreter Stellogen programs with:
 
 ```
