@@ -99,10 +99,9 @@ registre `r1` contenant `$1`.
 Le but est de définir des constellations. Vous pouvez utiliser le code ci-dessus
 pour faire vos tests.
 
-### Exercice 1
-
-Définir deux constellations permettant de mettre à jour le registre `r0` à `1`
-en utilisant une étoile intermédiaire pour sauvegarder la valeur de `r0`.
+**Exercice 1.** Définir deux constellations permettant de mettre à jour le
+registre `r0` à `1` en utilisant une étoile intermédiaire pour sauvegarder la
+valeur de `r0`.
 
 <details>
   <summary>Solution</summary>
@@ -113,10 +112,8 @@ en utilisant une étoile intermédiaire pour sauvegarder la valeur de `r0`.
 </pre>
 </details>
 
-### Exercice 2
-
-Définir une constellation permettant de dupliquer et déplacer le registre
-`r0` dans deux registres `r1` et `r2`.
+**Exercice 2.** Définir une constellation permettant de dupliquer et déplacer
+le registre `r0` dans deux registres `r1` et `r2`.
 
 <details>
   <summary>Solution</summary>
@@ -127,11 +124,9 @@ Définir une constellation permettant de dupliquer et déplacer le registre
 </pre>
 </details>
 
-### Exercice 3
-
-Définir deux constellation permettant de mettre la valeur de `r1` à `$0` puis
-définir deux constellations permettant d'échanger les valeurs de `r1` et
-`r2`.
+**Exercice 3.** Définir deux constellation permettant de mettre la valeur de
+`r1` à `$0` puis définir deux constellations permettant d'échanger les valeurs
+de `r1` et `r2`.
 
 <details>
   <summary>Solution</summary>
@@ -144,11 +139,9 @@ définir deux constellations permettant d'échanger les valeurs de `r1` et
 </pre>
 </details>
 
-### Exercice 4
-
-Comment dupliquer `r1` de sorte à pouvoir suivre ses copies et mettre à jour
-en une fois (comme si on traitait un seul registre) toutes les copies à la
-valeur `$5` ?
+**Exercice 4.** Comment dupliquer `r1` de sorte à pouvoir suivre ses copies et
+mettre à jour en une fois (comme si on traitait un seul registre) toutes les
+copies à la valeur `$5` ?
 
 <details>
   <summary>Solution</summary>
@@ -161,9 +154,8 @@ valeur `$5` ?
 </pre>
 </details>
 
-### Exercice 5
-
-En suivant la méthode précédente, dupliquer chaque copie en une seule fois.
+**Exercice 4.** En suivant la méthode précédente, dupliquer chaque copie en une
+seule fois.
 
 <details>
   <summary>Solution</summary>
@@ -179,11 +171,9 @@ En suivant la méthode précédente, dupliquer chaque copie en une seule fois.
 On veut simuler des formules booléennes  par des constellations. Chaque
 question utilise le résultat de la question précédente.
 
-### Exercice 1
-
-Définir une constellation calculant la négation de telle sorte à ce qu'elle
-produise `1` en sortie lorsqu'elle est ajoutée à l'étoile `@-not($0 X) X` et
-`0` lorsqu'ajoutée à `@-not($1 X) X`.
+**Exercice 1.** Définir une constellation calculant la négation de telle sorte
+à ce qu'elle produise `1` en sortie lorsqu'elle est ajoutée à l'étoile
+`@-not($0 X) X` et `0` lorsqu'ajoutée à `@-not($1 X) X`.
 
 <details>
   <summary>Solution</summary>
@@ -193,10 +183,9 @@ produise `1` en sortie lorsqu'elle est ajoutée à l'étoile `@-not($0 X) X` et
 </pre>
 </details>
 
-### Exercice 2
-
-Comment afficher la table de vérité de la négation avec une seule étoile,
-de sorte à ce qu'on obtienne en sortie `$table_not($0 $1); table_not($1 $0).` ?
+**Exercice 2.** Comment afficher la table de vérité de la négation avec une
+seule étoile, de sorte à ce qu'on obtienne en sortie
+`$table_not($0 $1); table_not($1 $0).` ?
 
 <details>
   <summary>Solution</summary>
@@ -206,11 +195,9 @@ de sorte à ce qu'on obtienne en sortie `$table_not($0 $1); table_not($1 $0).` ?
 </pre>
 </details>
 
-### Exercice 3
-
-Ecrire de deux manières différentes des constellations calculant la
-conjonction et la disjonction et afficher leur table de vérité de la même façon
-que pour la question précédente.
+**Exercice 3.** Ecrire de deux manières différentes des constellations calculant
+la conjonction et la disjonction et afficher leur table de vérité de la même
+façon que pour la question précédente.
 
 <details>
   <summary>Solution</summary>
@@ -232,10 +219,8 @@ print @-or2(X Y R) $table_or2(X Y R).
 </pre>
 </details>
 
-### Exercice 4
-
-Utiliser la disjonction et la négation pour afficher la table de vérité
-de l'implication sachant que `X => Y = not(X) \/ Y`.
+**Exercice 4.** Utiliser la disjonction et la négation pour afficher la table
+de vérité de l'implication sachant que `X => Y = not(X) \/ Y`.
 
 <details>
   <summary>Solution</summary>
@@ -252,10 +237,8 @@ print @-impl2(X Y R) $table_impl2(X Y R).
 </pre>
 </details>
 
-### Exercice 5
-
-Utiliser l'implication et la conjonction pour afficher la table de vérité
-de l'équivalence logique sachant que `X <=> Y = (X => Y) /\ (X => Y)`.
+**Exercice 5.** Utiliser l'implication et la conjonction pour afficher la table
+de vérité de l'équivalence logique sachant que `X <=> Y = (X => Y) /\ (X => Y)`.
 
 <details>
   <summary>Solution</summary>
@@ -272,10 +255,8 @@ table_eqq2 = @-eqq2(X Y R) $table_eqq2(X Y R).
 </pre>
 </details>
 
-### Exercice 6
-
-Définir une constellation représentant la formule du tiers `X \/ ~X`.
-Afficher la table de vérité correspondant à cette formule.
+**Exercice 6.** Définir une constellation représentant la formule du tiers
+`X \/ ~X`. Afficher la table de vérité correspondant à cette formule.
 
 <details>
   <summary>Solution</summary>
@@ -289,9 +270,7 @@ print -ex(X R) $table_ex(X R).
 </pre>
 </details>
 
-### Exercice 7
-
-Déterminer pour quelles valeurs de `X`, `Y` et `Z` la formule
+**Exercice 7.** Déterminer pour quelles valeurs de `X`, `Y` et `Z` la formule
 `X /\ ~(Y \/ Z)` est vraie.
 
 <details>
