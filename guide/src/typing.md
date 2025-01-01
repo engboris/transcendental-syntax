@@ -7,7 +7,8 @@ les tests associés à un type.
 
 Conformément à la correspondance de Curry-Howard, les types peuvent être vues
 comme des formules ou spécifications. On pourrait aussi étendre cela à la
-proposition de Thomas Seiller de voir les algorithmes comme des spécificationsplus sophistiquées.
+proposition de Thomas Seiller de voir les algorithmes comme des spécifications
+plus sophistiquées.
 
 ## Checkers
 

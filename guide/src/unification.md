@@ -3,8 +3,8 @@
 ## Principe
 
 En résolution stellaire, un *rayon* est soit :
-- une *variable* commençant par une majuscule et pouvant contenir `_` ou des
-chiffres. Comme `X`, `X10` ou encore `Variable_55`;
+- une *variable* notée en majuscules et pouvant contenir `_` ou des
+chiffres. Comme `X`, `X10` ou encore `VAR_55`;
 - un *symbole de fonction* préfixé de `+` (polarité positive), `-` (polarité
 négative) ou de `$` (polarité nulle ou absence de polarité) possiblement
 appliqué à une séquence ordonnée d'autres rayons "arguments" écrits entre
