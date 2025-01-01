@@ -20,8 +20,22 @@
 - [Typage](./typing.md)
 - [Exercices](./exbase.md)
 
-# Techniques d'encodage (Soon)
+# Techniques d'encodage
 
-# Théorie des automates (Soon)
+- [Introduction](intro_encoding.md)
+- [Séquences](seq.md)
+- [Hypergraphes (TODO)](hypergraphs.md)
+- [Entiers (TODO)](integers.md)
 
-# Lambda-calcul (Soon)
+# Théorie des automates
+
+- [Automate finis (TODO)](nfsa.md)
+- [Transducteurs (TODO)](transducers.md)
+- [Automates à pile (TODO)](pda.md)
+- [Machines de Turing (TODO)](turing.md)
+
+# Lambda-calcul
+
+- [Lambda-calcul linéaire non typé (TODO)](untypedlin.md)
+- [Types linéaires (TODO)](lintypes.md)
+- [Lambda-calcul simplement typé (TODO)](lambda.md)

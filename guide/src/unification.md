@@ -11,7 +11,8 @@ appliqué à une séquence ordonnée d'autres rayons "arguments" écrits entre
 parenthèses.
 
 Pour rendre l'écriture plus lisible, il existe un symbole binaire `:` infixe
-nous permettant d'écrire `$a:X` à la place de `:($a X)` ou encore `$cons($a X)`.
+et associatif à droite nous permettant d'écrire `$a:X` à la place de
+`:($a X)` ou encore `$cons($a X)`.
 
 > **Exemples de rayons.** `$f(X)`, `+f(-h(X $a))`, `$s`, `+list($a $b $c)`, `+list($a:$b:$c:$nil)`.
 
