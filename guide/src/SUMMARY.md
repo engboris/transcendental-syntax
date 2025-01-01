@@ -18,3 +18,10 @@
 - [Galaxies](./galaxies.md)
 - [Substitutions](./substitutions.md)
 - [Typage](./typing.md)
+- [Exercices](./exbase.md)
+
+# Techniques d'encodage (Soon)
+
+# Théorie des automates (Soon)
+
+# Lambda-calcul (Soon)
