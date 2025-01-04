@@ -12,13 +12,13 @@ end
 e :: binary [checker]
 e = +i($e).
 
-e :: binary [checker]
+000 :: binary [checker]
 000 = +i($0:$0:$0:$e).
 
-e :: binary [checker]
+010 :: binary [checker]
 010 = +i($0:$1:$0:$e).
 
-e :: binary [checker]
+110 :: binary [checker]
 110 = +i($1:$1:$0:$e).
 
 a1 = galaxy
