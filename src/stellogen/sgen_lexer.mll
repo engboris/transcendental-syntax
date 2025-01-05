@@ -17,9 +17,7 @@ rule read = parse
   | "show"    { SHOW }
   | "galaxy"  { GALAXY }
   | "print"   { PRINT }
-  | "set"     { SET }
   | "process" { PROCESS }
-  | "unset"   { UNSET }
   | "->"      { RARROW }
   | "=>"      { DRARROW }
   | "."       { DOT }

@@ -9,10 +9,10 @@ checker = galaxy
 	expect: $ok.
 end
 
-b1 :: u4 [checker]
+b1 :: u4 [checker].
 b1 = $b($1 $1); $b($2 $0); $b($3 $0); $b($4 $1).
 
-b1 :: u4 [checker]
+b1 :: u4 [checker].
 b2 = $b($1 $0); $b($2 $0); $b($3 $1); $b($4 $1).
 
 and =

@@ -17,7 +17,7 @@ checker = galaxy
 	expect: $c5(X19) $c6(X19).
 end
 
-id :: "a -o a" [checker]
+id :: "a -o a" [checker].
 id =
 	-5($l:X) +1(X);
 	-5($r:X) +2(X);
