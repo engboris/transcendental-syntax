@@ -26,8 +26,10 @@ and galaxy_expr =
   | Token of string
 
 let reserved_words = ["clean"; "kill"]
+let is_reserved = List.mem reserved_words ~equal:equal_string
 
 exception IllFormedChecker
+exception ReservedWord of ident
 exception UnknownField of ident
 exception UnknownID of ident
 exception EmptyProcess
@@ -183,10 +185,12 @@ and galaxy_to_constellation env = function
   | Galaxy g -> List.fold_left g ~init:[] ~f:(fun acc (_, v) ->
     galaxy_to_constellation env (eval_galaxy_expr env v) @ acc)
 
-
 let string_of_runtime_err e =
   let red text = "\x1b[31m" ^ text ^ "\x1b[0m" in
   match e with
+  | ReservedWord x ->
+    Printf.sprintf "%s: identifier '%s' is reserved.\n"
+    (red "ReservedWord Error") x
   | UnknownField x ->
     Printf.sprintf "%s: field '%s' not found.\n"
     (red "UnknownField Error") x
@@ -247,6 +251,7 @@ let default_checker =
   ])
 
 let eval_decl env : declaration -> env = function
+  | Def (x, _) when is_reserved x -> raise (ReservedWord x)
   | Def (x, e) ->
     let env = { objs = add_obj env x e; types = env.types } in
     begin match List.Assoc.find ~equal:equal_string env.types x with
