@@ -1,15 +1,10 @@
 binary =
-	-b($e) $ok;
-	-b($0:X) +b(X);
-	-b($1:X) +b(X).
-
-checker = galaxy
-	interaction: ({tested} {test})[+i=>+b].
-	expect: $ok.
-end
+	-i($e) $ok;
+	-i($0:X) +i(X);
+	-i($1:X) +i(X).
 
 'input words
-e :: binary [checker]
+e :: binary.
 e = +i($e).
 
 000 :: binary [checker]

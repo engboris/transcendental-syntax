@@ -46,14 +46,34 @@ nat =
   -nat($s(N)) +nat(N).
 ```
 
-On peut ensuite écrire des assertions de typage de la forme `x :: t [c]` où
+On peut ensuite écrire des assertions de typage de la forme `x :: t [c].` où
 `x` est l'élément testé, `t` est le type (définissant des tests) et `c` et le
 checker.
 
 ```
-0 :: nat [checker]
+0 :: nat [checker].
 0 = +nat($0).
 
-1 :: nat [checker]
+1 :: nat [checker].
+1 = +nat($s($0)).
+```
+
+On peut aussi omettre de préciser le checker. Dans ce cas, le checker par
+défaut est :
+
+```
+checker = galaxy
+  interaction: {tested} {test}.
+  expect: $ok.
+end
+```
+
+Cela nous permet d'écrire :
+
+```
+0 :: nat.
+0 = +nat($0).
+
+1 :: nat.
 1 = +nat($s($0)).
 ```

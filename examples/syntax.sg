@@ -52,8 +52,8 @@ nat = galaxy
 		-nat($s(N)) +nat(N).
 end
 
-0 :: nat [checker]
+0 :: nat [checker].
 0 = +nat($0).
 
-1 :: nat [checker]
+1 :: nat [checker].
 1 = +nat($s($0)).

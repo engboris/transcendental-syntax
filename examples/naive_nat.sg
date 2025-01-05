@@ -14,16 +14,16 @@ end
 	+nat(X) $arg;
 	-nat(X) $out.
 
-0 :: nat [checker]
+0 :: nat [checker].
 0 = +nat($0).
 
-1 :: nat [checker]
+1 :: nat [checker].
 1 = +nat($s($0)).
 
-2 :: nat [checker]
+2 :: nat [checker].
 2 = +nat($s($s($0))).
 
-add1 :: "nat -> nat" [fchecker]
+add1 :: "nat -> nat" [fchecker].
 add1 = -nat(X) +nat($s(X)).
 
 is_empty =
