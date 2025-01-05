@@ -15,6 +15,6 @@ print process
 	-stack4(X) $stack(X).
 
 	-save(C) $save(C).
-	'clean remaining polarized stars
-	clean.
+	'kill remaining polarized stars
+	kill.
 end

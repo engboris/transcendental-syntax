@@ -130,7 +130,7 @@ représentation d'état (mémoire par exemple).
 chez Boris Eng ou de "proof-trace" chez Pablo Donato. Les processus-preuves
 construisent des objet-preuves (constellations).
 
-# Nettoyage
+# Arrêt de processus
 
 Dans le résultat d'une exécution, si l'on représente les résultats par des
 rayons à polarité nulle, alors les étoiles contenant des rayons polarisés
@@ -138,7 +138,7 @@ peuvent être interprétés comme des calculs non terminés qu'il pourrait être
 effacés.
 
 Pour cela, dans les processus de constructions, nous pouvons utiliser
-l'expression spéciale `clean` :
+l'expression spéciale `kill` :
 
 ```
 c = process
@@ -146,7 +146,7 @@ c = process
   -n0(X) +n1($s(X)).
   -n1(X) +n2($s(X)).
   -n2(X) $result(X); -n2(X) +n3(X).
-  clean.
+  kill.
 end
 
 print c.
@@ -155,4 +155,17 @@ print c.
 Nous avons utilisé un rayon `+n3(X)` pour poursuivre des calculs
 si nous souhaitons. Le résultat est stocké dans `$result(X)`.
 Mais si nous souhaitons seulement conserver le résultat et retirer toute
-autre possibilité de calcul alors on peut utiliser `clean`.
+autre possibilité de calcul alors on peut utiliser `kill`.
+
+# Nettoyage de processus
+
+Il arrive parfois que l'on se retrouve avec des étoiles vides `[]` dans
+les processus. Il est possible de s'en débarrasser avec la commande `clean` :
+
+```
+print process
+  +f($0).
+  -f(X).
+  clean.
+end
+```

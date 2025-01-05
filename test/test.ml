@@ -12,7 +12,7 @@ let test filename expected () =
   let result =
     exec ~showtrace:false
          ~showsteps:false mcs
-         |> concealing
+         |> kill
          |> string_of_constellation in
   check string "same string" result expected
 
