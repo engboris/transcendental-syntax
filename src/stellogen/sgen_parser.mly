@@ -4,7 +4,6 @@ open Sgen_ast
 
 %token LBRACE RBRACE
 %token SHOW PRINT
-%token CLEAN
 %token PROCESS
 %token GALAXY
 %token RARROW DRARROW
@@ -79,4 +78,3 @@ galaxy_block:
 
 process_item:
 | e=galaxy_content; DOT; EOL*; { e }
-| CLEAN; DOT; EOL*; { Clean }

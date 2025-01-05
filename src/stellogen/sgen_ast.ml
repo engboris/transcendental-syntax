@@ -24,13 +24,13 @@ and galaxy_expr =
   | SubstGal of ident * galaxy_expr * galaxy_expr
   | Process of galaxy_expr list
   | Token of string
-  | Clean
+
+let reserved_words = ["clean"; "kill"]
 
 exception IllFormedChecker
 exception UnknownField of ident
 exception UnknownID of ident
 exception EmptyProcess
-exception MisplacedClean
 exception TestFailed of ident * ident * ident * galaxy * galaxy
 
 type env = {
@@ -62,7 +62,7 @@ let rec map_galaxy env ~f = function
   | Galaxy g -> Galaxy (List.map ~f:(fun (k, v) ->
     (k, map_galaxy_expr env ~f:f v)) g
   )
-and map_galaxy_expr env ~f = function
+and map_galaxy_expr env ~f e = match e with
   | Raw g -> Raw (map_galaxy env ~f:f g)
   | Access (e, x) -> Access (map_galaxy_expr env ~f:f e, x)
   | Id x -> get_obj env x |> map_galaxy_expr env ~f:f
@@ -77,14 +77,11 @@ and map_galaxy_expr env ~f = function
   | SubstGal (x, e, e') ->
     SubstGal (x, map_galaxy_expr env ~f:f e, map_galaxy_expr env ~f:f e')
   | Process gs -> Process (List.map ~f:(map_galaxy_expr env ~f:f) gs)
-  | Token x -> Token x
-  | Clean -> Clean
+  | Token _ -> e
 
-let rec fill_token env (_from : string) _to = function
-  | Raw g -> Raw g
+let rec fill_token env (_from : string) _to e = match e with
   | Id x -> get_obj env x
     |> fill_token env _from _to
-  | Clean -> Clean
   | Access (g, x) -> Access (fill_token env _from _to g, x)
   | Exec e -> Exec (fill_token env _from _to e)
   | Union (e, e') ->
@@ -99,7 +96,7 @@ let rec fill_token env (_from : string) _to = function
     SubstGal (x, fill_token env _from _to e, fill_token env _from _to e')
   | Process gs -> Process (List.map ~f:(fill_token env _from _to) gs)
   | Token x when equal_string x _from -> _to
-  | Token x -> Token x
+  | Raw _ | Token _ -> e
 
 let subst_vars env _from _to =
   map_galaxy_expr env ~f:(Lsc_ast.subst_all_vars [(_from, _to)])
@@ -158,16 +155,19 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
       |> focus in
     Const (List.fold_left t ~init:init ~f:(fun acc x ->
       match x with
-      | Clean -> acc
+      | Id "kill" -> acc
         |> remove_mark_all
-        |> concealing
+        |> kill
+        |> focus
+      | Id "clean" -> acc
+        |> remove_mark_all
+        |> clean
         |> focus
       | _ ->
         let origin = acc |> remove_mark_all |> focus in
         eval_galaxy_expr env (Exec (Union (x, Raw (Const origin))))
         |> galaxy_to_constellation env
     ))
-  | Clean -> raise MisplacedClean
   | SubstVar (x, r, e) ->
     subst_vars env (x, None) r e
     |> eval_galaxy_expr env
@@ -193,9 +193,6 @@ let string_of_runtime_err e =
   | UnknownID x ->
     Printf.sprintf "%s: identifier '%s' not found.\n"
     (red "UnknownID Error") x
-  | MisplacedClean ->
-    Printf.sprintf "%s: 'clean' constant cannot occur here.\n"
-    (red "MisplacedClean Error")
   | TestFailed (x, t, id, got, expected) ->
     Printf.sprintf "%s: %s.\nChecking %s :: %s\n* got: %s;\n* expected: %s\n"
     (red "TestFailed Error")

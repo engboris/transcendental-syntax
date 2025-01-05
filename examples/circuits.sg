@@ -21,7 +21,7 @@ print process
 	'output
 		-c4(R) R.
 		semantics.
-		'clean.
+		'kill.
 end
 
 print process
@@ -37,5 +37,5 @@ print process
 		-c4(R) R.
 	'apply semantics
 		semantics.
-		'clean.
+		'kill.
 end

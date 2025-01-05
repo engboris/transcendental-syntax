@@ -213,7 +213,8 @@ let extract_intspace (mcs : marked_constellation) =
    --------------------------------------- *)
 
 let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
-let concealing = List.filter ~f:unpolarized_star
+let kill = List.filter ~f:unpolarized_star
+let clean = List.filter ~f:List.is_empty
 
 let pairs_with_rest l =
   let rec aux acc = function

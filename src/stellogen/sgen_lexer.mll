@@ -12,7 +12,6 @@ rule read = parse
   (* Stellogen *)
   | '{'       { LBRACE }
   | '}'       { RBRACE }
-  | "clean"   { CLEAN }
   | "end"     { END }
   | "show"    { SHOW }
   | "galaxy"  { GALAXY }

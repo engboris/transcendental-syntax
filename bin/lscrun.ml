@@ -38,7 +38,7 @@ let () =
          ~showsteps:!showsteps mcs in
   if not !showsteps && not !showtrace then
     result
-    |> (if !unfincomp then concealing else Fn.id)
+    |> (if !unfincomp then kill else Fn.id)
     |> string_of_constellation
     |> Stdlib.print_endline
   else output_string stdout "No interaction left.\n"

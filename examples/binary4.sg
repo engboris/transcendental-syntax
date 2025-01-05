@@ -27,5 +27,5 @@ print process
 	and[$arg=>$3].
 	and[$arg=>$4].
 	b2[$b=>+b2].
-	clean.
+	kill.
 end
