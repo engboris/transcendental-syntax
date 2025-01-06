@@ -250,6 +250,16 @@ let default_checker =
     ("expect", Raw (Const [Unmarked [func "ok" []]]))
   ])
 
+let rec string_of_galaxy env = function
+  | Const mcs -> mcs |> remove_mark_all |> string_of_constellation
+  | Galaxy g ->
+    "galaxy\n" ^
+    List.fold_left g ~init:"" ~f:(fun acc (k, v) ->
+      acc ^ "  " ^ k ^ ": " ^
+      (v |> eval_galaxy_expr env |> string_of_galaxy env) ^ "\n"
+    )
+    ^ "end"
+
 let eval_decl env : declaration -> env = function
   | Def (x, _) when is_reserved x -> raise (ReservedWord x)
   | Def (x, e) ->
@@ -259,6 +269,11 @@ let eval_decl env : declaration -> env = function
     | Some (t, Some xck) -> (typecheck env x t (get_obj env xck); env)
     | None -> env
     end
+  | ShowGalaxy (Raw (Galaxy g)) -> Galaxy g
+    |> string_of_galaxy env
+    |> Stdlib.print_string;
+    Stdlib.print_newline ();
+    env
   | ShowGalaxy e ->
     eval_galaxy_expr env e
     |> galaxy_to_constellation env

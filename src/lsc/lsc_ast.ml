@@ -91,7 +91,7 @@ let raymatcher r r' : substitution option =
 let string_of_polarity = function
   | Pos -> "+"
   | Neg -> "-"
-  | Null -> ""
+  | Null -> "$"
 
 let string_of_polsym (m, (p, f)) =
   match m with
@@ -124,9 +124,25 @@ let string_of_star s =
   if List.is_empty s then "[]"
   else string_of_list string_of_ray " " s
 
-let string_of_constellation cs =
-  if List.is_empty cs then "{}"
-  else (string_of_list string_of_star ";\n" cs) ^ ";"
+let string_of_constellation = function
+  | [] -> "{}"
+  | [h] -> (string_of_star h) ^ "."
+  | h::t ->
+    let string_h = (string_of_star h) ^ "; "  in
+    List.fold_left t
+      ~init:(List.length t, string_h, String.length string_h)
+      ~f:(fun (i, acc, size) s ->
+        let string_s = string_of_star s in
+        let new_size = size + (String.length string_s) in
+        if equal_int i 1 then
+          (0, acc ^ string_s, 0)
+        else if new_size < 80 then
+          (i-1, acc ^ string_s ^ "; ", new_size)
+        else
+          (i-1, acc ^ string_s ^ ";\n", 0)
+      )
+    |> fun (_, x, _) -> x
+    |> fun x -> String.append x "."
 
 (* ---------------------------------------
    Operation on marked stars
