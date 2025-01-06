@@ -21,13 +21,10 @@ Remarquez que:
 - la substitution obtenue par résolution du conflit entre `r` et `r'` est
 propagée aux rayons adjacents.
 
-> **Exemple.** Dans un fichier, écrire puis exécuter le code suivant :
-> ```
-> print X +f(X); -f($a).
-> ```
-> Nous obtenons `a` car `+f(X)` et `-f($a)` ont interagi ensemble puis se
-> sont annihilé pour mettre à jour leurs voisins avec la substitution `{X:=$a}`.
-> Le résultat est donc `X{X:=a}` soit `a`.
+> **Exemple.** L'interaction entre `X +f(X);` et `-f($a);` donne `a` car `+f(X)`
+> et `-f($a)` ont interagi ensemble puis se sont annihilé pour mettre à jour
+> leurs voisins avec la substitution `{X:=$a}`. Le résultat est donc `X{X:=a}`
+> soit `a`.
 
 > Cette opération de fusion correspond à la règle de compure pour la logique
 du premier ordre. Cependant, la différence ici est que nous sommes dans un
