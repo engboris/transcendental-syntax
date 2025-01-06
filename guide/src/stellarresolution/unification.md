@@ -10,11 +10,17 @@ négative) ou de `$` (polarité nulle ou absence de polarité) possiblement
 appliqué à une séquence ordonnée d'autres rayons "arguments" écrits entre
 parenthèses.
 
-Pour rendre l'écriture plus lisible, il existe un symbole binaire `:` infixe
-et associatif à droite nous permettant d'écrire `$a:X` à la place de
-`:($a X)` ou encore `$cons($a X)`.
+Il existe un symbole binaire `:` infixe et associatif à droite nous permettant
+d'écrire `$a:X` à la place de `:($a X)` ou encore `$cons($a X)`. Cela nous
+permet notamment de concaténer des symboles de façon lisible pour avoir des
+sortes de listes :
 
-> **Exemples de rayons.** `$f(X)`, `+f(-h(X $a))`, `$s`, `+list($a $b $c)`, `+list($a:$b:$c:$nil)`.
+```
++f($a:$b:$c:$e).
+```
+
+> **Exemples de rayons.** `$f(X)`, `+f(-h(X $a))`, `$s`, `+list($a $b $c)`,
+> `+list($a:$b:$c:$nil)`.
 
 Dans la théorie de l'unification de termes classique, on dit que deux termes
 sont *unifiables* lorsqu'il existe une substitution des variables de telle

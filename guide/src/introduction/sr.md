@@ -12,9 +12,9 @@ aux informations laissées par les réseaux qui sont restés cohérents jusqu'au
 bout sand rencontrer de conflits.
 
 Ce sont des idées qui existent déjà en programmation logique mais qui sont
-reformulées et utilisées différemment. En particulier, on attache aucun sens
+reformulées et utilisées différemment. En particulier, on n'attache aucun sens
 logique aux objets (même si on peut les voir comme tel, ils ne sont pas censés
-représenter pas des relations ou des objets de systèmes logiques). 
+représenter des relations ou des objets de systèmes logiques).
 
 Ce calcul peut être compris de plusieurs manières. C'est :
 - un calcul de processus;

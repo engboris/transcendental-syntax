@@ -26,7 +26,7 @@ propagée aux rayons adjacents.
 > leurs voisins avec la substitution `{X:=$a}`. Le résultat est donc `X{X:=a}`
 > soit `a`.
 
-> Cette opération de fusion correspond à la règle de compure pour la logique
+> Cette opération de fusion correspond à la règle de coupure pour la logique
 du premier ordre. Cependant, la différence ici est que nous sommes dans un
 cadre "alogique" (nos symboles ne portent aucun sens logique).
 
@@ -48,7 +48,7 @@ façon suivante :
    de `R`;
 3. dupliquer `s` dans `I` pour chaque `rj` trouvé;
 4. remplacer chaque copie de `s` par la fusion `s <i,j> s'`;
-5. répeter jusqu'à qu'il n'y a plus aucune interaction possible dans `I`.
+5. répéter jusqu'à qu'il n'y a plus aucune interaction possible dans `I`.
 
 ## Exemple
 

@@ -38,8 +38,8 @@ union1 = (x y) z.
 Mais il faut noter que contrairement à la programmation fonctionnelle,
 il n'y a pas d'ordre défini.
 
-> Les définitions statiques correspondent à la notion "d'objet-preuve".
-> en correspondance de Curry-Howard.
+> Les définitions statiques correspondent à la notion "d'objet-preuve"
+> dans la correspondance de Curry-Howard.
 
 ## Affichage
 
@@ -134,7 +134,7 @@ construisent des objet-preuves (constellations).
 
 Dans le résultat d'une exécution, si l'on représente les résultats par des
 rayons à polarité nulle, alors les étoiles contenant des rayons polarisés
-peuvent être interprétés comme des calculs non terminés qu'il pourrait être
+peuvent être interprétés comme des calculs non terminés qui pourraient être
 effacés.
 
 Pour cela, dans les processus de constructions, nous pouvons utiliser

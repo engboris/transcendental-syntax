@@ -5,7 +5,7 @@ où les types sont définis comme des ensembles de tests elles-mêmes définies
 avec des constellations. La vérification de type implique le passage de tous
 les tests associés à un type.
 
-Conformément à la correspondance de Curry-Howard, les types peuvent être vues
+Conformément à la correspondance de Curry-Howard, les types peuvent être vus
 comme des formules ou spécifications. On pourrait aussi étendre cela à la
 proposition de Thomas Seiller de voir les algorithmes comme des spécifications
 plus sophistiquées.
