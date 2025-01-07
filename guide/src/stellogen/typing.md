@@ -1,7 +1,7 @@
 # Typage
 
 Le typage en Stellogen utilise les principes de syntaxe transcendantale
-où les types sont définis comme des ensembles de tests elles-mêmes définies
+où les types sont définis comme des ensembles de tests eux-mêmes définis
 avec des constellations. La vérification de type implique le passage de tous
 les tests associés à un type.
 
