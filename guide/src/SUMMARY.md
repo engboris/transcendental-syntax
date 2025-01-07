@@ -1,7 +1,8 @@
 # Summary
 
-# Introduction
+# Contexte
 
+- [Introduction](./introduction/introduction.md)
 - [Syntaxe transcendantale](./introduction/ts.md)
 - [Résolution stellaire](./introduction/sr.md)
 - [Language Stellogen](./introduction/sg.md)
@@ -10,6 +11,7 @@
 # Principes de résolution stellaire
 
 - [Unification de termes](./stellarresolution/unification.md)
+- [Etoiles et constellations](./stellarresolution/entities.md)
 - [Exécution de constellations](./stellarresolution/execution.md)
 - [Exercices](./stellarresolution/exercises.md)
 

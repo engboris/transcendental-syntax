@@ -2,98 +2,183 @@
 
 ## Fusion d'étoiles
 
-Les étoiles interagissent entre elles par une opération appelée *fusion* (que l'on
-pourrait qualifier de protocole d'interaction), en utilisant le principe de
-la règle de *résolution de Robinson*. Pour expliquer la théorie, on définit un
-opérateur `<i,j>` connectant le `i`ème rayon d'une étoile au `j`ème rayon d'une
-autre étoile.
+Les étoiles interagissent entre elles par une opération appelée *fusion* (que
+l'on pourrait qualifier de protocole d'interaction), en utilisant le principe
+de la règle de *résolution de Robinson*.
 
-La fusion est définie ainsi pour deux rayons compatibles `r` et `r'`:
+La fusion entre deux étoiles
+
 ```
-r r1 ... rk <0,0> r' r1' ... rk' == theta(r1) ... theta(rk) theta(r1') ... theta(rk')
+r r1 ... rk
+```
+
+et
+
+```
+r' r1' ... rk'
+```
+
+le long de leurs rayons `r` et `r'` est définie par une nouvelle étoile :
+
+```
+theta(r1) ... theta(rk) theta(r1') ... theta(rk')
 ```
 
 où `theta` est la substitution la plus générale induite par `r` et `r'`.
 
 Remarquez que:
-- `r` et `r'` sont annihilées pendant l'interaction;
-- leurs deux étoiles fusionnent;
+- `r` et `r'` sont annihilées pendant la fusion;
+- les deux étoiles fusionnent;
 - la substitution obtenue par résolution du conflit entre `r` et `r'` est
 propagée aux rayons adjacents.
 
-> **Exemple.** L'interaction entre `X +f(X);` et `-f($a);` donne `a` car `+f(X)`
-> et `-f($a)` ont interagi ensemble puis se sont annihilé pour mettre à jour
-> leurs voisins avec la substitution `{X:=$a}`. Le résultat est donc `X{X:=a}`
-> soit `a`.
+> **Exemple.** La fusion entre `X +f(X)` et `-f($a)` fait interagir `+f(X)`
+> et `-f($a)` ensemble pour propager la substitution `{X:=$a}` sur l'unique
+> voisin `X`. Le résultat est donc `X{X:=a}` soit `a`.
 
 > Cette opération de fusion correspond à la règle de coupure pour la logique
-du premier ordre. Cependant, la différence ici est que nous sommes dans un
-cadre "alogique" (nos symboles ne portent aucun sens logique).
+> du premier ordre (correspondant aussi à la règle de résolution). Cependant,
+> la différence ici est que nous sommes dans un cadre "alogique" (nos objets
+> ne portent aucun sens logique).
 
 ## Exécution
 
-Cela marche à peu près comme pour la résolution d'un puzzle ! Vous avez une
-constellation faites de plusieurs étoiles. Choisissez des étoiles initiales
+Cela marche à peu près comme pour la résolution d'un puzzle. Vous avez une
+constellation faites de plusieurs étoiles. Choisissez des *étoiles initiales*
 puis des copies des autres étoiles seront jetées dessus pour interagir par
 fusion. L'opération continue jusqu'à qu'il n'y ait plus d'interactions
-possibles.
+possibles (saturation).
 La constellation obtenue à la fin est le résultat de l'exécution.
 
-Plus formellement, soit `I` l'ensemble des *étoiles initiales* (à voir comme
-une sorte d'espace de travail ou d'interaction) et `R` le
-reste appelé *ensemble des étoiles de référence*. L'exécution procèe de la
-façon suivante :
-1. selectionner un rayon `ri` d'une étoile `s` de `I`;
-2. chercher toutes les connexions possibles avec des rayons `rj` d'étoiles `s'`
-   de `R`;
-3. dupliquer `s` dans `I` pour chaque `rj` trouvé;
-4. remplacer chaque copie de `s` par la fusion `s <i,j> s'`;
-5. répéter jusqu'à qu'il n'y a plus aucune interaction possible dans `I`.
+Plus formellement, nous séparons une constellation en deux parties pour
+l'exécuter :
+- l'ensemble des *étoiles initiales* (à voir comme une sorte d'espace de
+travail ou d'interaction);
+- le reste appelé *étoiles de référence*.
+
+On pourrait représenter cette séparation ainsi avec les étoiles de référence
+à gauche et les étoiles initiales à droite, séparées avec le symbole `|-` :
+
+```
+s1 ... sn |- s1' ... sm'
+```
+
+L'exécution procède de la façon suivante :
+1. selectionner un rayon `r'` d'une étoile initiale `s'`;
+2. chercher toutes les connexions possibles avec des rayons `r` d'étoiles de
+   référence `s`;
+3. dupliquer `s'` à droite pour chaque tel rayon `r` trouvé;
+4. remplacer chaque copie de `s'` par la fusion `s` entre et `s'`;
+5. répéter jusqu'à qu'il n'y a plus aucune interaction possible l'espace des
+   étoiles initiales.
 
 ## Exemple
 
 Considérons l'exécution de la constellation suivante où l'unique étoile
 initiale est préfixée par `@`:
 ```
-+7($l:X) +7($r:X); $3(X) +8($l:X); @+8($r:X) $6(X);
--7(X) -8(X);
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z));
+@-add($s($s($0)) $s($s($0)) R) R.
 ```
 
-On sépare la constellation en constellation de référence (à gauche de `|-` et
-en espace d'interaction (à droite de `|-`).
-Pour l'exemple, on préfixe par `>>` les rayons sélectionnés. Nous avons donc
-les étapes suivantes :
-```
-+7($l:X) +7($r:X); $3(X) +8($l:X); -7(X) >>-8(X) |- >>+8($r:X) $6(X);
-```
+Pour l'exemple, on entoure par `>>` et `<<` les rayons sélectionnés. Nous avons
+donc les étapes suivantes :
 
 ```
-+7($l:X) +7($r:X); $3(X) +8($l:X); -7(X) -8(X) |- -7($r:X) $6(X);
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z));
+@-add($s($s($0)) $s($s($0)) R) R.
 ```
 
-```
-+7($l:X) >>+7($r:X); $3(X) +8($l:X); -7(X) -8(X) |- >>-7($r:X) $6(X);
-```
+Nous avons la séparation suivante :
 
 ```
-+7($l:X) +7($r:X); $3(X) +8($l:X); -7(X) -8(X) |- +7($l:X) $6(X);
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z))
+|-
+-add($s($s($0)) $s($s($0)) R) R
 ```
 
-```
-+7($l:X) +7($r:X); $3(X) +8($l:X); >>-7(X) -8(X) |- >>+7($l:X) $6(X);
-```
+Sélectionnons le premier rayon :
 
 ```
-+7($l:X) +7($r:X); $3(X) +8($l:X); -7(X) -8(X) |- -8($l:X) $6(X);
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z))
+|-
+>>-add($s($s($0))<< $s($s($0)) R) R
 ```
 
-```
-+7($l:X) +7($r:X); $3(X) >>+8($l:X); -7(X) -8(X) |- >>-8($l:X) $6(X);
-```
+Il ne peut pas se connecter à `+add($0 Y Y)` car le premier argument `$0` est
+incompatible avec `$s($s($0))`. Cependant, il peut interagir avec
+`+add($s(X) Y $s(Z))`. Nous effectuons une fusion suivante entre
 
 ```
-+7($l:X) +7($r:X); $3(X) +8($l:X); -7(X) -8(X) |- $3(X) $6(X);
+-add(X Y Z) +add($s(X) Y $s(Z))
 ```
 
-Le résultat du calcul est une constellation contenant uniquement l'étoile
-`$3(X) $6(X);`.
+et
+
+```
+-add($s($s($0)) $s($s($0)) R) R
+```
+
+donnant la substitution `{X:=$s($0), Y:=$s($s($0)), R:=$s(Z)}` et le résultat :
+
+```
+-add($s($0) $s($s($0)) Z) $s(Z)
+```
+
+Nous obtenons donc l'étape suivante :
+
+
+```
++add($0 Y Y);
+-add(X Y Z) >>+add($s(X) Y $s(Z))<<
+|-
+-add($s($0) $s($s($0)) Z) $s(Z)
+```
+
+Nous resélectinnons le premier rayon :
+
+```
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z))
+|-
+>>-add($s($0) $s($s($0)) Z)<< $s(Z)
+```
+
+Il peut se connecter à `+add($s(X) Y $s(Z))` avec comme substitution
+`{X:=$0, Y:=$s($s($0)), Z:=$s(Z')}` :
+
+```
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z))
+|-
+-add($0 $s($s($0)) Z') $s($s(Z'))
+```
+
+Nous sélectionnons le premier rayon :
+
+```
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z))
+|-
+>>-add($0 $s($s($0)) Z')<< $s($s(Z'))
+```
+
+Il ne peut interagir qu'avec la première étoile de référence `+add($0 Y Y)`, ce
+qui nous donne :
+
+```
++add($0 Y Y);
+-add(X Y Z) +add($s(X) Y $s(Z))
+|-
+$s($s($s($s($0))))
+```
+
+Le résultat de l'exécution est donc :
+
+```
+$s($s($s($s($0))))
+```
