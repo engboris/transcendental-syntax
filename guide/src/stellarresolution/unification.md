@@ -26,7 +26,7 @@ Par exemple, `f(X)` et `f(h(Y))` sont unifiables avec la substitution
 `{X:=h(Y)}` remplaçant `X` par `h(Y)`.
 
 Les substitutions qui nous intéressent sont celles qui sont les plus générales.
-Nous aurions pu considérer la substitution `{X:=h(c(a)); Y:={c(a)}`, tout aussi
+Nous aurions pu considérer la substitution `{X:=h(c(a)); Y:=c(a)}`, tout aussi
 valide mais inutilement précise.
 
 Une autre façon de voir les choses est de voir cela comme brancher des termes
