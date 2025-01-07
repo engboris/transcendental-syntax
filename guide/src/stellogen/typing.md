@@ -1,7 +1,7 @@
 # Typage
 
 Le typage en Stellogen utilise les principes de syntaxe transcendantale
-où les types sont définis comme des ensembles de tests elles-mêmes définies
+où les types sont définis comme des ensembles de tests eux-mêmes définis
 avec des constellations. La vérification de type implique le passage de tous
 les tests associés à un type.
 
@@ -15,7 +15,7 @@ plus sophistiquées.
 Tout d'abord il faut définir des *checkers* qui sont des galaxies d'une
 certaine forme contenant :
 - un champ `interaction` contenant nécessairement un token `{tested}` et un
-autre token `{tested}`;
+autre token `{test}`;
 - un champ `expect`.
 
 Par exemple :
