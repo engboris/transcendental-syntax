@@ -7,7 +7,7 @@ Une galaxie est soit une constellation soit une structure avec des champs
 nommés contenant d'autres galaxies.
 
 Plus généralement, Stellogen manipule en réalité des galaxies plutôt que
-des constellations (qui sont des cas particulies de galaxies).
+des constellations (qui sont des cas particuliers de galaxies).
 
 En Stellogen, "tout est galaxie" de la même manière que tout est objet
 dans des langages de programmation comme *Smalltalk* ou *Ruby*.
@@ -28,3 +28,7 @@ On accède ensuite aux champs d'une galaxie avec `->` :
 show g->test1.
 show g->test2.
 ```
+
+> Cela ressemble au concept de record (enregistrement) en programmation sauf
+> que lorsque les galaxies sont utilisées, elles sont représentées par leur
+> constellation sous-jacente (par oubli d'étiquettes).

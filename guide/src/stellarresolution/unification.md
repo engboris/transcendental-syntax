@@ -1,30 +1,27 @@
 # Unification de termes
 
+## Syntaxe
+
+Dans la *théorie de l'unification*, nous écrivons des *termes*. Ce sont soit :
+- des *variables* (commençant par une majuscule comme `X`, `Y` ou `Var`);
+- des *fonctions* de la forme `f(t1, ..., tn)` où `f` est un *symbole de
+fonction* (commençant par une minuscule ou un chiffre) et les expressions
+`t1`, ..., `tn` sont d'autres termes.
+
+Tous les identifiants (que cela soit pour les variables ou symboles de
+fonction) peuvent contenir les symboles `_`, `?` et terminer par une séquence
+de symboles `'`. Par exemple : `x'`, `X''`, `X_1`.
+
+> **Exemples de termes.** `X`, `f(X)`, `h(a, X)`, `parent(X)`, `add(X, Y, Z)`.
+
+On peut aussi omettre la virgule séparant les arguments d'une fonction étant
+donné que leur absence de produit pas d'ambiguïté. On écrirait donc
+`h(a X)` à la place de `h(a, X)`.
+
 ## Principe
 
-En résolution stellaire, un *rayon* est soit :
-- une *variable* notée en majuscules et pouvant contenir `_` ou des
-chiffres. Comme `X`, `X10` ou encore `VAR_55`;
-- un *symbole de fonction* préfixé de `+` (polarité positive), `-` (polarité
-négative) ou de `$` (polarité nulle ou absence de polarité) possiblement
-appliqué à une séquence ordonnée d'autres rayons "arguments" écrits entre
-parenthèses.
-
-Il existe un symbole binaire `:` infixe et associatif à droite nous permettant
-d'écrire `$a:X` à la place de `:($a X)` ou encore `$cons($a X)`. Cela nous
-permet notamment de concaténer des symboles de façon lisible pour avoir des
-sortes de listes :
-
-```
-+f($a:$b:$c:$e).
-```
-
-> **Exemples de rayons.** `$f(X)`, `+f(-h(X $a))`, `$s`, `+list($a $b $c)`,
-> `+list($a:$b:$c:$nil)`.
-
-Dans la théorie de l'unification de termes classique, on dit que deux termes
-sont *unifiables* lorsqu'il existe une substitution des variables de telle
-sorte à les rendre égaux.
+Dans la théorie de l'unification, on dit que deux termes sont *unifiables*
+lorsqu'il existe une substitution des variables les rendant identiques.
 Par exemple, `f(X)` et `f(h(Y))` sont unifiables avec la substitution
 `{X:=h(Y)}` remplaçant `X` par `h(Y)`.
 
@@ -32,29 +29,15 @@ Les substitutions qui nous intéressent sont celles qui sont les plus générale
 Nous aurions pu considérer la substitution `{X:=h(c(a)); Y:=c(a)}`, tout aussi
 valide mais inutilement précise.
 
-Dans la même idée, en résolution stellaire, nous disons que deux rayons sont
-*compatibles* lorsque
- leur terme sous-jacent (obtenu par oubli des polarités) sont unifiables mais
-nous voulons aussi que des symboles de fonctions de polarités opposées se
-rencontrent (au lieu de considérer des symboles identiques):
+Une autre façon de voir les choses est de voir cela comme brancher des termes
+ensemble pour vérifier s'ils sont compatibles se branchent correctement :
+- une variable `X` se branche avec tout ce qui ne contient pas `X` comme
+sous-terme, sinon nous aurions une dépendance circulaire, comme entre `X` et
+`f(X)`;
+- une fonction `f(t1, ..., tn)` est compatible avec `f(u1, ..., un)` où `ti`
+est compatible avec `ui` pour tout `i`.
 
-- `+f(X)` et `-f($h($a))` sont compatibles avec `{X:=$h($a)}`;
-- `$f(X)` et `$f($h($a))` sont incompatibles;
-- `+f(X)` et `+f($h($a))` sont incompatibles;
-- `+f(+h(X))` et `-f(-h($a))` sont compatibles avec `{X:=$a}`;
-- `+f(+h(X))` et `-f(-h(+a))` sont compatibles avec `{X:=+a}`.
-
-## Entités élémentaires de résolution stellaire
-
-En résolution stellaire, nous avons :
-- les rayons;
-- les *étoiles* qui sont des séquences non ordonnées de rayons comme par
-exemple `+f(X) X` ou `+f(+h(X)) $a $f($b)`;
-- les *constellations* qui sont des séquences non ordonnées d'étoiles séparées
-par le symbole `;` et se terminant par un `.`, comme par exemple
-`+f(X) X; +f(+h(X) $a $f($b)).`.
-
-L'étoile vide est notée `[]` et la constellation vide `{}`.
-
-Les constellations sont en fait les plus petits objets que nous pourront
-manipuler. C'est elles qui pourront être *exécutées*.
+- `f(X)` et `f(h(a))` sont compatibles avec `{X:=h(a)}`;
+- `f(X)` et `X` sont incompatibles;
+- `f(X)` et `g(X)` sont incompatibles;
+- `f(h(X))` et `f(h(a))` sont compatibles avec `{X:=a}`.

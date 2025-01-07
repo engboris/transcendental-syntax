@@ -1,5 +1,8 @@
 # Transcendental Syntax
 
+**Note: this project is an experimental proof of concept, not a fully designed
+and specified programming language.**
+
 The transcendental syntax is a method of constructing logical abstractions from
 a low-level elementary and "logic-agnostic" language.
 

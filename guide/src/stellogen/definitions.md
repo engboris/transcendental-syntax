@@ -74,7 +74,6 @@ Les étoiles initiales sont placées dans un espace de travail et sont sujettes
 On peut aussi mettre le focus sur toutes les étoiles d'une constellation en
 la préfixant aussi avec `@` :
 
-
 ```
 x = +a; -a $b.
 z = -f(X).
@@ -94,10 +93,8 @@ end
 ```
 
 Cet enchaînement part de la première constellation `+n0($0)` considérée comme
-initiale. La constellation suivante interagit ensuite avec la précédente. On
-a donc une chaîne d'interaction avec focus complet sur le résultat précédent.
-
-C'est comme si nous faisions le calcul suivant :
+initiale. Chaque constellation suivante interagit ensuite avec le résultat
+précédent. C'est comme si nous faisions le calcul suivant :
 
 ```
 @+n0($0);
@@ -111,6 +108,7 @@ donnant
 ```
 
 puis
+
 ```
 @+n1($s($0));
 -n1(X) +n2($s(X)).
