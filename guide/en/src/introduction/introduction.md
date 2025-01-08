@@ -14,3 +14,4 @@ questions. Feel free to contact me at
 
 Happy reading!
 
+(Initial translation provided by noncanonicAleae)
