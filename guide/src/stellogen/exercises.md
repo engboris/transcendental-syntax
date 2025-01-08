@@ -16,23 +16,23 @@ end
 empty = {}.
 
 answer = {replace_me}.
-exercise1 :: empty [checker]
+exercise1 :: empty [checker].
 exercise1 = ((-1 $ok) {1})[1=>answer].
 
 answer = {replace_me}.
-exercise2 :: empty [checker]
+exercise2 :: empty [checker].
 exercise2 = ((-1; +2) {1})[1=>answer].
 
 answer = {replace_me}.
-exercise3 :: empty [checker]
+exercise3 :: empty [checker].
 exercise3 = ((-1 $ok; -2 +3) {1})[1=>answer].
 
 answer = {replace_me}.
-exercise4 :: empty [checker]
+exercise4 :: empty [checker].
 exercise4 = ((-f(+g(X)) $ok) {1})[1=>answer].
 
 answer = {replace_me}.
-exercise5 :: empty [checker]
+exercise5 :: empty [checker].
 exercise5 = ((+f($a) +f($b); +g($a); @+g($b) $ok) {1})[1=>answer].
 ```
 

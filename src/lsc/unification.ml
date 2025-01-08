@@ -100,7 +100,7 @@ let extract_idfuncs ts =
 
 let signals = ref []
 
-(* FIXME: does work as expected *)
+(* FIXME: doesn't work as expected *)
 let emit_signals sub =
   let new_signals = List.map ~f:(fun (_, t) -> t) sub in
   signals := new_signals @ !signals

@@ -38,8 +38,8 @@ union1 = (x y) z.
 Mais il faut noter que contrairement à la programmation fonctionnelle,
 il n'y a pas d'ordre défini.
 
-> Les définitions statiques correspondent à la notion "d'objet-preuve".
-> en correspondance de Curry-Howard.
+> Les définitions statiques correspondent à la notion "d'objet-preuve"
+> dans la correspondance de Curry-Howard.
 
 ## Affichage
 
@@ -74,7 +74,6 @@ Les étoiles initiales sont placées dans un espace de travail et sont sujettes
 On peut aussi mettre le focus sur toutes les étoiles d'une constellation en
 la préfixant aussi avec `@` :
 
-
 ```
 x = +a; -a $b.
 z = -f(X).
@@ -94,10 +93,8 @@ end
 ```
 
 Cet enchaînement part de la première constellation `+n0($0)` considérée comme
-initiale. La constellation suivante interagit ensuite avec la précédente. On
-a donc une chaîne d'interaction avec focus complet sur le résultat précédent.
-
-C'est comme si nous faisions le calcul suivant :
+initiale. Chaque constellation suivante interagit ensuite avec le résultat
+précédent. C'est comme si nous faisions le calcul suivant :
 
 ```
 @+n0($0);
@@ -111,6 +108,7 @@ donnant
 ```
 
 puis
+
 ```
 @+n1($s($0));
 -n1(X) +n2($s(X)).
@@ -130,15 +128,15 @@ représentation d'état (mémoire par exemple).
 chez Boris Eng ou de "proof-trace" chez Pablo Donato. Les processus-preuves
 construisent des objet-preuves (constellations).
 
-# Nettoyage
+# Arrêt de processus
 
 Dans le résultat d'une exécution, si l'on représente les résultats par des
 rayons à polarité nulle, alors les étoiles contenant des rayons polarisés
-peuvent être interprétés comme des calculs non terminés qu'il pourrait être
+peuvent être interprétés comme des calculs non terminés qui pourraient être
 effacés.
 
 Pour cela, dans les processus de constructions, nous pouvons utiliser
-l'expression spéciale `clean` :
+l'expression spéciale `kill` :
 
 ```
 c = process
@@ -146,7 +144,7 @@ c = process
   -n0(X) +n1($s(X)).
   -n1(X) +n2($s(X)).
   -n2(X) $result(X); -n2(X) +n3(X).
-  clean.
+  kill.
 end
 
 print c.
@@ -155,4 +153,17 @@ print c.
 Nous avons utilisé un rayon `+n3(X)` pour poursuivre des calculs
 si nous souhaitons. Le résultat est stocké dans `$result(X)`.
 Mais si nous souhaitons seulement conserver le résultat et retirer toute
-autre possibilité de calcul alors on peut utiliser `clean`.
+autre possibilité de calcul alors on peut utiliser `kill`.
+
+# Nettoyage de processus
+
+Il arrive parfois que l'on se retrouve avec des étoiles vides `[]` dans
+les processus. Il est possible de s'en débarrasser avec la commande `clean` :
+
+```
+print process
+  +f($0).
+  -f(X).
+  clean.
+end
+```

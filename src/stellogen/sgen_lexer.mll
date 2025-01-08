@@ -3,8 +3,8 @@
   exception SyntaxError of string
 }
 
-let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_']* '\''* '?'?
-let var_id   = ['A'-'Z'] ['A'-'Z' '0'-'9' '_']* '\''*
+let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '?']* '\''*
+let var_id   = ['A'-'Z'] ['A'-'Z' 'a'-'z' '0'-'9' '_' '-']* '\''*
 let space    = [' ' '\t']+
 let newline  = '\r' | '\n' | "\r\n"
 
@@ -12,14 +12,11 @@ rule read = parse
   (* Stellogen *)
   | '{'       { LBRACE }
   | '}'       { RBRACE }
-  | "clean"   { CLEAN }
   | "end"     { END }
   | "show"    { SHOW }
   | "galaxy"  { GALAXY }
   | "print"   { PRINT }
-  | "set"     { SET }
   | "process" { PROCESS }
-  | "unset"   { UNSET }
   | "->"      { RARROW }
   | "=>"      { DRARROW }
   | "."       { DOT }

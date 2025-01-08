@@ -23,5 +23,5 @@ query =
 print process
 	query.
 	graph composition.
-	clean.
+	kill.
 end

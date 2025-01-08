@@ -24,41 +24,50 @@ and galaxy_expr =
   | SubstGal of ident * galaxy_expr * galaxy_expr
   | Process of galaxy_expr list
   | Token of string
-  | Clean
+
+let reserved_words = ["clean"; "kill"]
+let is_reserved = List.mem reserved_words ~equal:equal_string
+
+exception IllFormedChecker
+exception ReservedWord of ident
+exception UnknownField of ident
+exception UnknownID of ident
+exception EmptyProcess
+exception TestFailed of ident * ident * ident * galaxy * galaxy
 
 type env = {
   objs  : (ident * galaxy_expr) list;
   types : (ident * (ident * ident option)) list;
 }
 
+let empty_env = { objs = []; types = [] }
+
 type declaration =
   | Def of ident * galaxy_expr
   | ShowGalaxy of galaxy_expr
   | PrintGalaxy of galaxy_expr
-  | SetOption of ident * bool
   | TypeDef of ident * ident * ident option
 
 type program = declaration list
 
-let showsteps = ref false
-let showtrace = ref false
-let cleaner = ref false
-
 let add_obj env x e = List.Assoc.add ~equal:equal_string env.objs x e
-let get_obj env x = List.Assoc.find_exn ~equal:equal_string env.objs x
+let get_obj env x =
+  try List.Assoc.find_exn ~equal:equal_string env.objs x
+  with Not_found_s(_) -> raise (UnknownID x)
 let add_type env x e = List.Assoc.add ~equal:equal_string env.types x e
-let get_type env x = List.Assoc.find_exn ~equal:equal_string env.types x
+let get_type env x =
+  try List.Assoc.find_exn ~equal:equal_string env.types x
+  with Not_found_s(_) -> raise (UnknownID x)
 
 let rec map_galaxy env ~f = function
   | Const mcs -> Const (f mcs)
   | Galaxy g -> Galaxy (List.map ~f:(fun (k, v) ->
     (k, map_galaxy_expr env ~f:f v)) g
   )
-and map_galaxy_expr env ~f = function
+and map_galaxy_expr env ~f e = match e with
   | Raw g -> Raw (map_galaxy env ~f:f g)
   | Access (e, x) -> Access (map_galaxy_expr env ~f:f e, x)
-  | Id x -> get_obj env x
-    |> map_galaxy_expr env ~f:f
+  | Id x -> get_obj env x |> map_galaxy_expr env ~f:f
   | Exec e -> Exec (map_galaxy_expr env ~f:f e)
   | Union (e, e') ->
     Union (map_galaxy_expr env ~f:f e, map_galaxy_expr env ~f:f e')
@@ -70,14 +79,11 @@ and map_galaxy_expr env ~f = function
   | SubstGal (x, e, e') ->
     SubstGal (x, map_galaxy_expr env ~f:f e, map_galaxy_expr env ~f:f e')
   | Process gs -> Process (List.map ~f:(map_galaxy_expr env ~f:f) gs)
-  | Token x -> Token x
-  | Clean -> Clean
+  | Token _ -> e
 
-let rec fill_token env (_from : string) _to = function
-  | Raw g -> Raw g
+let rec fill_token env (_from : string) _to e = match e with
   | Id x -> get_obj env x
     |> fill_token env _from _to
-  | Clean -> Clean
   | Access (g, x) -> Access (fill_token env _from _to g, x)
   | Exec e -> Exec (fill_token env _from _to e)
   | Union (e, e') ->
@@ -92,7 +98,7 @@ let rec fill_token env (_from : string) _to = function
     SubstGal (x, fill_token env _from _to e, fill_token env _from _to e')
   | Process gs -> Process (List.map ~f:(fill_token env _from _to) gs)
   | Token x when equal_string x _from -> _to
-  | Token x -> Token x
+  | Raw _ | Token _ -> e
 
 let subst_vars env _from _to =
   map_galaxy_expr env ~f:(Lsc_ast.subst_all_vars [(_from, _to)])
@@ -105,16 +111,18 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
   | Token _ -> Const []
   | Access (e, x) ->
     begin match eval_galaxy_expr env e with
-    | Const _ -> failwith "Can't access field of a constellation."
+    | Const _ -> raise (UnknownField x)
     | Galaxy g ->
-      List.Assoc.find_exn ~equal:equal_string g x
-      |> eval_galaxy_expr env
+      try
+        List.Assoc.find_exn ~equal:equal_string g x
+        |> eval_galaxy_expr env
+      with Not_found_s(_) -> raise (UnknownField x)
     end
   | Id x ->
     begin try
       get_obj env x |> eval_galaxy_expr env
     with Sexplib0__Sexp.Not_found_s _ ->
-      failwith ("Error: undefined identifier " ^ x ^ ".");
+      raise (UnknownID x)
     end
   | Union (e, e') ->
     let mcs1 = eval_galaxy_expr env e  |> galaxy_to_constellation env in
@@ -123,8 +131,7 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
   | Exec e  ->
     Const (eval_galaxy_expr env e
     |> galaxy_to_constellation env
-    |> exec ~showtrace:!showtrace ~showsteps:!showsteps
-    |> (if !cleaner then concealing else Fn.id)
+    |> exec ~showtrace:false ~showsteps:false
     |> unmark_all)
   | Extend (pf, e) ->
     Const (eval_galaxy_expr env e
@@ -142,7 +149,7 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
     Const (eval_galaxy_expr env e
     |> galaxy_to_constellation env
     |> remove_mark_all |> focus)
-  | Process [] -> failwith "ExprError: empty stellar sequence."
+  | Process [] -> Const []
   | Process (h::t) ->
     let init = eval_galaxy_expr env h
       |> galaxy_to_constellation env
@@ -150,16 +157,19 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
       |> focus in
     Const (List.fold_left t ~init:init ~f:(fun acc x ->
       match x with
-      | Clean -> acc
+      | Id "kill" -> acc
         |> remove_mark_all
-        |> concealing
+        |> kill
+        |> focus
+      | Id "clean" -> acc
+        |> remove_mark_all
+        |> clean
         |> focus
       | _ ->
         let origin = acc |> remove_mark_all |> focus in
         eval_galaxy_expr env (Exec (Union (x, Raw (Const origin))))
         |> galaxy_to_constellation env
     ))
-  | Clean -> failwith "'Clean' special cannot occur outside stellar sequences."
   | SubstVar (x, r, e) ->
     subst_vars env (x, None) r e
     |> eval_galaxy_expr env
@@ -175,45 +185,95 @@ and galaxy_to_constellation env = function
   | Galaxy g -> List.fold_left g ~init:[] ~f:(fun acc (_, v) ->
     galaxy_to_constellation env (eval_galaxy_expr env v) @ acc)
 
+let string_of_runtime_err e =
+  let red text = "\x1b[31m" ^ text ^ "\x1b[0m" in
+  match e with
+  | ReservedWord x ->
+    Printf.sprintf "%s: identifier '%s' is reserved.\n"
+    (red "ReservedWord Error") x
+  | UnknownField x ->
+    Printf.sprintf "%s: field '%s' not found.\n"
+    (red "UnknownField Error") x
+  | UnknownID x ->
+    Printf.sprintf "%s: identifier '%s' not found.\n"
+    (red "UnknownID Error") x
+  | TestFailed (x, t, id, got, expected) ->
+    Printf.sprintf "%s: %s.\nChecking %s :: %s\n* got: %s;\n* expected: %s\n"
+    (red "TestFailed Error")
+    (if equal_string id "_"
+      then ("unique test of '" ^ t ^ "' failed")
+      else ("test '" ^ id ^ "' failed"))
+    x t
+    (got
+      |> galaxy_to_constellation empty_env
+      |> List.map ~f:remove_mark
+      |> string_of_constellation)
+    (expected
+      |> galaxy_to_constellation empty_env
+      |> List.map ~f:remove_mark
+      |> string_of_constellation)
+  | _ -> raise e
+
 let equal_galaxy env g g' =
   let mcs  = galaxy_to_constellation env g  in
   let mcs' = galaxy_to_constellation env g' in
   Lsc_ast.equal_mconstellation mcs mcs'
 
-let typecheck env x t (ck : ident option) : unit =
-  let echecker = match ck with
-    | None -> Union (Token "tested", Token "test")
-    | Some xck -> get_obj env xck
-  in
+let typecheck env x t (ck : galaxy_expr) : unit =
   let gtests = match get_obj env t |> eval_galaxy_expr env with
     | Const mcs -> [("_", Raw (Const mcs))]
     | Galaxy gtests -> gtests
   in
-  let gchecker =
-    match echecker |> eval_galaxy_expr env with
-    | Const _ -> failwith "Ill-formed checker."
-    | Galaxy g -> g
-  in
-  let testing = List.map gtests ~f:(fun (_, test) ->
-    Exec (SubstGal ("tested", get_obj env x,
-        SubstGal ("test", test,
-            List.Assoc.find_exn ~equal:equal_string gchecker "interaction")))
-    |> eval_galaxy_expr env
-  ) in
-  let expect =
-    List.Assoc.find_exn ~equal:equal_string gchecker "expect"
-    |> eval_galaxy_expr env
-  in
-  if List.exists testing ~f:(fun r -> not (equal_galaxy env r expect)) then
-    failwith ("TypeError: " ^ x ^ " not of type " ^ t ^ ".")
+  let testing = List.map gtests ~f:(fun (idtest, test) -> match ck with
+    | Raw (Galaxy gck) ->
+      let format_field = "interaction" in
+      let format =
+        try List.Assoc.find_exn ~equal:equal_string gck format_field
+        with Not_found_s(_) -> raise (UnknownField format_field)
+      in
+        idtest,
+          Exec (SubstGal ("tested", get_obj env x,
+            SubstGal ("test", test, format)
+          ))
+        |> eval_galaxy_expr env
+    | _weak73 -> raise IllFormedChecker
+    ) in
+  let expect = Access (ck, "expect") |> eval_galaxy_expr env in
+  List.iter testing ~f:(fun (idtest, got) ->
+    if not (equal_galaxy env got expect) then
+    raise (TestFailed (x, t, idtest, got, expect))
+  )
+
+let default_checker =
+  Raw (Galaxy [
+    ("interaction", Union (Token "tested", Token "test"));
+    ("expect", Raw (Const [Unmarked [func "ok" []]]))
+  ])
+
+let rec string_of_galaxy env = function
+  | Const mcs -> mcs |> remove_mark_all |> string_of_constellation
+  | Galaxy g ->
+    "galaxy\n" ^
+    List.fold_left g ~init:"" ~f:(fun acc (k, v) ->
+      acc ^ "  " ^ k ^ ": " ^
+      (v |> eval_galaxy_expr env |> string_of_galaxy env) ^ "\n"
+    )
+    ^ "end"
 
 let eval_decl env : declaration -> env = function
+  | Def (x, _) when is_reserved x -> raise (ReservedWord x)
   | Def (x, e) ->
     let env = { objs = add_obj env x e; types = env.types } in
     begin match List.Assoc.find ~equal:equal_string env.types x with
-    | Some (t, ck) -> (typecheck env x t ck; env)
+    | Some (t, None) -> (typecheck env x t default_checker; env)
+    | Some (t, Some xck) -> (typecheck env x t (get_obj env xck); env)
     | None -> env
     end
+  | ShowGalaxy (Raw (Galaxy g)) -> Galaxy g
+    |> string_of_galaxy env
+    |> Stdlib.print_string;
+    Stdlib.print_newline ();
+    env
   | ShowGalaxy e ->
     eval_galaxy_expr env e
     |> galaxy_to_constellation env
@@ -230,19 +290,15 @@ let eval_decl env : declaration -> env = function
     |> Stdlib.print_string;
     Stdlib.print_newline ();
     env
-  | SetOption (id, b) ->
-    begin
-      if (equal_string id "show-steps") then (showsteps := b)
-      else if (equal_string id "show-trace") then (showtrace := b)
-      else if (equal_string id "cleaner") then (cleaner := b)
-      else failwith ("OptionEror: unrecognized option '" ^ id ^ "'.")
-    end;
-    env
   | TypeDef (x, t, ck) ->
     { objs = env.objs; types = add_type env x (t, ck) }
 
 let eval_program p =
-  let empty_env = { objs = []; types = [] } in
-  List.fold_left
-  ~f:(fun acc x -> eval_decl acc x)
-  ~init:empty_env p
+  try
+    List.fold_left
+    ~f:(fun acc x -> eval_decl acc x)
+    ~init:empty_env p
+  with e -> string_of_runtime_err e
+    |> Out_channel.output_string Out_channel.stdout;
+    Out_channel.flush Out_channel.stdout;
+    empty_env

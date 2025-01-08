@@ -26,3 +26,13 @@ Nous n'avons pas forcément de fonction de projection dans ce cas;
 > La différence entre les deux types d'encodages est encore en cours de
 réflexion, je suis preneur si quelqu'un a un avis. Je pense que cela a des
 conséquences en expressivité et facilité de manipulation des types.
+
+## Symboles spéciaux
+
+Stellogen définit un symbole binaire `:` infixe et associatif à droite nous
+permettant d'écrire `$a:X` à la place de `:($a X)` ou encore `$cons($a X)`.
+Cela nous permet notamment de concaténer des symboles de façon lisible :
+
+```
++f($a:$b:$c:$e).
+```

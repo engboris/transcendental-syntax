@@ -1,12 +1,12 @@
 # Syntaxe transcendantale
 
-La logique vit habituellement dans des *systèmes logiques* tous ou plus ou moins
+La logique vit habituellement dans des *systèmes logiques* tous plus ou moins
 compatibles entre eux. On peut parler de pluralisme logique.
 
 Les logiques fonctionnent habituellement avec une base calculatoire appelée
 *syntaxe* qui suit les règles dictées par une autre syntaxe de plus haut niveau
 qu'on appelle *sémantique*. En particulier, sont imposés : les objets
-utilisables, leur forme, leurs interactions possibles et les formules ou 
+utilisables, leur forme, leurs interactions possibles et les formules ou
 spécifications que l'on peut exprimer.
 
 Cette action à distance entre deux espaces hermétiques, bien que le fruit de
@@ -30,7 +30,7 @@ de replacer nos connaissances dans un nouvel environnement logique;
 
 Un automate fini est une machine qui peut lire un mot (lettre par lettre et
 sans mémoire) puis l'accepter ou non.
-On automate peut être caractérisé par l'ensemble de ses mots acceptés formant
+Un automate peut être caractérisé par l'ensemble de ses mots acceptés formant
 son *langage reconnu*.
 
 Si nous faisons face à un automate quelconque, comment déterminer quel est son

@@ -1,8 +1,8 @@
 # Séquences
 
-# Cas algébrique
+## Cas algébrique
 
-## Séquences fixes
+### Séquences fixes
 
 ```
 +seq($a $b $c $d).
@@ -16,7 +16,7 @@ query = -head(+seq($1 $2 $3 $4) R) R.
 print (query head).
 ```
 
-## Pile de constantes
+### Pile de constantes
 
 ```
 +list($a($b($c($e)))).
@@ -41,7 +41,7 @@ quelconque. On ne peut donc seulement empiler et dépiler des symboles
 spécifiques. Pour résoudre ce problème, il faut utiliser les symboles
 de fonction comme constructeurs et non valeurs.
 
-## Listes générales
+### Listes générales
 
 On peut imaginer de nombreuses représentations équivalentes en utilisant
 les symboles de fonction pour concaténer les éléments ensemble.
@@ -110,6 +110,31 @@ print
   @-map($f $a:$b:$c:$d:$e R) R.
 ```
 
-# Cas interactif
+## Cas interactif
 
-(TODO)
+### Ensembles
+
+```
+c = +e1($a); +e2($b); $e3($c).
+```
+
+### Chaînes
+
+```
+c =
+  @-e($1 X) +e($2 $a);
+  -e($2 X) +e($3 $b);
+  -e($3 X) +e($4 $c);
+  -e($4 X) +e($5 $d).
+```
+
+### Listes chaînées
+
+```
+c =
+  @+e($1 $e);
+  -e($1 X) +e($2 $a:X);
+  -e($2 X) +e($3 $b:X);
+  -e($3 X) +e($4 $c:X);
+  -e($4 X) +e($5 $d:X).
+```

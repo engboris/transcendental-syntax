@@ -9,16 +9,16 @@ qui intervient dans le langage Prolog) servant de noyau minimal du calcul.
 Il représente le calcul par un réseau de contraintes syntaxiques qui doivent
 être résolues pour propager de l'information. Le résultat du calcul correspond
 aux informations laissées par les réseaux qui sont restés cohérents jusqu'au
-bout sand rencontrer de conflits.
+bout sans rencontrer de conflits.
 
 Ce sont des idées qui existent déjà en programmation logique mais qui sont
-reformulées et utilisées différemment. En particulier, on attache aucun sens
+reformulées et utilisées différemment. En particulier, on n'attache aucun sens
 logique aux objets (même si on peut les voir comme tel, ils ne sont pas censés
-représenter pas des relations ou des objets de systèmes logiques). 
+représenter des relations ou des objets de systèmes logiques).
 
 Ce calcul peut être compris de plusieurs manières. C'est :
 - un calcul de processus;
-- un langage de programmation par contrainte;
+- un langage de programmation par contraintes;
 - une variante des clauses disjonctives avec règle de résolution de Robinson;
 - une généralisation non planaire des tuiles de Wang ou des abstract tile
 assembly models (aTAM);
