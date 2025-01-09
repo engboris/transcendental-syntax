@@ -41,30 +41,38 @@ ray `X`. The result is `X{X:=a}`, i.e., `a`.
 
 ## Execution
 
-Execution is somewhat akin to solving a puzzle. You start with a constellation made up of several stars. Choose some *initial stars*, then create copies of other stars to interact with them through fusion. The process continues until no further interactions are possible (saturation). The final constellation is the result of the execution.
+<<<<<<< Updated upstream
+Execution is somewhat akin to solving a puzzle or playing darts. You start with
+a constellation made up of several stars. Choose some *initial stars*, then
+create copies of other stars to interact with them through fusion. The process
+continues until no further interactions are possible (saturation). The final
+constellation is the result of the execution.
 
 Formally, the constellation is split into two parts for execution:
-- the set of *initial stars* (serving as a workspace or interaction space);
-the rest, referred to as *reference stars*.
+- the *state space*, corresponding to stars which will be targets for
+interaction;
+- the *action space*, corresponding to stars which will interact with stars of
+the state space.
 
-This separation can be represented as follows, with reference stars on the left and initial stars on the right, separated by the symbol `|-`:
+This separation can be represented as follows, with the action space on the left
+and state space on the right, separated by the symbol `|-`:
 
 ```
-s1 ... sn |- s1' ... sm'
+a1 ... an |- s1 ... sm
 ```
 
 Execution proceeds as follows:
-1. Select a ray `r'` from an initial star `s'`;
-2. Find all possible connections with rays `r` from reference stars `s`;
-3. Duplicate `s'` on the right for each such ray `r` found;
-4. Replace each copy of `s'` with the fusion of `s` and `s'`;
-5. Repeat until no further interactions are possible in the space of initial
+1. Select a ray `r` from a state star `s`;
+2. Find all possible connections with rays `r'` from action stars `s`;
+3. Duplicate `s` on the right for each such ray `r'` found;
+4. Replace each copy of `s` with the fusion of `a` and `s`;
+5. Repeat until no further interactions are possible in the state space.
 stars.
 
 ## Example
 
 Consider the execution of the following constellation, where the only initial
-star is prefixed by `@`:
+state star is prefixed by `@`:
 
 ```
 +add($0 Y Y);
@@ -100,7 +108,8 @@ Select the first ray
 ```
 
 `+add($0 Y Y)` cannot interact with `-add($s($s($0)) $s($s($0)) R)`
-because the first argument `$0` is incompatible with `$s($s($0))`. However, it can interact with `+add($s(X) Y $s(Z))`. Fusing:
+because the first argument `$0` is incompatible with `$s($s($0))`. However, it
+can interact with `+add($s(X) Y $s(Z))`. Fusing:
 
 ```
 -add(X Y Z) +add($s(X) Y $s(Z))
@@ -155,7 +164,7 @@ Selecting the first ray once more
 >>-add($0 $s($s($0)) Z')<< $s($s(Z'))
 ```
 
-This ray interacts only with the first reference star `+add($0 Y Y)`, resulting
+This ray interacts only with the first action star `+add($0 Y Y)`, resulting
 in:
 
 ```
