@@ -58,18 +58,7 @@ print +a; -a $b.
 
 ## Focus
 
-If we wish for stars to be initial, they have to be prefixed with the symbol
-`@` (focus):
-
-```
-x = @+a; -a $b.
-z = @-f(X).
-```
-
-Initial stars are put in a work space and are subject to fusion interaction
-with copies of the other stars.
-
-We can also focus all stars of a constellation by prefixing it with `@`:
+We can focus all stars of a constellation by prefixing it with `@`:
 
 ```
 x = +a; -a $b.
@@ -89,8 +78,9 @@ c = process
 end
 ```
 
-This chain starts with the first constellation `+n0($0)`, considered to be 
-initial*. The next constellation then interacts with the previous one. Thus we
+This chain starts with the first constellation `+n0($0)` as a state space. The
+next constellation then interacts as an action space with the previous one 
+seen as a state space). Thus we
 have an interaction chain with a complete focus on the previous result.
 
 It's as if we did the following computation:
