@@ -41,7 +41,6 @@ ray `X`. The result is `X{X:=a}`, i.e., `a`.
 
 ## Execution
 
-<<<<<<< Updated upstream
 Execution is somewhat akin to solving a puzzle or playing darts. You start with
 a constellation made up of several stars. Choose some *initial stars*, then
 create copies of other stars to interact with them through fusion. The process
