@@ -42,8 +42,10 @@ in a very concise way since it mostly relies on a unification algorithm.
 This project is still in development, hence the syntax and features are still
 changing.
 
-Go to https://tsguide.refl.fr/ (guide currently in French only) to learn more
-about how to play with the current implementation of transcendental syntax.
+To learn more about how to play with the current implementation of transcendental
+syntax:
+- French guide (official): https://tsguide.refl.fr/
+- English guide: https://tsguide.refl.fr/en/
 
 # Use
 

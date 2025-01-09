@@ -60,18 +60,7 @@ print +a; -a $b.
 
 ## Focus
 
-Si on souhaite que des étoiles soient initiales, il faut les préfixer avec le
-symbole `@` (focus) :
-
-```
-x = @+a; -a $b.
-z = @-f(X).
-```
-
-Les étoiles initiales sont placées dans un espace de travail et sont sujettes
-à l'interaction par fusion avec des copies des autres étoiles.
-
-On peut aussi mettre le focus sur toutes les étoiles d'une constellation en
+On peut mettre le focus sur toutes les étoiles d'une constellation en
 la préfixant aussi avec `@` :
 
 ```
