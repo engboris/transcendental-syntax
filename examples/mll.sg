@@ -1,23 +1,28 @@
 '''test of linear identity'''
 "a -o a" = galaxy
-	lpar:
+	testrl:
 		-1(X) -2(X) +c5(X);
 		-3(X); -4(X) +c6(X);
-		-c6(X) $c6(X);
-		@-c5(X) $c5(X).
-	rpar:
+		-c5(X) +7(X); -c6(X);
+		@-7(X) $ok.
+	testrr:
+		-1(X) -2(X) +c5(X);
+		-3(X); -4(X) +c6(X);
+		-c5(X); +7(X) -c6(X);
+		@-7(X) $ok.
+	testll:
 		-1(X) -2(X) +c5(X);
 		-4(X); -3(X) +c6(X);
-		-c6(X) $c6(X);
-		@-c5(X) $c5(X).
+		-c5(X) +7(X); -c6(X);
+		@-7(X) $ok.
+	testlr:
+		-1(X) -2(X) +c5(X);
+		-4(X); -3(X) +c6(X);
+		-c5(X); +7(X) -c6(X);
+		@-7(X) $ok.
 end
 
-checker = galaxy
-	interaction: {tested} {test}.
-	expect: $c5(X19) $c6(X19).
-end
-
-id :: "a -o a" [checker].
+id :: "a -o a".
 id =
 	-5($l:X) +1(X);
 	-5($r:X) +2(X);
