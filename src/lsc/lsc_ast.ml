@@ -215,17 +215,16 @@ let extract_intspace (mcs : marked_constellation) =
     | (Unmarked s)::t -> sort (s::cs, space) t
   in
   match sort ([], []) mcs with
-  (* autonomous interaction *)
-  | unmarked, [] -> cc_representatives [] unmarked
-  (* directed interaction *)
+  (* marks are selected for you in each connected component *)
+  | unmarked, [] ->
+    let (cs, marked) = cc_representatives [] unmarked in
+    ident_counter := 0; (cs, marked)
+  (* user selects marks *)
   | unmarked, marked ->
-    let (marked', remains) = saturation marked [] unmarked in
-    let (cs, reps) = cc_representatives marked' remains in
-    ident_counter := 0;
-    (cs, reps@marked)
+    ident_counter := 0; (unmarked, marked)
 
 (* ---------------------------------------
-   Interactive execution
+   Execution
    --------------------------------------- *)
 
 let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
@@ -242,25 +241,6 @@ let fusion repl1 repl2 s1 s2 theta =
   let new1 = List.map s1 ~f:repl1 in
   let new2 = List.map s2 ~f:repl2 in
   List.map (new1@new2) ~f:(subst theta)
-
-(* co-branching : useless ?
-let connexions (r, other_rays) stars =
-  let rec select_ray acc other_rays' repl1 repl2 = function
-    | [] -> acc
-    | r'::remains ->
-      match raymatcher (repl1 r) (repl2 r') with
-      | None -> select_ray acc (r'::other_rays') repl1 repl2 remains
-      | Some theta ->
-        let res = fusion repl1 repl2 other_rays other_rays' theta in
-        ident_counter := !ident_counter + 2;
-        select_ray (res::acc) (r'::other_rays') repl1 repl2 remains
-  in
-  let repl1 = replace_indices !ident_counter in
-  List.concat_map stars ~f:(fun s ->
-    let repl2 = replace_indices (!ident_counter+1) in
-    select_ray [] [] repl1 repl2 s
-  )
-*)
 
 let search_partners ?(showtrace=false) (r, other_rays) candidates
 : star list =
@@ -288,8 +268,7 @@ let search_partners ?(showtrace=false) (r, other_rays) candidates
         end;
         let other_rays' = queue@s' in
         let res = fusion repl1 repl2 other_rays other_rays' theta
-        :: (* (connexions (r', other_rays') other_stars) @ *)
-           (select_ray (r'::queue) other_stars repl1 repl2 s') in
+        :: (select_ray (r'::queue) other_stars repl1 repl2 s') in
         ident_counter := !ident_counter + 2;
         res
   in
