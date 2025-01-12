@@ -1,25 +1,15 @@
-'''
-TO CLEAN
-'''
-
-'''
-id id
-'''
-id_func = +id($exp($l:X $d)) +id($r:X).
+''' id id '''
+id = +id($exp($l:X $d)) +id($r:X).
 id_arg = $id'($exp($l:X Y)) +arg($exp($l:$r:X Y)).
 linker = -id(X) -arg(X); @+arg($r:X) $out(X).
-print id_func id_arg linker.
+print id id_arg linker.
 
-'''
-id x
-'''
+''' id x '''
 var_x = $x($exp(X Y)) +arg($exp($l:X Y)).
 linker = -id(X) -arg(X); @+arg($r:X) $out(X).
-print id_func var_x linker.
+print id var_x linker.
 
-'''
-lproj x
-'''
+''' lproj x '''
 lproj =
 	+lproj($l:X); 'weakening
 	$lproj($exp($r:$l:X $d)) +lproj($r:$r:X).
