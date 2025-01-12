@@ -19,7 +19,7 @@
  (name tsyntax)
  (synopsis "Technical interpretation of Girard's transcendental syntax")
  (description "The transcendental syntax provides a low-level language called stellar resolution used to build higher-level abstractions defining types, formulas, proofs and any other logical concepts.")
- (depends base menhir)
+ (depends base menhir (alcotest :with-test))
  (tags
   ("transcendental syntax" "logic programming" "constraint programming" "resolution logic" "unification" "self-assembly")))
 
