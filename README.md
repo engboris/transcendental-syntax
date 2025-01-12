@@ -63,7 +63,7 @@ opam install dune
 
 Install dependencies
 ```
-opam install . --deps-only
+opam install . --deps-only --with-test
 ```
 
 Build the project
