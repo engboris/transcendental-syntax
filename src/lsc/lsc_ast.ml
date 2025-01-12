@@ -279,24 +279,26 @@ let search_partners ?(showtrace=false) (r, other_rays) candidates
       select_ray [] cs repl1 repl2 s
     )
 
-let interaction ?(showtrace=false) cs space =
-  let rec interact_on_rays space' queue = function
+let interaction ?(showtrace=false) actions states =
+  let rec interact_on_rays states' queue = function
     | [] -> None
-    | r::rs when not (is_polarised r) -> interact_on_rays space' (r::queue) rs
+    | r::rs when not (is_polarised r) ->
+      interact_on_rays states' (r::queue) rs
     | r::rs ->
-      begin match search_partners ~showtrace (r, queue@rs) (cs@space') with
-      | [] -> interact_on_rays space' (r::queue) rs
-      | new_stars -> Some new_stars
+      begin
+        match search_partners ~showtrace (r, queue@rs) (actions@states') with
+        | [] -> interact_on_rays states' (r::queue) rs
+        | new_stars -> Some new_stars
       end
   in
-  let rec fst_interaction_on_star queue = function
+  let rec interaction_on_star queue = function
     | [] -> None
-    | s::space' ->
-      begin match interact_on_rays space' [] s with
-      | None -> fst_interaction_on_star (s::queue) space'
-      | Some new_stars -> Some ((List.rev queue)@space'@new_stars)
+    | s::states' ->
+      begin match interact_on_rays states' [] s with
+      | None -> interaction_on_star (s::queue) states'
+      | Some new_stars -> Some ((List.rev queue)@states'@new_stars)
       end
-  in fst_interaction_on_star [] space
+  in interaction_on_star [] states
 
 let display_steps content =
   let open Out_channel in
@@ -308,12 +310,12 @@ let display_steps content =
 let exec ?(showtrace=false) ?(showsteps=false) mcs =
   let open Out_channel in
   let print_string = output_string stdout in
-  let rec aux (cs, space) =
+  let rec aux (actions, states) =
     (if showtrace then print_string "\n_____result_____\n");
-    (if showsteps || showtrace then display_steps space);
-    begin match interaction ~showtrace cs space with
-    | None -> space
-    | Some result' -> aux (cs, result')
+    (if showsteps || showtrace then display_steps states);
+    begin match interaction ~showtrace actions states with
+    | None -> states
+    | Some result' -> aux (actions, result')
     end
   in aux (extract_intspace mcs)
     |> if showtrace || showsteps then

@@ -67,6 +67,7 @@ let rec map_galaxy env ~f = function
 and map_galaxy_expr env ~f e = match e with
   | Raw g -> Raw (map_galaxy env ~f:f g)
   | Access (e, x) -> Access (map_galaxy_expr env ~f:f e, x)
+  | Id x when is_reserved x -> Id x
   | Id x -> get_obj env x |> map_galaxy_expr env ~f:f
   | Exec e -> Exec (map_galaxy_expr env ~f:f e)
   | Union (e, e') ->
@@ -82,6 +83,7 @@ and map_galaxy_expr env ~f e = match e with
   | Token _ -> e
 
 let rec fill_token env (_from : string) _to e = match e with
+  | Id x when is_reserved x -> Id x
   | Id x -> get_obj env x
     |> fill_token env _from _to
   | Access (g, x) -> Access (fill_token env _from _to g, x)
@@ -229,7 +231,7 @@ let typecheck env x t (ck : galaxy_expr) : unit =
       let format_field = "interaction" in
       let format =
         try List.Assoc.find_exn ~equal:equal_string gck format_field
-        with Not_found_s(_) -> raise (UnknownField format_field)
+        with Not_found_s(_) -> Union (Token "test", Token "tested")
       in
         idtest,
           Exec (SubstGal ("tested", get_obj env x,
@@ -299,6 +301,5 @@ let eval_program p =
     ~f:(fun acc x -> eval_decl acc x)
     ~init:empty_env p
   with e -> string_of_runtime_err e
-    |> Out_channel.output_string Out_channel.stdout;
-    Out_channel.flush Out_channel.stdout;
-    empty_env
+    |> Out_channel.output_string Out_channel.stderr;
+    raise e
