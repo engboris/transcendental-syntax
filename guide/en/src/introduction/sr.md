@@ -11,7 +11,7 @@ the information left by the networks that remained coherent until the end
 without encountering conflicts.
 
 These ideas already exist in logical programming but are reformulated and used
-differently. In particular, we assign a logical sense to objects (even if they
+differently. In particular, we assign no logical sense to objects (even if they
 can be seen this way, they are not supposed to represent relations or objects
 of logical systems).
 

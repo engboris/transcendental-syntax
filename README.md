@@ -49,8 +49,20 @@ syntax:
 
 # Use
 
-You can either download a [released binary](https://github.com/engboris/large-star-collider/releases)
-(or ask for a binary) or build the program from sources.
+You can either download a [released
+binary](https://github.com/engboris/large-star-collider/releases) (or ask for a
+binary), install using [opam](https://opam.ocaml.org/), or build the program from
+sources.
+
+## Install using opam
+
+Install [opam](https://ocaml.org/docs/installing-ocaml).
+
+Install the latest development version of the package from this repo with
+
+```
+opam pin tsyntax https://github.com/engboris/transcendental-syntax.git
+```
 
 ## Build from sources
 
@@ -63,7 +75,7 @@ opam install dune
 
 Install dependencies
 ```
-opam install . --deps-only
+opam install . --deps-only --with-test
 ```
 
 Build the project
