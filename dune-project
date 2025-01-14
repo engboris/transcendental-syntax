@@ -1,11 +1,11 @@
 (lang dune 3.7)
 
-(name tsyntax)
+(name stellogen)
 
 (generate_opam_files true)
 
 (source
- (github engboris/transcendental-syntax))
+ (github engboris/stellogen))
 
 (authors "Boris Eng")
 
@@ -13,12 +13,12 @@
 
 (license GPL-3.0-only)
 
-(documentation https://github.com/engboris/transcendental-syntax/blob/main/README.md)
+(documentation https://github.com/engboris/stellogen/blob/main/README.md)
 
 (package
- (name tsyntax)
- (synopsis "Technical interpretation of Girard's transcendental syntax")
- (description "The transcendental syntax provides a low-level language called stellar resolution used to build higher-level abstractions defining types, formulas, proofs and any other logical concepts.")
+ (name stellogen)
+ (synopsis "Stellogen is a minimalistic and logic-agnostic programming
+language based on term unification.")
  (depends base menhir (alcotest :with-test))
  (tags
   ("transcendental syntax" "logic programming" "constraint programming" "resolution logic" "unification" "self-assembly")))
