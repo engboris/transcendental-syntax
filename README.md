@@ -1,7 +1,7 @@
 # Stellogen
 
-![#f03c15](Note: this project is an experimental proof of concept, not a fully
-designed and specified programming language.)
+**Note: this project is an experimental proof of concept, not a fully
+designed and specified programming language.**
 
 Stellogen is a minimalistic and *logic-agnostic* programming language based on
 term unification.
