@@ -4,7 +4,7 @@
 (env
   (dev
     (flags (:standard -warn-error -A))))
-(menhir (modules common_tokens lsc_parser sgen_parser)
+(menhir (modules common_tokens lsc_parser sgen_parser preproc_parser)
         (merge_into sgen_parser)
         (flags --explain --dump))
-(ocamllex sgen_lexer)
+(ocamllex sgen_lexer preproc_lexer)
