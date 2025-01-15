@@ -1,8 +1,11 @@
 (test
  (name test)
  (modules test)
- (deps (glob_files ./testsuite/*.sg))
+ (deps
+  (glob_files ./testsuite/*.sg))
  (libraries alcotest base stellogen))
+
 (env
-  (dev
-    (flags (:standard -warn-error -A))))
+ (dev
+  (flags
+   (:standard -warn-error -A))))
