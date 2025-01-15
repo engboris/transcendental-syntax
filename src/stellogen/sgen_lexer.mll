@@ -41,11 +41,19 @@ rule read = parse
   | '\''      { comment lexbuf }
   | "'''"     { comments lexbuf }
   | space     { read lexbuf }
-  | newline   { EOL }
+  | newline   {
+    let pos = lexbuf.lex_curr_p in
+    lexbuf.lex_curr_p <- {
+      lexbuf.lex_curr_p with
+      pos_lnum = pos.pos_lnum+1;
+      pos_bol = lexbuf.lex_curr_pos
+    };
+    EOL
+  }
   | eof       { EOF }
   | _         {
     raise (SyntaxError
-      ("Unexpected character '" ^
+      ("unexpected character '" ^
       (Lexing.lexeme lexbuf) ^
       "' during lexing"))
   }
