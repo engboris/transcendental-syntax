@@ -11,10 +11,9 @@ let test filename () =
 
 let example filename = "./testsuite/" ^ filename
 
-let suite = [
-  "Automata", `Quick, test (example "automata.sg");
-  "Prolog", `Quick, test (example "prolog.sg")
-]
+let suite =
+  [ ("Automata", `Quick, test (example "automata.sg"))
+  ; ("Prolog", `Quick, test (example "prolog.sg"))
+  ]
 
-let () =
-  Alcotest.run "Stellogen Test Suite" [ "Basic tests", suite ]
+let () = Alcotest.run "Stellogen Test Suite" [ ("Basic tests", suite) ]
