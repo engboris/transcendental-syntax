@@ -1,44 +1,26 @@
-'''
-TO CLEAN
-'''
+''' identity function (\x -> x) '''
+id = +id(l:X) +id(r:X).
 
-'''
-id id
-'''
-id_func = +id($l:X) +id($r:X).
-id_arg = $id'($l:X) +arg($l:$r:X).
-linker = -id(X) -arg(X); @+arg($r:X) $out(X).
-print id_func id_arg linker.
+''' id id '''
+id_arg = { id'(l:X) +arg(l:r:X) }.
+linker = -id(X) -arg(X); @+arg(r:X) out(X).
+print id id_arg linker.
 
-'''
-id x
-'''
-var_x = $x(X) +arg($l:X).
-linker = -id(X) -arg(X); @+arg($r:X) $out(X).
-print id_func var_x linker.
-
-'''
-typing of (id id)
-'''
+''' id x '''
+x_arg = { x(X) +arg(l:X) }.
+linker = -id(X) -arg(X); @+arg(r:X) out(X).
+print id x_arg linker.
 
 "a -o a" = galaxy
 	test1:
 		-x(X) +parxy(X); -y(X);
-		@-par-xy(X) +cparxy(X).
+		@-parxy(X) ok.
 	test2:
 		-x(X); -y(X) +parxy(X);
-		@-parxy(X) +cparxy(X).
+		@-parxy(X) ok.
 end
 
-adapter_test = -cparxy(X) $ok.
-
-checker = galaxy
-	interaction:
-		{test} {tested} adapter_test.
-	expect: $ok; $ok.
-end
-
-adapter = -id($l:X) +x(X); -id($r:X) +y(X).
+adapter = -id(l:X) +x(X); -id(r:X) +y(X).
 
 'vehicle :: "a -o a" [checker].
 vehicle = id_func adapter.

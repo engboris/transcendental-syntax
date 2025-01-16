@@ -198,13 +198,12 @@ let string_of_runtime_err e =
     Printf.sprintf "%s: identifier '%s' not found.\n"
     (red "UnknownID Error") x
   | TestFailed (x, t, id, got, expected) ->
-    Printf.sprintf "%s: %s.\nChecking %s :: %s\n* got: %s;\n* expected: %s\n"
-    (red "TestFailed Error")
-    (if equal_string id "_"
-      then ("unique test of '" ^ t ^ "' failed")
-      else ("test '" ^ id ^ "' failed"))
-    x t
-    (got
+    Printf.sprintf "%s: %s.\nChecking %s :: %s\n* got: %s\n* expected: %s\n"
+      (red "TestFailed Error")
+      ( if equal_string id "_" then "unique test of '" ^ t ^ "' failed"
+        else "test '" ^ id ^ "' failed" )
+      x t
+      ( got
       |> galaxy_to_constellation empty_env
       |> List.map ~f:remove_mark
       |> string_of_constellation)

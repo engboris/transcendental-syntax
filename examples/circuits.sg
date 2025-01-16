@@ -3,11 +3,11 @@ FIXME
 '''
 
 semantics =
-	+1($1);
-	+0($0);
+	+1(1);
+	+0(0);
 	+s(X X X);
-	+not($1 $0); +not($0 $1);
-	+and($1 X X); +and($0 X $0).
+	+not(1 0); +not(0 1);
+	+and(1 X X); +and(0 X 0).
 
 print process
 	'inputs
