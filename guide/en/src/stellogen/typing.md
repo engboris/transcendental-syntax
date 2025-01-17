@@ -10,8 +10,8 @@ must be passed:
 
 ```
 t = galaxy
-  test1: @-f(X) $ok; -g(X).
-  test2: @-g(X) $ok; -f(X).
+  test1: @-f(X) ok; -g(X).
+  test2: @-g(X) ok; -f(X).
 end
 ```
 
@@ -32,16 +32,16 @@ proposal of viewing algorithms as more sophisticated specifications.
 
 We need to define checkers, which are "judge" galaxies that specify:
 
-- an interaction field, necessarily containing a `{tested}` token and another
-`{test}` token that explains how the tested and the test interact;
+- an interaction field, necessarily containing a `#tested` token and another
+`#test` token that explains how the tested and the test interact;
 - an `expect` field indicating the expected result of the interaction.
 
 For example:
 
 ```
 checker = galaxy
-  interaction: {tested} {test}.
-  expect: $ok.
+  interaction: #tested #test.
+  expect: { ok }.
 end
 ```
 
@@ -51,7 +51,7 @@ We can then precede definitions with a type declaration:
 
 ```
 c :: t [checker].
-c = +f($0) +g($0).
+c = +f(0) +g(0).
 ```
 
 The constellation `c` successfully passes the `test1` and `test2` tests of `t`.
@@ -62,7 +62,7 @@ However, if we had a constellation that failed the tests, such as:
 
 ```
 c :: t [checker].
-c = +f($0).
+c = +f(0).
 ```
 
 We would receive an error message indicating that a test was not passed.
@@ -72,22 +72,22 @@ natural numbers:
 
 ```
 nat =
-  -nat($0) $ok;
-  -nat($s(N)) +nat(N).
+  -nat(0) ok;
+  -nat(s(N)) +nat(N).
 
 0 :: nat [checker].
-0 = +nat($0).
+0 = +nat(0).
 
 1 :: nat [checker].
-1 = +nat($s($0)).
+1 = +nat(s(0)).
 ```
 
 We can also omit specifying the checker. In this case, the default checker is:
 
 ```
 checker = galaxy
-  interaction: {tested} {test}.
-  expect: $ok.
+  interaction: #tested #test.
+  expect: { ok }.
 end
 ```
 
@@ -95,8 +95,8 @@ This allows us to write:
 
 ```
 0 :: nat.
-0 = +nat($0).
+0 = +nat(0).
 
 1 :: nat.
-1 = +nat($s($0)).
+1 = +nat(s(0)).
 ```

@@ -35,10 +35,10 @@ implications for expressiveness and ease of type manipulation.
 ## Special Symbols
 
 Stellogen defines a binary infix symbol `:` that is right-associative, allowing
-us to write `$a:X` instead of `:($a X)` or `$cons($a X)`.
+us to write `a:X` instead of `:(a X)` or `cons(a X)`.
 
 This enables readable concatenation of symbols, for example:
 
 ```
-+f($a:$b:$c:$e).
++f(a:b:c:e).
 ```
