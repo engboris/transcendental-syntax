@@ -43,8 +43,9 @@ propagée aux rayons adjacents.
 
 ## Exécution
 
-Cela marche à peu près comme pour la résolution d'un puzzle. Vous avez une
-constellation faites de plusieurs étoiles. Choisissez des *étoiles initiales*
+Cela marche à peu près comme pour la résolution d'un puzzle ou un jeu de
+fléchettes. Vous avez une constellation faites de plusieurs étoiles.
+Choisissez des *étoiles initiales*
 puis des copies des autres étoiles seront jetées dessus pour interagir par
 fusion. L'opération continue jusqu'à qu'il n'y ait plus d'interactions
 possibles (saturation).
@@ -52,30 +53,30 @@ La constellation obtenue à la fin est le résultat de l'exécution.
 
 Plus formellement, nous séparons une constellation en deux parties pour
 l'exécuter :
-- l'ensemble des *étoiles initiales* (à voir comme une sorte d'espace de
-travail ou d'interaction);
-- le reste appelé *étoiles de référence*.
+- *l'espace d'états*, un espace d'étoiles qui seront cibles de l'interaction;
+- *l'espace d'actions* qui sont des étoiles qui vont interagir avec
+les étoiles de l'espace d'états.
 
-On pourrait représenter cette séparation ainsi avec les étoiles de référence
-à gauche et les étoiles initiales à droite, séparées avec le symbole `|-` :
+On pourrait représenter cette séparation ainsi avec l'espace d'actions
+à gauche et l'espace d'états à droite, séparées avec le symbole `|-` :
 
 ```
-s1 ... sn |- s1' ... sm'
+a1 ... an |- s1 ... sm
 ```
 
 L'exécution procède de la façon suivante :
-1. selectionner un rayon `r'` d'une étoile initiale `s'`;
-2. chercher toutes les connexions possibles avec des rayons `r` d'étoiles de
-   référence `s`;
-3. dupliquer `s'` à droite pour chaque tel rayon `r` trouvé;
-4. remplacer chaque copie de `s'` par la fusion `s` entre et `s'`;
-5. répéter jusqu'à qu'il n'y a plus aucune interaction possible l'espace des
-   étoiles initiales.
+1. selectionner un rayon `r` d'une étoile d'état `s`;
+2. chercher toutes les connexions possibles avec des rayons `r'` d'étoiles
+d'action `a`;
+3. dupliquer `s` à droite pour chaque tel rayon `r'` trouvé car il y a
+plusieurs interactions possibles à satisfaire;
+4. remplacer chaque copie de `s` par la fusion entre `a` et `s`;
+5. répéter jusqu'à qu'il n'y a plus aucune interaction possible l'espace d'états.
 
 ## Exemple
 
 Considérons l'exécution de la constellation suivante où l'unique étoile
-initiale est préfixée par `@`:
+initiale de l'espace d'état est préfixée par `@`:
 ```
 +add($0 Y Y);
 -add(X Y Z) +add($s(X) Y $s(Z));
@@ -167,7 +168,7 @@ Nous sélectionnons le premier rayon :
 >>-add($0 $s($s($0)) Z')<< $s($s(Z'))
 ```
 
-Il ne peut interagir qu'avec la première étoile de référence `+add($0 Y Y)`, ce
+Il ne peut interagir qu'avec la première étoile d'action `+add($0 Y Y)`, ce
 qui nous donne :
 
 ```

@@ -1,0 +1,68 @@
+name: build
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest # macOS ARM64
+            # - macos-latest-large # macOS x86_64 # disabled because we're poor
+          - ubuntu-latest
+          - windows-latest
+        ocaml-compiler:
+          - "5.3"
+        include:
+          - os: ubuntu-latest
+            ocaml-compiler: "4.14"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup-ocaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          dune-cache: true
+          opam-pin: true
+          allow-prerelease-opam: false
+      - name: depext
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew update
+            brew upgrade
+            brew install pkgconf
+          fi
+          if [ "$RUNNER_OS" == "linux" ]; then
+            apt update
+          fi
+          opam install . --depext-only --with-test --with-doc
+      - name: setup
+        if: steps.cache-opam.outputs.cache-hit != 'true'
+        run: |
+          opam install . --deps-only --with-test --with-doc
+          opam install ocamlformat
+          opam clean --switch-cleanup
+      - name: build
+        run: |
+          opam exec -- dune build @install
+      - name: test
+        run: |
+          opam exec -- dune runtest
+      - name: lint-doc
+        run: |
+          ODOC_WARN_ERROR=true opam exec -- dune build @doc 2> output.txt
+          $(exit $(wc -l output.txt | cut -d " " -f1))
+      - name: lint-fmt
+        run: |
+          opam exec -- dune build @fmt || (echo "\n⚠️ please run \`dune fmt\` and try again" && exit 1)
+      - name: lint-fresh-opam-file
+        run: |
+          git diff --exit-code stellogen.opam || (echo "⚠️ please run \`dune build\`, commit the changes to owi.opam, and then try again" && exit 1)

@@ -2,11 +2,10 @@
  (name test)
  (modules test)
  (deps
-   ../examples/automata/nfsa_ending00.stellar
-   ../examples/logicprogramming/prolog.stellar
-   ../examples/mll/cut.stellar
- )
- (libraries alcotest base lsc))
+  (glob_files ./testsuite/*.sg))
+ (libraries alcotest base stellogen))
+
 (env
-  (dev
-    (flags (:standard -warn-error -A))))
+ (dev
+  (flags
+   (:standard -warn-error -A))))

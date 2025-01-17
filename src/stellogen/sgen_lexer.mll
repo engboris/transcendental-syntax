@@ -3,8 +3,11 @@
   exception SyntaxError of string
 }
 
-let ident    = ['a'-'z' '0'-'9'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '?']* '\''*
-let var_id   = ['A'-'Z'] ['A'-'Z' 'a'-'z' '0'-'9' '_' '-']* '\''*
+let alpha    = ['a'-'z' 'A'-'Z']
+let num      = ['0'-'9']
+let alphanum = alpha | num
+let ident    = ['a'-'z' '0'-'9'] (alphanum | [ '_' '?'])* '\''*
+let var_id   = ['A'-'Z'] (alphanum | ['_' '-'])* '\''*
 let space    = [' ' '\t']+
 let newline  = '\r' | '\n' | "\r\n"
 
