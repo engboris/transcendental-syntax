@@ -1,12 +1,12 @@
-# Exercices
+# Exercises
 
-## Chemins
+## Paths
 
-Donnez une valeur aux variables `answer` de sorte à pouvoir exécuter
-le code suivant sans erreur de typage.
+Give a value to the variables `answer` so that the following code can be
+executed without typing errors.
 
-L'idée est que ces constellations représentent des chemins à compléter de sorte
-à obtenir seulement la constellation `$ok` en résultat.
+The idea is that these constellations represent paths to complete in order to
+obtain only the constellation `$ok` as a result.
 
 ```
 checker = galaxy
@@ -71,9 +71,9 @@ exercise5 = ((+f($a) +f($b); +g($a); @+g($b) $ok) {1})[1 => answer].
 </pre>
 </details>
 
-## Registres dynamiques
+## Dynamical registers
 
-Partons du programme suivant :
+Start from the following program:
 
 ```
 init = +r0($0).
@@ -84,24 +84,21 @@ print process
 end
 ```
 
-représentant une mémoire avec un registre `r0`.
+representing a memory with a register `r0`.
 
-Stellogen peut représenter la mémoire mais d'une façon particulière, en
-détruisant pour construire ailleurs.
-On ne peut pas se contenter de mettre à jour le registre avec une étoile
-`-r0(X) +r0($1)` car cette étoile a une dépendance circulaire qui lui
-permettrait d'être réutilisée un nombre illimité de fois.
+Stellogen can represent memory but in a particular way, by destroying to
+construct somewhere else. We cannot content ourselves of updating the register
+with a star `-r0(X) +r0($1)` as this star has a circular dependency that would
+allow it to be reused an unlimited number of times.
 
-En fait, on ne peut que déplacer le registre pour le modifier, par exemple avec
-une étoile `-r0($0) +r1($1)` qui détruit le registre `r0` et construit un
-registre `r1` contenant `$1`.
+In fact, we can only move the register to modify it, for example with a star
+`-r0($0) +r1($1)` that destroys the register `r0` and constructs a register
+`r1` containing `$1`.
 
-Le but est de définir des constellations. Vous pouvez utiliser le code ci-dessus
-pour faire vos tests.
+The goal is to define constellations. You can use the code above to do your
+tests.
 
-**Exercice 1.** Définir deux constellations permettant de mettre à jour le
-registre `r0` à `1` en utilisant une étoile intermédiaire pour sauvegarder la
-valeur de `r0`.
+**Exercise 1.** Define two constellations allowing to update the register `r0`to `1` by using an intermediary star to save the value of `r0`.
 
 <details>
   <summary>Solution</summary>
@@ -112,8 +109,7 @@ valeur de `r0`.
 </pre>
 </details>
 
-**Exercice 2.** Définir une constellation permettant de dupliquer et déplacer
-le registre `r0` dans deux registres `r1` et `r2`.
+**Exercise 2.** Define a constellation allowing to duplicate and move the register `r0` in two registers `r1` and `r2`.
 
 <details>
   <summary>Solution</summary>
@@ -124,9 +120,7 @@ le registre `r0` dans deux registres `r1` et `r2`.
 </pre>
 </details>
 
-**Exercice 3.** Définir deux constellation permettant de mettre la valeur de
-`r1` à `$0` puis définir deux constellations permettant d'échanger les valeurs
-de `r1` et `r2`.
+**Exercise 3.** Define two constellations allowing to set the value of `r1` to `$0` then define two constellations allowing to exchange the values of `r1` and `r2`.
 
 <details>
   <summary>Solution</summary>
@@ -139,9 +133,7 @@ de `r1` et `r2`.
 </pre>
 </details>
 
-**Exercice 4.** Comment dupliquer `r1` de sorte à pouvoir suivre ses copies et
-mettre à jour en une fois (comme si on traitait un seul registre) toutes les
-copies à la valeur `$5` ?
+**Exercise 4.** How to duplicate `r1` so as to be able to follow and update its copies all at once (as if dealing with a single register) to the value `$5`?
 
 <details>
   <summary>Solution</summary>
@@ -154,8 +146,7 @@ copies à la valeur `$5` ?
 </pre>
 </details>
 
-**Exercice 4.** En suivant la méthode précédente, dupliquer chaque copie en une
-seule fois.
+**Exercise 5.** Using the previous method, duplicate all copies at once.
 
 <details>
   <summary>Solution</summary>
@@ -166,14 +157,12 @@ seule fois.
 </pre>
 </details>
 
-## Logique booléenne
+## Boolean logic
 
-On veut simuler des formules booléennes  par des constellations. Chaque
-question utilise le résultat de la question précédente.
+We want to simulate boolean formulas with constellations. Each question uses
+the result of the previous question.
 
-**Exercice 1.** Définir une constellation calculant la négation de telle sorte
-à ce qu'elle produise `1` en sortie lorsqu'elle est ajoutée à l'étoile
-`@-not($0 X) X` et `0` lorsqu'ajoutée à `@-not($1 X) X`.
+**Exercise 1.** Define a constellation computing negation such that it yields `1` as output when added to the star `@-not($0 X) X` and `0` when added to `@-not($1 X) X`.
 
 <details>
   <summary>Solution</summary>
@@ -183,9 +172,7 @@ question utilise le résultat de la question précédente.
 </pre>
 </details>
 
-**Exercice 2.** Comment afficher la table de vérité de la négation avec une
-seule étoile, de sorte à ce qu'on obtienne en sortie
-`$table_not($0 $1); table_not($1 $0).` ?
+**Exercise 2.** How to display the truth table of negation with a single star, such that we obtain the output `$table_not($0 $1); table_not($1 $0).`?
 
 <details>
   <summary>Solution</summary>
@@ -195,9 +182,7 @@ seule étoile, de sorte à ce qu'on obtienne en sortie
 </pre>
 </details>
 
-**Exercice 3.** Ecrire de deux manières différentes des constellations calculant
-la conjonction et la disjonction et afficher leur table de vérité de la même
-façon que pour la question précédente.
+**Exercise 3.** Write in two different ways constellations computing conjunction and disjunction and display their truth table in the same way as for the previous question.
 
 <details>
   <summary>Solution</summary>
@@ -219,8 +204,7 @@ print @-or2(X Y R) $table_or2(X Y R).
 </pre>
 </details>
 
-**Exercice 4.** Utiliser la disjonction et la négation pour afficher la table
-de vérité de l'implication sachant que `X => Y = not(X) \/ Y`.
+**Exercise 4.** Use disjunction and negation to display the truth table of implication given that `X => Y = not(X) \/ Y`.
 
 <details>
   <summary>Solution</summary>
@@ -237,8 +221,7 @@ print @-impl2(X Y R) $table_impl2(X Y R).
 </pre>
 </details>
 
-**Exercice 5.** Utiliser l'implication et la conjonction pour afficher la table
-de vérité de l'équivalence logique sachant que `X <=> Y = (X => Y) /\ (X => Y)`.
+**Exercise 5.** Use implication and conjunction to display the truth table of logical equivalence given that `X <=> Y = (X => Y) /\ (X => Y)`.
 
 <details>
   <summary>Solution</summary>
@@ -255,8 +238,7 @@ table_eqq2 = @-eqq2(X Y R) $table_eqq2(X Y R).
 </pre>
 </details>
 
-**Exercice 6.** Définir une constellation représentant la formule du tiers
-`X \/ ~X`. Afficher la table de vérité correspondant à cette formule.
+**Exercise 6.** Define a constellation representing the formula of exclded middle `X \/ ~X`. Display the truth table corresponding to this formula.
 
 <details>
   <summary>Solution</summary>
@@ -270,8 +252,7 @@ print -ex(X R) $table_ex(X R).
 </pre>
 </details>
 
-**Exercice 7.** Déterminer pour quelles valeurs de `X`, `Y` et `Z` la formule
-`X /\ ~(Y \/ Z)` est vraie.
+**Exercise 7.** Determine for which values of `X`, `Y` and `Z` the formula `X /\ ~(Y \/ Z)` is true.
 
 <details>
   <summary>Solution</summary>

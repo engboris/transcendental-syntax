@@ -5,8 +5,8 @@
 Le langage de *résolution stellaire* étend la notion de terme avec la notion
 de *rayon*. Un *rayon* est un terme où les symboles de fonction sont polarisés
 avec :
-- `+` (polarité positive)
-- `-` (polarité négative)
+- `+` (polarité positive);
+- `-` (polarité négative);
 - `$` (polarité nulle ou absence de polarité).
 
 La *compatibilité* entre les rayons suit les mêmes règles que l'unification

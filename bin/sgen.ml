@@ -5,6 +5,7 @@ open Stellogen.Sgen_lexer
 open Lexing
 
 let usage_msg = "sgen <filename>"
+
 let input_file = ref ""
 
 let anon_fun filename = input_file := filename
