@@ -42,7 +42,7 @@ jobs:
       - name: update-linux
         if: runner.os == 'linux'
         run: |
-          apt update
+          sudo apt update
       - name: depext
         run: |
           opam install . --depext-only --with-test --with-doc
