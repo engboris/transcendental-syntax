@@ -1,5 +1,6 @@
 open Base
 open Lsc_ast
+open Format_exn
 
 type ident = string
 
@@ -192,7 +193,6 @@ and galaxy_to_constellation env = function
       galaxy_to_constellation env (eval_galaxy_expr env v) @ acc )
 
 let string_of_runtime_err e =
-  let red text = "\x1b[31m" ^ text ^ "\x1b[0m" in
   match e with
   | ReservedWord x ->
     Printf.sprintf "%s: identifier '%s' is reserved.\n"
