@@ -33,19 +33,20 @@ jobs:
           dune-cache: true
           opam-pin: true
           allow-prerelease-opam: false
+      - name: update-macos
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew upgrade
+          brew install pkgconf
+      - name: update-linux
+        if: runner.os == 'linux'
+        run: |
+          apt update
       - name: depext
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            brew update
-            brew upgrade
-            brew install pkgconf
-          fi
-          if [ "$RUNNER_OS" == "linux" ]; then
-            apt update
-          fi
           opam install . --depext-only --with-test --with-doc
       - name: setup
-        if: steps.cache-opam.outputs.cache-hit != 'true'
         run: |
           opam install . --deps-only --with-test --with-doc
           opam install ocamlformat
