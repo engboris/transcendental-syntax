@@ -1,5 +1,5 @@
 {
-  description = "transcendental-syntax";
+  description = "stellogen";
 
   inputs = {
     # Remark: when adding inputs here, don't forget to also add them in the
@@ -27,8 +27,8 @@
           buildInputs = [ ocamlPackages.calendar ];
         };
 
-        transcendental-syntax = ocamlPackages.buildDunePackage {
-          pname = "transcendental-syntax";
+        stellogen = ocamlPackages.buildDunePackage {
+          pname = "stellogen";
           version = "0.1.0";
           duneVersion = "3";
           src = ./.;
@@ -39,13 +39,14 @@
 	    calendar
 	    alcotest
 	    base
+	    menhir
           ]);
         };
       in
       {
         packages = {
-          inherit transcendental-syntax;
-          default = transcendental-syntax;
+          inherit stellogen;
+          default = stellogen;
         };
         devShells.default = pkgs.mkShell {
           packages = [
@@ -53,12 +54,12 @@
             pkgs.ocamlPackages.ocamlformat
             pkgs.ocamlPackages.menhir
             pkgs.ocamlPackages.odoc
-	          pkgs.ocamlPackages.ocaml-lsp
+	    pkgs.ocamlPackages.ocaml-lsp
             pkgs.jq
           ];
 
           inputsFrom = [
-            self.packages.${system}.transcendental-syntax
+            self.packages.${system}.stellogen
           ];
         };
       });
