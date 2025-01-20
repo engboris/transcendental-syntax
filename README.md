@@ -54,33 +54,33 @@ in a very concise way since it mostly relies on a unification algorithm.
 
 ```
 binary =
-  -i($e) $ok;
-  -i($0:X) +i(X);
-  -i($1:X) +i(X).
+  -i(e) ok;
+  -i(0:X) +i(X);
+  -i(1:X) +i(X).
 
 'input words
 e :: binary.
-e = +i($e).
+e = +i(e).
 
 000 :: binary.
-000 = +i($0:$0:$0:$e).
+000 = +i(0:0:0:e).
 
 010 :: binary.
-010 = +i($0:$1:$0:$e).
+010 = +i(0:1:0:e).
 
 110 :: binary.
-110 = +i($1:$1:$0:$e).
+110 = +i(1:1:0:e).
 
 a1 = galaxy
   initial:
-    -i(W) +a(W $q0).
+    -i(W) +a(W q0).
   final:
-    -a($e $q2) $accept.
+    -a(e q2) accept.
   transitions:
-    -a($0:W $q0) +a(W $q0);
-    -a($0:W $q0) +a(W $q1);
-    -a($1:W $q0) +a(W $q0);
-    -a($0:W $q1) +a(W $q2).
+    -a(0:W q0) +a(W q0);
+    -a(0:W q0) +a(W q1);
+    -a(1:W q0) +a(W q0);
+    -a(0:W q1) +a(W q2).
 end
 
 show process e.   a1. kill. end
@@ -127,6 +127,20 @@ opam install dune
 Install dependencies
 ```
 opam install . --deps-only --with-test
+```
+
+Build the project
+```
+dune build
+```
+
+Executables are in `_build/default/bin/`.
+
+## Build from sources using Nix
+
+Install dependencies
+```
+nix develop
 ```
 
 Build the project

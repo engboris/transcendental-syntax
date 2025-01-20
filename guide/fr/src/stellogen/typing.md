@@ -10,8 +10,8 @@ passer :
 
 ```
 t = galaxy
-  test1: @-f(X) $ok; -g(X).
-  test2: @-g(X) $ok; -f(X).
+  test1: @-f(X) ok; -g(X).
+  test2: @-g(X) ok; -f(X).
 end
 ```
 
@@ -32,16 +32,16 @@ plus sophistiquées.
 ## Checkers
 
 Il faut définir des *checkers* qui sont des galaxies "juges" définissant :
-- un champ `interaction` contenant nécessairement un token `{tested}` et un
-autre token `{tested}` expliquant comment faire interagir un testé et un test;
+- un champ `interaction` contenant nécessairement un token `#tested` et un
+autre token `#tested` expliquant comment faire interagir un testé et un test;
 - un champ `expect` indiquant quel est le résultat attendu par l'interaction.
 
 Par exemple :
 
 ```
 checker = galaxy
-  interaction: {tested} {test}.
-  expect: $ok.
+  interaction: #tested #test.
+  expect: { ok }.
 end
 ```
 
@@ -51,7 +51,7 @@ On peut ensuite faire précéder les définitions par une déclaration de type :
 
 ```
 c :: t [checker].
-c = +f($0) +g($0).
+c = +f(0) +g(0).
 ```
 
 La constellation `c` passe bel et bien les tests `test1` et `test2` de `t`.
@@ -63,7 +63,7 @@ Cependant, si nous avions une constellation qui ne passait pas les tests, comme
 
 ```
 c :: t [checker].
-c = +f($0).
+c = +f(0).
 ```
 
 Nous aurions eu un message d'erreur nous indiquant qu'un test n'est pas passé.
@@ -74,14 +74,14 @@ naturels :
 
 ```
 nat =
-  -nat($0) $ok;
-  -nat($s(N)) +nat(N).
+  -nat(0) ok;
+  -nat(s(N)) +nat(N).
 
 0 :: nat [checker].
-0 = +nat($0).
+0 = +nat(0).
 
 1 :: nat [checker].
-1 = +nat($s($0)).
+1 = +nat(s(0)).
 ```
 
 On peut aussi omettre de préciser le checker. Dans ce cas, le checker par
@@ -89,8 +89,8 @@ défaut est :
 
 ```
 checker = galaxy
-  interaction: {tested} {test}.
-  expect: $ok.
+  interaction: #tested #test.
+  expect: { ok }.
 end
 ```
 
@@ -98,8 +98,8 @@ Cela nous permet d'écrire :
 
 ```
 0 :: nat.
-0 = +nat($0).
+0 = +nat(0).
 
 1 :: nat.
-1 = +nat($s($0)).
+1 = +nat(s(0)).
 ```

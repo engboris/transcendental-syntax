@@ -202,7 +202,7 @@ let string_of_exn e =
   | UnknownID x ->
     Printf.sprintf "%s: identifier '%s' not found.\n" (red "UnknownID Error") x
   | TestFailed (x, t, id, got, expected) ->
-    Printf.sprintf "%s: %s.\nChecking %s :: %s\n* got: %s;\n* expected: %s\n"
+    Printf.sprintf "%s: %s.\nChecking %s :: %s\n* got: %s\n* expected: %s\n"
       (red "TestFailed Error")
       ( if equal_string id "_" then "unique test of '" ^ t ^ "' failed"
         else "test '" ^ id ^ "' failed" )

@@ -23,6 +23,7 @@ rule read = parse
   | "->"      { RARROW }
   | "=>"      { DRARROW }
   | "."       { DOT }
+  | "#"       { SHARP }
   | '"'       { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
   | '_'       { PLACEHOLDER }
@@ -32,8 +33,6 @@ rule read = parse
   | ')'       { RPAR }
   | ','       { COMMA }
   | '@'       { AT }
-  | '#'       { SHARP }
-  | '$'       { DOLLAR }
   | '+'       { PLUS }
   | '-'       { MINUS }
   | '='       { EQ }

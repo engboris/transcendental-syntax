@@ -32,8 +32,8 @@ Remarquez que:
 - la substitution obtenue par résolution du conflit entre `r` et `r'` est
 propagée aux rayons adjacents.
 
-> **Exemple.** La fusion entre `X +f(X)` et `-f($a)` fait interagir `+f(X)`
-> et `-f($a)` ensemble pour propager la substitution `{X:=$a}` sur l'unique
+> **Exemple.** La fusion entre `X +f(X)` et `-f(a)` fait interagir `+f(X)`
+> et `-f(a)` ensemble pour propager la substitution `{X:=a}` sur l'unique
 > voisin `X`. Le résultat est donc `X{X:=a}` soit `a`.
 
 > Cette opération de fusion correspond à la règle de coupure pour la logique
@@ -78,108 +78,108 @@ plusieurs interactions possibles à satisfaire;
 Considérons l'exécution de la constellation suivante où l'unique étoile
 initiale de l'espace d'état est préfixée par `@`:
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z));
-@-add($s($s($0)) $s($s($0)) R) R.
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z));
+@-add(s(s(0)) s(s(0)) R) R.
 ```
 
 Pour l'exemple, on entoure par `>>` et `<<` les rayons sélectionnés. Nous avons
 donc les étapes suivantes :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z));
-@-add($s($s($0)) $s($s($0)) R) R.
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z));
+@-add(s(s(0)) s(s(0)) R) R.
 ```
 
 Nous avons la séparation suivante :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
--add($s($s($0)) $s($s($0)) R) R
+-add(s(s(0)) s(s(0)) R) R
 ```
 
 Sélectionnons le premier rayon :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
->>-add($s($s($0))<< $s($s($0)) R) R
+>>-add(s(s(0))<< s(s(0)) R) R
 ```
 
-Il ne peut pas se connecter à `+add($0 Y Y)` car le premier argument `$0` est
-incompatible avec `$s($s($0))`. Cependant, il peut interagir avec
-`+add($s(X) Y $s(Z))`. Nous effectuons une fusion suivante entre
+Il ne peut pas se connecter à `+add(0 Y Y)` car le premier argument `0` est
+incompatible avec `s(s(0))`. Cependant, il peut interagir avec
+`+add(s(X) Y s(Z))`. Nous effectuons une fusion suivante entre
 
 ```
--add(X Y Z) +add($s(X) Y $s(Z))
+-add(X Y Z) +add(s(X) Y s(Z))
 ```
 
 et
 
 ```
--add($s($s($0)) $s($s($0)) R) R
+-add(s(s(0)) s(s(0)) R) R
 ```
 
-donnant la substitution `{X:=$s($0), Y:=$s($s($0)), R:=$s(Z)}` et le résultat :
+donnant la substitution `{X:=s(0), Y:=s(s(0)), R:=s(Z)}` et le résultat :
 
 ```
--add($s($0) $s($s($0)) Z) $s(Z)
+-add(s(0) s(s(0)) Z) s(Z)
 ```
 
 Nous obtenons donc l'étape suivante :
 
 
 ```
-+add($0 Y Y);
--add(X Y Z) >>+add($s(X) Y $s(Z))<<
++add(0 Y Y);
+-add(X Y Z) >>+add(s(X) Y s(Z))<<
 |-
--add($s($0) $s($s($0)) Z) $s(Z)
+-add(s(0) s(s(0)) Z) s(Z)
 ```
 
 Nous resélectinnons le premier rayon :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
->>-add($s($0) $s($s($0)) Z)<< $s(Z)
+>>-add(s(0) s(s(0)) Z)<< s(Z)
 ```
 
-Il peut se connecter à `+add($s(X) Y $s(Z))` avec comme substitution
-`{X:=$0, Y:=$s($s($0)), Z:=$s(Z')}` :
+Il peut se connecter à `+add(s(X) Y s(Z))` avec comme substitution
+`{X:=0, Y:=s(s(0)), Z:=s(Z')}` :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
--add($0 $s($s($0)) Z') $s($s(Z'))
+-add(0 s(s(0)) Z') s(s(Z'))
 ```
 
 Nous sélectionnons le premier rayon :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
->>-add($0 $s($s($0)) Z')<< $s($s(Z'))
+>>-add(0 s(s(0)) Z')<< s(s(Z'))
 ```
 
-Il ne peut interagir qu'avec la première étoile d'action `+add($0 Y Y)`, ce
+Il ne peut interagir qu'avec la première étoile d'action `+add(0 Y Y)`, ce
 qui nous donne :
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
-$s($s($s($s($0))))
+s(s(s(s(0))))
 ```
 
 Le résultat de l'exécution est donc :
 
 ```
-$s($s($s($s($0))))
+s(s(s(s(0))))
 ```

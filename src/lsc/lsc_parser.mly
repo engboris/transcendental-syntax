@@ -10,10 +10,8 @@ open Lsc_ast
 %token PLUS MINUS
 %token CONS
 %token AT
-%token SHARP
 %token SEMICOLON
 %token PLACEHOLDER
-%token DOLLAR
 
 %right CONS
 
@@ -30,7 +28,7 @@ marked_constellation:
 | cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?
   { cs }
 
-star:
+%public star:
 | AT; s=star_content; EOL* { Marked s }
 | s=star_content; EOL* { Unmarked s }
 
@@ -39,11 +37,20 @@ star_content:
 | rs=separated_nonempty_list(pair(COMMA?, EOL*), ray) { rs }
 
 %public symbol:
+| pf=pol_symbol   { pf }
+| pf=unpol_symbol { pf }
+
+%public pol_symbol:
 | PLUS; SHARP; f = SYM { noisy (Pos, f) }
 | PLUS; f = SYM { muted (Pos, f) }
 | MINUS; SHARP; f = SYM { noisy (Neg, f) }
 | MINUS; f = SYM { muted (Neg, f) }
-| DOLLAR; f = SYM { muted (Null, f) }
+
+%public unpol_symbol:
+| f=SYM { muted (Null, f) }
+
+%public %inline args:
+| LPAR; ts = separated_nonempty_list(COMMA?, ray); RPAR { ts }
 
 %public ray:
 | PLACEHOLDER { to_var ("_"^(fresh_placeholder ())) }
@@ -51,12 +58,12 @@ star_content:
 | e = func_expr { e }
 
 func_expr:
-| e = cons_expr { e }
-| pf = symbol; LPAR; ts = separated_nonempty_list(COMMA?, ray); RPAR
-	{ to_func (pf, ts) }
-| pf = symbol { to_func (pf, []) }
+| e=cons_expr { e }
+| pf=symbol; ts=args? { to_func (pf, Option.to_list ts |> List.concat) }
 
 cons_expr:
-| r1 = ray; CONS; r2 = ray { to_func (noisy (Null, ":"), [r1; r2]) }
+| r1 = ray; CONS; r2 = ray
+| LPAR; r1 = ray; CONS; r2 = ray; RPAR
+  { to_func (noisy (Null, ":"), [r1; r2]) }
 | LPAR; e = cons_expr; RPAR; CONS; r = ray
 	{ to_func (muted (Null, ":"), [e; r]) }

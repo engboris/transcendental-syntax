@@ -17,8 +17,8 @@ série d'étiquettes `label:` suivit de la galaxie associée :
 
 ```
 g = galaxy
-  test1: +f($a) $ok.
-  test2: +f($b) $ok.
+  test1: +f(a) ok.
+  test2: +f(b) ok.
 end
 ```
 

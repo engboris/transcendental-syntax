@@ -1,25 +1,25 @@
 'static definition of constellation
-x = +a; -a $b.
+x = +a; -a b.
 y = x.
 z = -f(X).
 
 'show (literal) contellations
-show $a; $b; $c.
+show { a; b; c }.
 
 'print result of execution
-print $a; $b; $c.
+print { a; b; c }.
 
 'dynamic definition of constellation
 c = process
-	+n0($0).           'base constellation
-	-n0(X) +n1($s(X)). 'interacts with previous
-	-n1(X) +n2($s(X)). 'interacts with previous
+	+n0(0).           'base constellation
+	-n0(X) +n1(s(X)). 'interacts with previous
+	-n1(X) +n2(s(X)). 'interacts with previous
 end
 
 'galaxy definition
 g = galaxy
-	test1: +f($a) $ok.
-	test2: +f($b) $ok.
+	test1: +f(a) ok.
+	test2: +f(b) ok.
 end
 
 'access to field of a galaxy
@@ -27,33 +27,33 @@ show g->test1.
 show g->test2.
 
 'extend rays with a head function symbol
-print (+f(X); $f(X))[=>+a].
-print (+f(X); $f(X))[=>$a].
+print (+f(X); f(X))[=>+a].
+print (+f(X); f(X))[=>a].
 
 'remove head function symbol from a ray
-print (+f(X); $f(X))[+f=>].
+print (+f(X); f(X))[+f=>].
 
 'substitutions
 print (+f(X))[X=>+a(X)].
 print (+f(X))[+f=>+g].
 
 'tokens (fillable named empty constellation)
-print ({1} {2})[1=>+f(X) X][2=>-f($a)].
+print (#1 #2)[1=>+f(X) X][2=>-f(a)].
 
 'checkers & typechecking
 checker = galaxy
-	interaction: {tested} {test}.
-	expect: $ok.
+	interaction: #tested #test.
+	expect: { ok }.
 end
 
 nat = galaxy
 	test:
-		-nat($0) $ok;
-		-nat($s(N)) +nat(N).
+		-nat(0) ok;
+		-nat(s(N)) +nat(N).
 end
 
 0 :: nat [checker].
-0 = +nat($0).
+0 = +nat(0).
 
 1 :: nat [checker].
-1 = +nat($s($0)).
+1 = +nat(s(0)).

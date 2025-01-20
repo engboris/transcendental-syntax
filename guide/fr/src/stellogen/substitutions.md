@@ -19,28 +19,28 @@ de fonction :
 
 ```
 print (+f(X))[+f=>+g].
-print (+f(X))[+f=>$f].
+print (+f(X))[+f=>f].
 ```
 
 On peut aussi omettre la partie gauche ou droite de `=>` pour ajouter
 ou retirer un symbole de tête :
 
 ```
-print (+f(X); $f(X))[=>+a].
-print (+f(X); $f(X))[=>$a].
-print (+f(X); $f(X))[+f=>].
+print (+f(X); f(X))[=>+a].
+print (+f(X); f(X))[=>a].
+print (+f(X); f(X))[+f=>].
 ```
 
 ## Tokens et remplacement galactique
 
-Les expressions de galaxies peuvent contenir des constellations vides
-nommées par des identifiants comme `{1}`, `{2}`, `{a}` ou encore `{variable}`.
+Les expressions de galaxies peuvent contenir des variables spéciales
+comme `#1`, `#2` ou encore `#variable`.
 
 Ce sont des trous appelés *tokens* qui peuvent être remplacés par une autre
 galaxie :
 
 ```
-print ({1} {2})[1=>+f(X) X][2=>-f($a)].
+print (#1 #2)[1=>+f(X) X][2=>-f(a)].
 ```
 
 Cela permet notamment d'écrire des galaxies paramétriques.

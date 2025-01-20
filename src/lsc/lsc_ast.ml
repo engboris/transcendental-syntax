@@ -104,7 +104,7 @@ let raymatcher r r' : substitution option =
    Pretty Printer
    --------------------------------------- *)
 
-let string_of_polarity = function Pos -> "+" | Neg -> "-" | Null -> "$"
+let string_of_polarity = function Pos -> "+" | Neg -> "-" | Null -> ""
 
 let string_of_polsym (m, (p, f)) =
   match m with
