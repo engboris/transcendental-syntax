@@ -42,8 +42,10 @@ star_content:
 
 %public pol_symbol:
 | PLUS; SHARP; f = SYM { noisy (Pos, f) }
+| PLUS; SHARP; PRINT { noisy (Pos, "print") }
 | PLUS; f = SYM { muted (Pos, f) }
 | MINUS; SHARP; f = SYM { noisy (Neg, f) }
+| MINUS; SHARP; PRINT { noisy (Neg, "print") }
 | MINUS; f = SYM { muted (Neg, f) }
 
 %public unpol_symbol:

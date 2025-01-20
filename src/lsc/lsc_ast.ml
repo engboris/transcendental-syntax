@@ -268,9 +268,9 @@ exception IllformedEffect
 
 let apply_effect r theta =
   match (r, theta) with
-  | Func ((Noisy, (_, "printf")), _), [] -> raise (TooFewArgs "print")
-  | Func ((Noisy, (_, "printf")), _), _ :: _ :: _ -> raise (TooManyArgs "print")
-  | Func ((Noisy, (_, "printf")), _), [ (_, arg) ] ->
+  | Func ((Noisy, (_, "print")), _), [] -> raise (TooFewArgs "print")
+  | Func ((Noisy, (_, "print")), _), _ :: _ :: _ -> raise (TooManyArgs "print")
+  | Func ((Noisy, (_, "print")), _), [ (_, arg) ] ->
     Out_channel.output_string Out_channel.stdout (string_of_ray arg);
     Out_channel.flush Out_channel.stdout
   | Func ((Noisy, (_, s)), _), _ -> raise (UnknownEffect s)
@@ -281,17 +281,13 @@ let string_of_exn = function
     Printf.sprintf "%s: effect '%s' expects 1 arguments.\n"
       (red "Missing argument") x
   | TooFewArgs x ->
-    Printf.sprintf "%s: for effect '%s'.\n"
-      (red "Missing argument") x
+    Printf.sprintf "%s: for effect '%s'.\n" (red "Missing argument") x
   | TooManyArgs x when equal_string x "print" ->
     Printf.sprintf "%s: effect '%s' expects 1 arguments.\n"
       (red "Too many arguments") x
   | TooManyArgs x ->
-    Printf.sprintf "%s: for effect '%s'.\n"
-      (red "Too many arguments") x
-  | UnknownEffect x ->
-    Printf.sprintf "%s '%s'.\n"
-      (red "UnknownEffect") x
+    Printf.sprintf "%s: for effect '%s'.\n" (red "Too many arguments") x
+  | UnknownEffect x -> Printf.sprintf "%s '%s'.\n" (red "UnknownEffect") x
   | IllformedEffect -> "ill-formed effect.\n"
   | _ -> "unknown exception.\n"
 
@@ -315,10 +311,10 @@ let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
         select_ray (r' :: queue) other_stars repl1 repl2 s'
       (* if there is an actual connexion between rays *)
       | Some theta ->
-        (try apply_effect r theta
-        with e ->
-          string_of_exn e |> Out_channel.output_string Out_channel.stderr;
-          Stdlib.exit (-1));
+        ( try apply_effect r theta
+          with e ->
+            string_of_exn e |> Out_channel.output_string Out_channel.stderr;
+            Stdlib.exit (-1) );
         if showtrace then begin
           print_string "success with ";
           string_of_subst theta |> print_string;
