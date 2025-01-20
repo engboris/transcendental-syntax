@@ -264,8 +264,6 @@ exception TooManyArgs of string
 
 exception UnknownEffect of string
 
-exception IllformedEffect
-
 let apply_effect r theta =
   match (r, theta) with
   | Func ((Noisy, (_, "print")), _), [] -> raise (TooFewArgs "print")
@@ -274,7 +272,7 @@ let apply_effect r theta =
     Out_channel.output_string Out_channel.stdout (string_of_ray arg);
     Out_channel.flush Out_channel.stdout
   | Func ((Noisy, (_, s)), _), _ -> raise (UnknownEffect s)
-  | _ -> raise IllformedEffect
+  | _ -> ()
 
 let string_of_exn = function
   | TooFewArgs x when equal_string x "print" ->
@@ -288,7 +286,6 @@ let string_of_exn = function
   | TooManyArgs x ->
     Printf.sprintf "%s: for effect '%s'.\n" (red "Too many arguments") x
   | UnknownEffect x -> Printf.sprintf "%s '%s'.\n" (red "UnknownEffect") x
-  | IllformedEffect -> "ill-formed effect.\n"
   | _ -> "unknown exception.\n"
 
 let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
