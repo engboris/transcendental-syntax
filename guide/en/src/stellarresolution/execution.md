@@ -33,8 +33,8 @@ Note that:
 - the substitution obtained from resolving the conflict between `r` and `r'`
 propagates to the adjacent rays.
 
-> **Example:** The fusion of `X +f(X)` and `-f($a)` makes `+f(X)` and
-`-f($a)` interact, propagating the substitution `{X:=$a}` to the remaining
+> **Example:** The fusion of `X +f(X)` and `-f(a)` makes `+f(X)` and
+`-f(a)` interact, propagating the substitution `{X:=a}` to the remaining
 ray `X`. The result is `X{X:=a}`, i.e., `a`.
 
 > This fusion operation corresponds to the cut rule in first-order logic (also linked to the resolution rule). However, the context here is "alogical" (our objects carry no logical meaning).
@@ -74,107 +74,107 @@ Consider the execution of the following constellation, where the only initial
 state star is prefixed by `@`:
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z));
-@-add($s($s($0)) $s($s($0)) R) R.
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z));
+@-add(s(s(0)) s(s(0)) R) R.
 ```
 
 For clarity, the selected rays will be highlighted with `>>` and `<<`.
 The steps are as follows:
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z));
-@-add($s($s($0)) $s($s($0)) R) R.
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z));
+@-add(s(s(0)) s(s(0)) R) R.
 ```
 
 The initial separation is:
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
--add($s($s($0)) $s($s($0)) R) R
+-add(s(s(0)) s(s(0)) R) R
 ```
 
 Select the first ray
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
->>-add($s($s($0))<< $s($s($0)) R) R
+>>-add(s(s(0))<< s(s(0)) R) R
 ```
 
-`+add($0 Y Y)` cannot interact with `-add($s($s($0)) $s($s($0)) R)`
-because the first argument `$0` is incompatible with `$s($s($0))`. However, it
-can interact with `+add($s(X) Y $s(Z))`. Fusing:
+`+add(0 Y Y)` cannot interact with `-add(s(s(0)) s(s(0)) R)`
+because the first argument `0` is incompatible with `s(s(0))`. However, it
+can interact with `+add(s(X) Y s(Z))`. Fusing:
 
 ```
--add(X Y Z) +add($s(X) Y $s(Z))
+-add(X Y Z) +add(s(X) Y s(Z))
 ```
 
 with
 
 ```
--add($s($s($0)) $s($s($0)) R) R
+-add(s(s(0)) s(s(0)) R) R
 ```
 
-produces the substitution `{X:=$s($0), Y:=$s($s($0)), R:=$s(Z)}` and the result:
+produces the substitution `{X:=s(0), Y:=s(s(0)), R:=s(Z)}` and the result:
 
 ```
--add($s($0) $s($s($0)) Z) $s(Z)
+-add(s(0) s(s(0)) Z) s(Z)
 ```
 
 This leads to:
 
 ```
-+add($0 Y Y);
--add(X Y Z) >>+add($s(X) Y $s(Z))<<
++add(0 Y Y);
+-add(X Y Z) >>+add(s(X) Y s(Z))<<
 |-
--add($s($0) $s($s($0)) Z) $s(Z)
+-add(s(0) s(s(0)) Z) s(Z)
 ```
 
 Select the first ray again
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
->>-add($s($0) $s($s($0)) Z)<< $s(Z)
+>>-add(s(0) s(s(0)) Z)<< s(Z)
 ```
 
-It can interact with `+add($s(X) Y $s(Z))`,
-giving the substitution `{X:=$0, Y:=$s($s($0)), Z:=$s(Z')}`:
+It can interact with `+add(s(X) Y s(Z))`,
+giving the substitution `{X:=0, Y:=s(s(0)), Z:=s(Z')}`:
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
--add($0 $s($s($0)) Z') $s($s(Z'))
+-add(0 s(s(0)) Z') s(s(Z'))
 ```
 
 Selecting the first ray once more
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
->>-add($0 $s($s($0)) Z')<< $s($s(Z'))
+>>-add(0 s(s(0)) Z')<< s(s(Z'))
 ```
 
-This ray interacts only with the first action star `+add($0 Y Y)`, resulting
+This ray interacts only with the first action star `+add(0 Y Y)`, resulting
 in:
 
 ```
-+add($0 Y Y);
--add(X Y Z) +add($s(X) Y $s(Z))
++add(0 Y Y);
+-add(X Y Z) +add(s(X) Y s(Z))
 |-
-$s($s($s($s($0))))
+s(s(s(s(0))))
 ```
 
 The result of the execution is:
 
 ```
-$s($s($s($s($0))))
+s(s(s(s(0))))
 ```

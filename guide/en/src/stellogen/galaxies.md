@@ -16,8 +16,8 @@ Galaxies are defined with blocks `galaxy ... end` containing a series of labels
 
 ```
 g = galaxy
-  test1: +f($a) $ok.
-  test2: +f($b) $ok.
+  test1: +f(a) ok.
+  test2: +f(b) ok.
 end
 ```
 

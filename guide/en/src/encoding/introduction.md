@@ -30,9 +30,9 @@ conséquences en expressivité et facilité de manipulation des types.
 ## Symboles spéciaux
 
 Stellogen définit un symbole binaire `:` infixe et associatif à droite nous
-permettant d'écrire `$a:X` à la place de `:($a X)` ou encore `$cons($a X)`.
+permettant d'écrire `a:X` à la place de `:(a X)` ou encore `cons(a X)`.
 Cela nous permet notamment de concaténer des symboles de façon lisible :
 
 ```
-+f($a:$b:$c:$e).
++f(a:b:c:e).
 ```

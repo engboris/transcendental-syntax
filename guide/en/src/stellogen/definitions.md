@@ -10,8 +10,20 @@ They are ignored during execution.
 We can name constellations that are directly written. Identifiers follow the
 same rules as for ray function symbols.
 
+Constellations are surrounded by braces `{ ... }`.
+
 ```
-x = +a; -a $b.
+w = { a }.
+x = +a; -a b.
+z = -f(X).
+```
+
+Braces around constellations can be omitted when there is no ambiguity
+with identifiers:
+
+```
+w = { a }.
+x = +a; -a b.
 z = -f(X).
 ```
 
@@ -46,14 +58,14 @@ To display constellations, you can use the command `show` followed by a
 constellation:
 
 ```
-show +a; -a $b.
+show +a; -a b.
 ```
 
 The `show` command does not execute constellation. If you want to actually
 execute the constellation and display its result, use the `print` command:
 
 ```
-print +a; -a $b.
+print +a; -a b.
 ```
 
 ## Focus
@@ -61,7 +73,7 @@ print +a; -a $b.
 We can focus all stars of a constellation by prefixing it with `@`:
 
 ```
-x = +a; -a $b.
+x = +a; -a b.
 z = -f(X).
 union1 = (@x) z.
 ```
@@ -72,13 +84,13 @@ We can chain constellations with the expression `process ... end`:
 
 ```
 c = process
-  +n0($0).
-  -n0(X) +n1($s(X)).
-  -n1(X) +n2($s(X)).
+  +n0(0).
+  -n0(X) +n1(s(X)).
+  -n1(X) +n2(s(X)).
 end
 ```
 
-This chain starts with the first constellation `+n0($0)` as a state space. The
+This chain starts with the first constellation `+n0(0)` as a state space. The
 next constellation then interacts as an action space with the previous one 
 seen as a state space). Thus we
 have an interaction chain with a complete focus on the previous result.
@@ -86,27 +98,27 @@ have an interaction chain with a complete focus on the previous result.
 It's as if we did the following computation:
 
 ```
-$@+n0($0);
--n0(X) +n1($s(X)).
+@+n0(0);
+-n0(X) +n1(s(X)).
 ```
 
 yielding
 
 ```
-+n1($s($0)).
++n1(s(0)).
 ```
 
 then
 
 ```
-@+n1($s($0));
--n1(X) +n2($s(X)).
+@+n1(s(0));
+-n1(X) +n2(s(X)).
 ```
 
 yielding
 
 ```
-+n2($s($s($0))).
++n2(s(s(0))).
 ```
 
 > This is what corresponds to tactics in proof assistants such as Coq and could
@@ -128,17 +140,17 @@ expression:
 
 ```
 c = process
-  +n0($0).
-  -n0(X) +n1($s(X)).
-  -n1(X) +n2($s(X)).
-  -n2(X) $result(X); -n2(X) +n3(X).
+  +n0(0).
+  -n0(X) +n1(s(X)).
+  -n1(X) +n2(s(X)).
+  -n2(X) result(X); -n2(X) +n3(X).
   kill.
 end
 
 print c.
 ```
 
-We used a ray `+n3(X)` to continue computations if desired. The result is stored in `$result(X)`.
+We used a ray `+n3(X)` to continue computations if desired. The result is stored in `result(X)`.
 However, if we want to keep only the result and eliminate any further
 computation possibilities, we can use `kill`.
 
@@ -149,7 +161,7 @@ using the `clean` command:
 
 ```
 print process
-  +f($0).
+  +f(0).
   -f(X).
   clean.
 end

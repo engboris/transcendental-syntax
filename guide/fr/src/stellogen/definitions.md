@@ -10,15 +10,27 @@ les commentaires multi-lignes. Ils sont ignorés pendant l'exécution.
 On peut nommer des constellations que l'on écrit directement. Les identifiants
 suivent les mêmes règles que pour les symboles de fonction des rayons.
 
+Les constellations sont entourées d'accolades `{ ... }`.
+
 ```
-x = +a; -a $b.
-z = -f(X).
+w = { a }.
+x = { +a; -a b }.
+z = { -f(X) }.
 ```
 
 On peut aussi choisir d'associer un identifiant à un autre :
 
 ```
 y = x.
+```
+
+Les accolades autour des constellations peuvent être omises lorsqu'il
+n'y a pas d'ambiguïté avec les identifiants :
+
+```
+w = { a }.
+x = +a; -a b.
+z = -f(X).
 ```
 
 Comme pour l'application en programmation fonctionnelle, l'union de
@@ -47,7 +59,7 @@ Pour afficher des constellations, vous pouvez utiliser la commande `show`
 suivit d'une constellation :
 
 ```
-show +a; -a $b.
+show +a; -a b.
 ```
 
 La commande `show` n'exécute pas les constellations. Si vous voulez vraiment
@@ -55,7 +67,7 @@ exécuter la constellation et afficher son résultat, utilisez la commande
 `print` :
 
 ```
-print +a; -a $b.
+print +a; -a b.
 ```
 
 ## Focus
@@ -64,7 +76,7 @@ On peut mettre le focus sur toutes les étoiles d'une constellation en
 la préfixant aussi avec `@` :
 
 ```
-x = +a; -a $b.
+x = +a; -a b.
 z = -f(X).
 union1 = (@x) z.
 ```
@@ -75,38 +87,38 @@ On peut enchaîner des constellations avec l'expression `process ... end` :
 
 ```
 c = process
-  +n0($0).
-  -n0(X) +n1($s(X)).
-  -n1(X) +n2($s(X)).
+  +n0(0).
+  -n0(X) +n1(s(X)).
+  -n1(X) +n2(s(X)).
 end
 ```
 
-Cet enchaînement part de la première constellation `+n0($0)` considérée comme
+Cet enchaînement part de la première constellation `+n0(0)` considérée comme
 initiale. Chaque constellation suivante interagit ensuite avec le résultat
 précédent. C'est comme si nous faisions le calcul suivant :
 
 ```
-@+n0($0);
--n0(X) +n1($s(X)).
+@+n0(0);
+-n0(X) +n1(s(X)).
 ```
 
 donnant
 
 ```
-+n1($s($0)).
++n1(s(0)).
 ```
 
 puis
 
 ```
-@+n1($s($0));
--n1(X) +n2($s(X)).
+@+n1(s(0));
+-n1(X) +n2(s(X)).
 ```
 
 donnant
 
 ```
-+n2($s($s($0))).
++n2(s(s(0))).
 ```
 
 > C'est ce qui correspond aux tactiques dans des assistants de preuve comme Coq
@@ -129,10 +141,10 @@ l'expression spéciale `kill` :
 
 ```
 c = process
-  +n0($0).
-  -n0(X) +n1($s(X)).
-  -n1(X) +n2($s(X)).
-  -n2(X) $result(X); -n2(X) +n3(X).
+  +n0(0).
+  -n0(X) +n1(s(X)).
+  -n1(X) +n2(s(X)).
+  -n2(X) result(X); -n2(X) +n3(X).
   kill.
 end
 
@@ -140,7 +152,7 @@ print c.
 ```
 
 Nous avons utilisé un rayon `+n3(X)` pour poursuivre des calculs
-si nous souhaitons. Le résultat est stocké dans `$result(X)`.
+si nous souhaitons. Le résultat est stocké dans `result(X)`.
 Mais si nous souhaitons seulement conserver le résultat et retirer toute
 autre possibilité de calcul alors on peut utiliser `kill`.
 
@@ -151,7 +163,7 @@ les processus. Il est possible de s'en débarrasser avec la commande `clean` :
 
 ```
 print process
-  +f($0).
+  +f(0).
   -f(X).
   clean.
 end

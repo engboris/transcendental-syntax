@@ -1,18 +1,18 @@
 ''' id id '''
-id = +id($exp($l:X $d)) +id($r:X).
-id_arg = $id'($exp($l:X Y)) +arg($exp($l:$r:X Y)).
-linker = -id(X) -arg(X); @+arg($r:X) $out(X).
+id = +id(exp(l:X d)) +id(r:X).
+id_arg = { id'(exp(l:X Y)) +arg(exp(l:r:X Y)) }.
+linker = -id(X) -arg(X); @+arg(r:X) out(X).
 print id id_arg linker.
 
 ''' id x '''
-var_x = $x($exp(X Y)) +arg($exp($l:X Y)).
-linker = -id(X) -arg(X); @+arg($r:X) $out(X).
+var_x = { x(exp(X Y)) +arg(exp(l:X Y)) }.
+linker = -id(X) -arg(X); @+arg(r:X) out(X).
 print id var_x linker.
 
 ''' lproj x '''
 lproj =
-	+lproj($l:X); 'weakening
-	$lproj($exp($r:$l:X $d)) +lproj($r:$r:X).
+	+lproj(l:X); 'weakening
+	lproj(exp(r:l:X d)) +lproj(r:r:X).
 
-linker = -lproj(X) -arg(X); @+arg($r:X) $out(X).
+linker = -lproj(X) -arg(X); @+arg(r:X) out(X).
 print lproj var_x linker.

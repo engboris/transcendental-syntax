@@ -7,7 +7,7 @@ of *rays*. A ray is a term where function symbols are polarized with:
 
 - `+` (positive polarity);
 - `-` (negative polarity);
-- `$` (neutral polarity or absence of polarity).
+- nothing (neutral polarity or absence of polarity).
 
 The *compatibility* of rays follows the same rules as term unification,
 except:
@@ -16,10 +16,10 @@ except:
 symbols without polarity cannot interact.
 
 For example:
-- `+f(X)` and `-f($h($a))` are compatible with `{X:=$h($a)}`;
-- `$f(X)` and `$f($h($a))` are incompatible;
-- `+f(X)` and `+f($h($a))` are incompatible;
-- `+f(+h(X))` and `-f(-h($a))` are compatible with `{X:=$a}`;
+- `+f(X)` and `-f(h(a))` are compatible with `{X:=h(a)}`;
+- `f(X)` and `f(h(a))` are incompatible;
+- `+f(X)` and `+f(h(a))` are incompatible;
+- `+f(+h(X))` and `-f(-h(a))` are compatible with `{X:=a}`;
 - `+f(+h(X))` and `-f(-h(+a))` are compatible with `{X:=+a}`.
 
 ## Stars
@@ -27,7 +27,7 @@ For example:
 With rays, we can form *stars*. These are unordered collections of rays:
 
 ```
-+f(X) -f($h($a)) +f(+h(X))
++f(X) -f(h(a)) +f(+h(X))
 ```
 
 The empty star is denoted as `[]`.
@@ -38,7 +38,7 @@ The empty star is denoted as `[]`.
 ending with a `.`:
 
 ```
-+f(X) X; +f(+h(X) $a $f($b)).
++f(X) X; +f(+h(X) a f(b)).
 ```
 
 The empty constellation is denoted as `{}`.

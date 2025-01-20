@@ -1,0 +1,36 @@
+binary =
+	-i(e) ok;
+	-i(0:X) +i(X);
+	-i(1:X) +i(X).
+
+'input words
+e :: binary.
+e = +i(e).
+
+0000 :: binary.
+0000 = +i(0:0:0:0:e).
+
+0110 :: binary.
+0110 = +i(0:1:1:0:e).
+
+1110 :: binary.
+1110 = +i(1:1:1:0:e).
+
+a1 = galaxy
+	initial:
+		-i(W) +a(W e q0).
+	final:
+		-a(e e q0) accept;
+		-a(e e q1) accept.
+	transitions:
+		-a(0:W S q0) +a(W 0:S q0);
+		-a(1:W S q0) +a(W 1:S q0);
+		-a(W S q0) +a(W S q1);
+		-a(0:W 0:S q1) +a(W S q1);
+		-a(1:W 1:S q1) +a(W S q1).
+end
+
+show process e.    a1. kill. end
+show process 0000. a1. kill. end
+show process 0110. a1. kill. end
+show process 1110. a1. kill. end

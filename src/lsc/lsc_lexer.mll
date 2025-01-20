@@ -21,7 +21,6 @@ rule read = parse
   | ','      { COMMA }
   | '@'      { AT }
   | '#'      { SHARP }
-  | '$'      { DOLLAR }
   | '+'      { PLUS }
   | '-'      { MINUS }
   | ':'      { CONS }
