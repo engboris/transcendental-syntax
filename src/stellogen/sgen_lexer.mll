@@ -32,6 +32,7 @@ rule read = parse
   | ')'       { RPAR }
   | ','       { COMMA }
   | '@'       { AT }
+  | '#'       { SHARP }
   | '$'       { DOLLAR }
   | '+'       { PLUS }
   | '-'       { MINUS }

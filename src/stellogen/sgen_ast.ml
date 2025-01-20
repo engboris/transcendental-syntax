@@ -192,7 +192,7 @@ and galaxy_to_constellation env = function
     List.fold_left g ~init:[] ~f:(fun acc (_, v) ->
       galaxy_to_constellation env (eval_galaxy_expr env v) @ acc )
 
-let string_of_runtime_err e =
+let string_of_exn e =
   match e with
   | ReservedWord x ->
     Printf.sprintf "%s: identifier '%s' is reserved.\n"
@@ -298,5 +298,5 @@ let eval_decl env : declaration -> env = function
 let eval_program p =
   try List.fold_left ~f:(fun acc x -> eval_decl acc x) ~init:empty_env p
   with e ->
-    string_of_runtime_err e |> Out_channel.output_string Out_channel.stderr;
-    raise e
+    string_of_exn e |> Out_channel.output_string Out_channel.stderr;
+    Stdlib.exit (-1)
