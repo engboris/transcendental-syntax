@@ -136,6 +136,20 @@ dune build
 
 Executables are in `_build/default/bin/`.
 
+## Build from sources using Nix
+
+Install dependencies
+```
+nix develop
+```
+
+Build the project
+```
+dune build
+```
+
+Executables are in `_build/default/bin/`.
+
 ## Commands
 
 Assume the executable is named `sgen.exe`. Interpreter Stellogen programs with:
