@@ -30,7 +30,7 @@ xor =
 	-b1(arg 1) -b2(arg 1) b(arg 0).
 
 'logical AND
-print process
+show-exec process
 	b1[b=>+b1].
 	and[arg=>1]. and[arg=>2]. and[arg=>3]. and[arg=>4].
 	b2[b=>+b2].

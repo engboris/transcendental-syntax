@@ -3,11 +3,17 @@ x = +a; -a b.
 y = x.
 z = -f(X).
 
+'strings
+w = "hello world".
+
+'cons
+w = +w(0:1:0:1:e).
+
 'show (literal) contellations
 show { a; b; c }.
 
 'print result of execution
-print { a; b; c }.
+show-exec { a; b; c }.
 
 'dynamic definition of constellation
 c = process
@@ -22,23 +28,26 @@ g = galaxy
 	test2: +f(b) ok.
 end
 
+'reactive effects
+show-exec +#print(X); -#print("hello world").
+
 'access to field of a galaxy
 show g->test1.
 show g->test2.
 
 'extend rays with a head function symbol
-print (+f(X); f(X))[=>+a].
-print (+f(X); f(X))[=>a].
+show exec (+f(X); f(X))[=>+a] end
+show exec (+f(X); f(X))[=>a] end
 
 'remove head function symbol from a ray
-print (+f(X); f(X))[+f=>].
+show exec (+f(X); f(X))[+f=>] end
 
 'substitutions
-print (+f(X))[X=>+a(X)].
-print (+f(X))[+f=>+g].
+show exec (+f(X))[X=>+a(X)] end
+show exec (+f(X))[+f=>+g] end
 
 'tokens (fillable named empty constellation)
-print (#1 #2)[1=>+f(X) X][2=>-f(a)].
+show exec (#1 #2)[1=>+f(X) X][2=>-f(a)] end
 
 'checkers & typechecking
 checker = galaxy

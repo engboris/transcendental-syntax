@@ -5,7 +5,7 @@ add =
 
 query = -add(s(s(0)) s(s(0)) R) R.
 
-print add @query.
+show-exec add @query.
 
 graph =
 	+from(1) +to(2);
@@ -20,7 +20,7 @@ query =
 	@-from(1);
 	-to(4) ok.
 
-print process
+show-exec process
 	query.
 	graph composition.
 	kill.

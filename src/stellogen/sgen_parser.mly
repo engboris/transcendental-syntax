@@ -3,7 +3,8 @@ open Sgen_ast
 %}
 
 %token LBRACE RBRACE
-%token SHOW
+%token SHOW SHOWEXEC
+%token EXEC
 %token PROCESS
 %token GALAXY
 %token RARROW DRARROW
@@ -24,9 +25,9 @@ declaration:
 | x=SYM; EQ; EOL*; e=galaxy_expr;
   { Def (x, e) }
 | SHOW; EOL*; e=galaxy_expr;
-  { ShowGalaxy e }
-| PRINT; EOL*; e=galaxy_expr;
-  { PrintGalaxy e }
+  { Show e }
+| SHOWEXEC; EOL*; e=galaxy_expr;
+  { ShowExec e }
 | x=SYM; CONS; CONS; t=SYM; EOL*; ck=checker_def; DOT;
   { TypeDef (x, t, ck) }
 | x=SYM; CONS; CONS; t=SYM; DOT;
@@ -104,6 +105,7 @@ galaxy_item:
 galaxy_block:
 | PROCESS; EOL*; { Process [] }
 | PROCESS; EOL*; l=process_item+; { Process l }
+| EXEC; EOL*; e=galaxy_content { Exec e }
 
 process_item:
 | e=galaxy_content; DOT; EOL*; { e }
