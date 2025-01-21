@@ -268,6 +268,10 @@ let apply_effect r theta =
   match (r, theta) with
   | Func ((Noisy, (_, "print")), _), [] -> raise (TooFewArgs "print")
   | Func ((Noisy, (_, "print")), _), _ :: _ :: _ -> raise (TooManyArgs "print")
+  | Func ((Noisy, (_, "print")), _), [ (_, Func ((_, (Null, arg)), [])) ] ->
+    String.strip ~drop:(fun x -> equal_char x '\"') arg
+    |> Out_channel.output_string Out_channel.stdout;
+    Out_channel.flush Out_channel.stdout
   | Func ((Noisy, (_, "print")), _), [ (_, arg) ] ->
     Out_channel.output_string Out_channel.stdout (string_of_ray arg);
     Out_channel.flush Out_channel.stdout
