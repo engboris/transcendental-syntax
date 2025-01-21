@@ -1,5 +1,6 @@
 open Base
 open Pretty
+open Format_exn
 
 type polarity =
   | Pos
@@ -257,6 +258,40 @@ let fusion repl1 repl2 s1 s2 theta =
   let new2 = List.map s2 ~f:repl2 in
   List.map (new1 @ new2) ~f:(subst theta)
 
+exception TooFewArgs of string
+
+exception TooManyArgs of string
+
+exception UnknownEffect of string
+
+let apply_effect r theta =
+  match (r, theta) with
+  | Func ((Noisy, (_, "print")), _), [] -> raise (TooFewArgs "print")
+  | Func ((Noisy, (_, "print")), _), _ :: _ :: _ -> raise (TooManyArgs "print")
+  | Func ((Noisy, (_, "print")), _), [ (_, Func ((_, (Null, arg)), [])) ] ->
+    String.strip ~drop:(fun x -> equal_char x '\"') arg
+    |> Out_channel.output_string Out_channel.stdout;
+    Out_channel.flush Out_channel.stdout
+  | Func ((Noisy, (_, "print")), _), [ (_, arg) ] ->
+    Out_channel.output_string Out_channel.stdout (string_of_ray arg);
+    Out_channel.flush Out_channel.stdout
+  | Func ((Noisy, (_, s)), _), _ -> raise (UnknownEffect s)
+  | _ -> ()
+
+let string_of_exn = function
+  | TooFewArgs x when equal_string x "print" ->
+    Printf.sprintf "%s: effect '%s' expects 1 arguments.\n"
+      (red "Missing argument") x
+  | TooFewArgs x ->
+    Printf.sprintf "%s: for effect '%s'.\n" (red "Missing argument") x
+  | TooManyArgs x when equal_string x "print" ->
+    Printf.sprintf "%s: effect '%s' expects 1 arguments.\n"
+      (red "Too many arguments") x
+  | TooManyArgs x ->
+    Printf.sprintf "%s: for effect '%s'.\n" (red "Too many arguments") x
+  | UnknownEffect x -> Printf.sprintf "%s '%s'.\n" (red "UnknownEffect") x
+  | _ -> "unknown exception.\n"
+
 let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
     =
   let open Out_channel in
@@ -275,7 +310,12 @@ let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
       | None ->
         if showtrace then print_string "failed.\n";
         select_ray (r' :: queue) other_stars repl1 repl2 s'
+      (* if there is an actual connexion between rays *)
       | Some theta ->
+        ( try apply_effect r theta
+          with e ->
+            string_of_exn e |> Out_channel.output_string Out_channel.stderr;
+            Stdlib.exit (-1) );
         if showtrace then begin
           print_string "success with ";
           string_of_subst theta |> print_string;
