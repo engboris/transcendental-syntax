@@ -25,6 +25,6 @@ is_empty =
 	@-nat(0) res(1);
 	@-nat(s(_)) res(0).
 
-print (add1 2).
-print (is_empty 0).
-print (is_empty 1).
+show-exec (add1 2).
+show-exec (is_empty 0).
+show-exec (is_empty 1).

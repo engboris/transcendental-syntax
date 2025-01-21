@@ -13,38 +13,39 @@ let newline  = '\r' | '\n' | "\r\n"
 
 rule read = parse
   (* Stellogen *)
-  | '{'       { LBRACE }
-  | '}'       { RBRACE }
-  | "end"     { END }
-  | "show"    { SHOW }
-  | "galaxy"  { GALAXY }
-  | "print"   { PRINT }
-  | "process" { PROCESS }
-  | "->"      { RARROW }
-  | "=>"      { DRARROW }
-  | "."       { DOT }
-  | "#"       { SHARP }
-  | '"'       { read_string (Buffer.create 255) lexbuf }
+  | '{'         { LBRACE }
+  | '}'         { RBRACE }
+  | "end"       { END }
+  | "exec"      { EXEC }
+  | "show"      { SHOW }
+  | "show-exec" { SHOWEXEC }
+  | "galaxy"    { GALAXY }
+  | "process"   { PROCESS }
+  | "->"        { RARROW }
+  | "=>"        { DRARROW }
+  | "."         { DOT }
+  | "#"         { SHARP }
+  | '"'         { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
-  | '_'       { PLACEHOLDER }
-  | '['       { LBRACK }
-  | ']'       { RBRACK }
-  | '('       { LPAR }
-  | ')'       { RPAR }
-  | ','       { COMMA }
-  | '@'       { AT }
-  | '+'       { PLUS }
-  | '-'       { MINUS }
-  | '='       { EQ }
-  | ':'       { CONS }
-  | ';'       { SEMICOLON }
-  | var_id    { VAR (Lexing.lexeme lexbuf) }
-  | ident     { SYM (Lexing.lexeme lexbuf) }
-  (* Common *)
-  | '\''      { comment lexbuf }
-  | "'''"     { comments lexbuf }
-  | space     { read lexbuf }
-  | newline   {
+  | '_'         { PLACEHOLDER }
+  | '['         { LBRACK }
+  | ']'         { RBRACK }
+  | '('         { LPAR }
+  | ')'         { RPAR }
+  | ','         { COMMA }
+  | '@'         { AT }
+  | '+'         { PLUS }
+  | '-'         { MINUS }
+  | '='         { EQ }
+  | ':'         { CONS }
+  | ';'         { SEMICOLON }
+  | var_id      { VAR (Lexing.lexeme lexbuf) }
+  | ident       { SYM (Lexing.lexeme lexbuf) }
+  (* Common *)  
+  | '\''        { comment lexbuf }
+  | "'''"       { comments lexbuf }
+  | space       { read lexbuf }
+  | newline     {
     let pos = lexbuf.lex_curr_p in
     lexbuf.lex_curr_p <- {
       lexbuf.lex_curr_p with
