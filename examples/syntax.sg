@@ -3,6 +3,12 @@ x = +a; -a b.
 y = x.
 z = -f(X).
 
+'strings
+w = "hello world".
+
+'cons
+w = +w(0:1:0:1:e).
+
 'show (literal) contellations
 show { a; b; c }.
 
@@ -21,6 +27,9 @@ g = galaxy
 	test1: +f(a) ok.
 	test2: +f(b) ok.
 end
+
+'reactive effects
+print +#print(X); -#print("hello world").
 
 'access to field of a galaxy
 show g->test1.
