@@ -18,13 +18,13 @@ and galaxy_expr =
   | Id of ident
   | Exec of galaxy_expr
   | Union of galaxy_expr * galaxy_expr
-  | Extend of (StellarRays.fmark * idfunc) * galaxy_expr
-  | Reduce of (StellarRays.fmark * idfunc) * galaxy_expr
+  | Extend of galaxy_expr * (StellarRays.fmark * idfunc)
+  | Reduce of galaxy_expr * (StellarRays.fmark * idfunc)
   | Focus of galaxy_expr
-  | SubstVar of ident * StellarRays.term * galaxy_expr
+  | SubstVar of galaxy_expr * ident * StellarRays.term
   | SubstFunc of
-      (StellarRays.fmark * idfunc) * (StellarRays.fmark * idfunc) * galaxy_expr
-  | SubstGal of ident * galaxy_expr * galaxy_expr
+      galaxy_expr * (StellarRays.fmark * idfunc) * (StellarRays.fmark * idfunc)
+  | SubstGal of galaxy_expr * ident * galaxy_expr
   | Process of galaxy_expr list
   | Token of string
 
@@ -84,13 +84,13 @@ and map_galaxy_expr env ~f e =
   | Id x -> get_obj env x |> map_galaxy_expr env ~f
   | Exec e -> Exec (map_galaxy_expr env ~f e)
   | Union (e, e') -> Union (map_galaxy_expr env ~f e, map_galaxy_expr env ~f e')
-  | Extend (pf, e) -> Extend (pf, map_galaxy_expr env ~f e)
-  | Reduce (pf, e) -> Reduce (pf, map_galaxy_expr env ~f e)
+  | Extend (e, pf) -> Extend (map_galaxy_expr env ~f e, pf)
+  | Reduce (e, pf) -> Reduce (map_galaxy_expr env ~f e, pf)
   | Focus e -> Focus (map_galaxy_expr env ~f e)
-  | SubstVar (x, r, e) -> SubstVar (x, r, map_galaxy_expr env ~f e)
-  | SubstFunc (pf, pf', e) -> SubstFunc (pf, pf', map_galaxy_expr env ~f e)
-  | SubstGal (x, e, e') ->
-    SubstGal (x, map_galaxy_expr env ~f e, map_galaxy_expr env ~f e')
+  | SubstVar (e, x, r) -> SubstVar (map_galaxy_expr env ~f e, x, r)
+  | SubstFunc (e, pf, pf') -> SubstFunc (map_galaxy_expr env ~f e, pf, pf')
+  | SubstGal (e', x, e) ->
+    SubstGal (map_galaxy_expr env ~f e', x, map_galaxy_expr env ~f e)
   | Process gs -> Process (List.map ~f:(map_galaxy_expr env ~f) gs)
   | Token _ -> e
 
@@ -102,13 +102,13 @@ let rec fill_token env (_from : string) _to e =
   | Exec e -> Exec (fill_token env _from _to e)
   | Union (e, e') ->
     Union (fill_token env _from _to e, fill_token env _from _to e')
-  | Extend (pf, e) -> Extend (pf, fill_token env _from _to e)
-  | Reduce (pf, e) -> Reduce (pf, fill_token env _from _to e)
+  | Extend (e, pf) -> Extend (fill_token env _from _to e, pf)
+  | Reduce (e, pf) -> Reduce (fill_token env _from _to e, pf)
   | Focus e -> Focus (fill_token env _from _to e)
-  | SubstVar (x, r, e) -> SubstVar (x, r, fill_token env _from _to e)
-  | SubstFunc (pf, pf', e) -> SubstFunc (pf, pf', fill_token env _from _to e)
-  | SubstGal (x, e, e') ->
-    SubstGal (x, fill_token env _from _to e, fill_token env _from _to e')
+  | SubstVar (e, x, r) -> SubstVar (fill_token env _from _to e, x, r)
+  | SubstFunc (e, pf, pf') -> SubstFunc (fill_token env _from _to e, pf, pf')
+  | SubstGal (e', x, e) ->
+    SubstGal (fill_token env _from _to e', x, fill_token env _from _to e)
   | Process gs -> Process (List.map ~f:(fill_token env _from _to) gs)
   | Token x when equal_string x _from -> _to
   | Raw _ | Token _ -> e
@@ -143,12 +143,12 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
       |> galaxy_to_constellation env
       |> exec ~showtrace:false ~showsteps:false
       |> unmark_all )
-  | Extend (pf, e) ->
+  | Extend (e, pf) ->
     Const
       ( eval_galaxy_expr env e
       |> galaxy_to_constellation env
       |> List.map ~f:(Lsc_ast.map_mstar ~f:(fun r -> Lsc_ast.gfunc pf [ r ])) )
-  | Reduce (pf, e) ->
+  | Reduce (e, pf) ->
     Const
       ( eval_galaxy_expr env e
       |> galaxy_to_constellation env
@@ -182,9 +182,9 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
            let origin = acc |> remove_mark_all |> focus in
            eval_galaxy_expr env (Exec (Union (x, Raw (Const origin))))
            |> galaxy_to_constellation env ) )
-  | SubstVar (x, r, e) -> subst_vars env (x, None) r e |> eval_galaxy_expr env
-  | SubstFunc (pf1, pf2, e) -> subst_funcs env pf1 pf2 e |> eval_galaxy_expr env
-  | SubstGal (x, _to, e) -> fill_token env x _to e |> eval_galaxy_expr env
+  | SubstVar (e, x, r) -> subst_vars env (x, None) r e |> eval_galaxy_expr env
+  | SubstFunc (e, pf1, pf2) -> subst_funcs env pf1 pf2 e |> eval_galaxy_expr env
+  | SubstGal (e, x, _to) -> fill_token env x _to e |> eval_galaxy_expr env
 
 and galaxy_to_constellation env = function
   | Const mcs -> mcs
@@ -237,7 +237,7 @@ let typecheck env x t (ck : galaxy_expr) : unit =
         in
         ( idtest
         , Exec
-            (SubstGal ("tested", get_obj env x, SubstGal ("test", test, format)))
+            (SubstGal (SubstGal (format, "test", test), "tested", get_obj env x))
           |> eval_galaxy_expr env )
       | _weak73 -> raise IllFormedChecker )
   in
