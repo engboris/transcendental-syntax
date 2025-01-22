@@ -23,7 +23,7 @@ and galaxy_expr =
   | Focus of galaxy_expr
   | SubstVar of galaxy_expr * ident * StellarRays.term
   | SubstFunc of
-    galaxy_expr * (StellarRays.fmark * idfunc) * (StellarRays.fmark * idfunc)
+      galaxy_expr * (StellarRays.fmark * idfunc) * (StellarRays.fmark * idfunc)
   | SubstGal of galaxy_expr * ident * galaxy_expr
   | Process of galaxy_expr list
   | Token of string
