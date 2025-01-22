@@ -4,12 +4,12 @@ id = +id(l:X) +id(r:X).
 ''' id id '''
 id_arg = { id'(l:X) +arg(l:r:X) }.
 linker = -id(X) -arg(X); @+arg(r:X) out(X).
-print id id_arg linker.
+show-exec id id_arg linker.
 
 ''' id x '''
 x_arg = { x(X) +arg(l:X) }.
 linker = -id(X) -arg(X); @+arg(r:X) out(X).
-print id x_arg linker.
+show-exec id x_arg linker.
 
 ''' linear types '''
 "a -o a" = galaxy

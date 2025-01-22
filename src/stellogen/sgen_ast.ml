@@ -53,8 +53,8 @@ let empty_env = { objs = []; types = [] }
 
 type declaration =
   | Def of ident * galaxy_expr
-  | ShowGalaxy of galaxy_expr
-  | PrintGalaxy of galaxy_expr
+  | Show of galaxy_expr
+  | ShowExec of galaxy_expr
   | TypeDef of ident * ident * ident option
 
 type program = declaration list
@@ -263,7 +263,7 @@ let rec string_of_galaxy env = function
         ^ "\n" )
     ^ "end"
 
-let eval_decl env : declaration -> env = function
+let rec eval_decl env : declaration -> env = function
   | Def (x, _) when is_reserved x -> raise (ReservedWord x)
   | Def (x, e) ->
     let env = { objs = add_obj env x e; types = env.types } in
@@ -277,22 +277,17 @@ let eval_decl env : declaration -> env = function
         env
       | None -> env
     end
-  | ShowGalaxy (Raw (Galaxy g)) ->
+  | Show (Raw (Galaxy g)) ->
     Galaxy g |> string_of_galaxy env |> Stdlib.print_string;
     Stdlib.print_newline ();
     env
-  | ShowGalaxy e ->
+  | Show e ->
     eval_galaxy_expr env e
     |> galaxy_to_constellation env
     |> List.map ~f:remove_mark |> string_of_constellation |> Stdlib.print_string;
     Stdlib.print_newline ();
     env
-  | PrintGalaxy e ->
-    eval_galaxy_expr env (Exec e)
-    |> galaxy_to_constellation env
-    |> List.map ~f:remove_mark |> string_of_constellation |> Stdlib.print_string;
-    Stdlib.print_newline ();
-    env
+  | ShowExec e -> eval_decl env (Show (Exec e))
   | TypeDef (x, t, ck) -> { objs = env.objs; types = add_type env x (t, ck) }
 
 let eval_program p =

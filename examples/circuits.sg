@@ -9,7 +9,7 @@ semantics =
 	+not(1 0); +not(0 1);
 	+and(1 X X); +and(0 X 0).
 
-print process
+show-exec process
 	'inputs
 		-1(X) +c0(X).
 	'layer 1
@@ -24,7 +24,7 @@ print process
 		'kill.
 end
 
-print process
+show-exec process
 	'inputs
 		-0(X) +c0(X);
 		-0(X) +c1(X).

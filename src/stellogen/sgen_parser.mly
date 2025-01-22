@@ -3,7 +3,8 @@ open Sgen_ast
 %}
 
 %token LBRACE RBRACE
-%token SHOW
+%token SHOW SHOWEXEC
+%token EXEC
 %token PROCESS
 %token GALAXY
 %token RARROW DRARROW
