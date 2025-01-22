@@ -23,8 +23,8 @@ let program :=
 
 let declaration :=
   | ~=SYM; EQ; EOL*; ~=galaxy_expr; <Def>
-  | SHOW; EOL*; ~=galaxy_expr;      <ShowGalaxy>
-  | PRINT; EOL*; ~=galaxy_expr;     <PrintGalaxy>
+  | SHOW; EOL*; ~=galaxy_expr;      <Show>
+  | SHOWEXEC; EOL*; ~=galaxy_expr;  <ShowExec>
   | ~=SYM; CONS; CONS; ~=SYM; EOL*;
     ~=checker_def; DOT;             <TypeDef>
   | x=SYM; CONS; CONS; t=SYM; DOT;  { TypeDef (x, t, None) }
@@ -97,6 +97,7 @@ let galaxy_item :=
 let galaxy_block :=
   | PROCESS; EOL*; { Process [] }
   | PROCESS; EOL*; ~=process_item+; <Process>
+  | EXEC; EOL*; ~=galaxy_content; <Exec>
 
 let process_item :=
   | ~=galaxy_content; DOT; EOL*; <>
