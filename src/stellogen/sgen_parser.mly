@@ -44,13 +44,14 @@ let galaxy_content :=
   | SHARP; ~=SYM;                       <Token>
   | cs=raw_constellation;               { Raw (Const cs) }
   | ~=SYM;                              <Id>
-  | g=galaxy_content; h=galaxy_content; { Union (g, h) }
+  | g=galaxy_content; EOL*;
+    h=galaxy_content; EOL*;             { Union (g, h) }
   | ~=galaxy_content; RARROW; ~=SYM;    <Access>
   | ~=galaxy_content;
     LBRACK; DRARROW; ~=symbol; RBRACK;  <Extend>
   | ~=galaxy_content;
     LBRACK; ~=symbol; DRARROW; RBRACK;  <Reduce>
-  | AT; ~=galaxy_content;               <Focus>
+  | LPAR; AT; ~=galaxy_content; RPAR;   <Focus>
   | ~=galaxy_content; LBRACK; x=VAR;
     DRARROW; r=ray; RBRACK;             <SubstVar>
   | e=galaxy_content; LBRACK; f=symbol;
