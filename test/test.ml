@@ -9,11 +9,12 @@ let test filename () =
   let _ = eval_program p in
   ()
 
-let example filename = "./testsuite/" ^ filename
-
 let suite =
-  [ ("Automata", `Quick, test (example "automata.sg"))
-  ; ("Prolog", `Quick, test (example "prolog.sg"))
+  let suite x = "./testsuite/" ^ x in
+  let example x = "../examples/" ^ x in
+  [ ("Syntax of Stellogen", `Quick, test (example "syntax.sg"))
+  ; ("Automata", `Quick, test (suite "automata.sg"))
+  ; ("Prolog", `Quick, test (suite "prolog.sg"))
   ]
 
-let () = Alcotest.run "Stellogen Test Suite" [ ("Basic tests", suite) ]
+let () = Alcotest.run "Stellogen Test Suite" [ ("Stellogen test suite", suite) ]
