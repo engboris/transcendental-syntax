@@ -27,6 +27,8 @@ rule read = parse
   | "#"         { SHARP }
   | '"'         { read_string (Buffer.create 255) lexbuf }
   (* Stellar resolution *)
+  | '|'         { BAR }
+  | "!="        { NEQ }
   | '_'         { PLACEHOLDER }
   | '['         { LBRACK }
   | ']'         { RBRACK }
@@ -41,7 +43,7 @@ rule read = parse
   | ';'         { SEMICOLON }
   | var_id      { VAR (Lexing.lexeme lexbuf) }
   | ident       { SYM (Lexing.lexeme lexbuf) }
-  (* Common *)  
+  (* Common *)
   | '\''        { comment lexbuf }
   | "'''"       { comments lexbuf }
   | space       { read lexbuf }

@@ -48,15 +48,15 @@ let fresh_placeholder () =
 
 type ray = term
 
-type star = ray list
+type ban = ray * ray
+
+type star = { content: ray list; bans: ban list }
 
 type constellation = star list
 
 let equal_ray = equal_term
 
-let equal_star = List.equal equal_ray
-
-let equal_constellation = List.equal equal_star
+let equal_star s s' = List.equal equal_ray s.content s'.content
 
 let to_var x = Var (x, None)
 
@@ -87,8 +87,6 @@ let pconst f = pfunc f []
 let nconst f = nfunc f []
 
 let const f = func f []
-
-let dot t u = nfunc ":" [ t; u ]
 
 let is_polarised r : bool =
   let aux = function _, (Pos, _) | _, (Neg, _) -> true | _ -> false in
@@ -167,8 +165,8 @@ let equal_mstar ms ms' =
 let equal_mconstellation = List.equal equal_mstar
 
 let map_mstar ~f : marked_star -> marked_star = function
-  | Marked s -> Marked (List.map ~f s)
-  | Unmarked s -> Unmarked (List.map ~f s)
+  | Marked s -> Marked { content = List.map ~f s.content; bans = s.bans }
+  | Unmarked s -> Unmarked { content = List.map ~f s.content; bans = s.bans }
 
 let subst_all_vars sub = List.map ~f:(map_mstar ~f:(subst sub))
 
@@ -191,8 +189,8 @@ let ident_counter = ref 0
 let connectable (s1 : star) (s2 : star) : bool =
   let ( >>= ) = List.Monad_infix.( >>= ) in
   begin
-    s1 >>= fun r1 ->
-    s2 >>= fun r2 ->
+    s1.content >>= fun r1 ->
+    s2.content >>= fun r2 ->
     let renamed_r = replace_indices !ident_counter r1 in
     let renamed_r' = replace_indices (!ident_counter + 1) r2 in
     let matching = raymatcher renamed_r renamed_r' in
@@ -330,12 +328,13 @@ let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
         res )
   in
   let repl1 = replace_indices !ident_counter in
-  pairs_with_rest candidates
+  []
+  (* pairs_with_rest candidates
   |> List.concat_map ~f:(fun (s, cs) ->
        let repl2 = replace_indices (!ident_counter + 1) in
-       select_ray [] cs repl1 repl2 s )
+       select_ray [] cs repl1 repl2 s.content) *)
 
-let interaction ?(showtrace = false) actions states =
+let interaction ?(showtrace = false) (actions : star list) (states : star list) : constellation option =
   let rec interact_on_rays states' queue = function
     | [] -> None
     | r :: rs when not (is_polarised r) ->
@@ -349,7 +348,7 @@ let interaction ?(showtrace = false) actions states =
   let rec interaction_on_star queue = function
     | [] -> None
     | s :: states' -> begin
-      match interact_on_rays states' [] s with
+      match interact_on_rays states' [] s.content with
       | None -> interaction_on_star (s :: queue) states'
       | Some new_stars -> Some (List.rev queue @ states' @ new_stars)
     end

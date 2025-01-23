@@ -2,6 +2,8 @@
 open Lsc_ast
 %}
 
+%token BAR
+%token NEQ
 %token COMMA
 %token LBRACK RBRACK
 %token LPAR RPAR
@@ -33,7 +35,14 @@ let marked_constellation :=
 
 let star_content :=
   | LBRACK; RBRACK; { [] }
-  | ~=separated_nonempty_list(pair(COMMA?, EOL*), ray); <>
+  | LBRACK; ~=separated_nonempty_list(pair(COMMA?, EOL*), ray); RBRACK; <>
+  | ~=separated_nonempty_list(pair(COMMA?, EOL*), ray); ~=bans? <>
+
+let bans :=
+  | BAR; ~=ban+; <>
+
+let ban :=
+  | r1=ray; NEQ; r2=ray; { (r1, r2) }
 
 %public let symbol :=
   | ~=pol_symbol; <>
