@@ -19,7 +19,7 @@ show { a; b; c }.
 show-exec { a; b; c }.
 
 'disequality constraints
-show-exec -f(X) -f(Y) r(X Y).
+show-exec +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X != Y.
 
 'dynamic definition of constellation
 c = process

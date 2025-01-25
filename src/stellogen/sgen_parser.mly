@@ -61,30 +61,93 @@ let galaxy_content :=
 
 %public let non_neutral_singleton_mcs :=
   | pf=pol_symbol; ts=args?; EOL*;
-    rs=separated_list(pair(COMMA?, EOL*), ray);
-    { [Unmarked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)] }
+    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
+    {
+      [ Unmarked {
+          content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat
+        }
+      ]
+    }
   | AT; pf=pol_symbol; ts=args?; EOL*;
-    rs=separated_list(pair(COMMA?, EOL*), ray);
-    { [Marked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)] }
+    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
+    {
+      [ Marked {
+          content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat
+        }
+      ]
+    }
   | nmcs=non_neutral_singleton_mcs; EOL*; SEMICOLON; EOL*;
     mcs=marked_constellation;
     { nmcs @ mcs }
 
 let raw_constellation :=
-  | LBRACE; EOL*; pf=unpol_symbol; ts=args?; EOL*; RBRACE;
-    { [Unmarked [to_func (pf, Option.to_list ts |> List.concat)]] }
+  | LBRACE; EOL*; pf=unpol_symbol; ts=args?; EOL*; bs=bans?; EOL*; RBRACE;
+    {
+      [ Unmarked {
+          content = [to_func (pf, Option.to_list ts |> List.concat)];
+          bans = Option.to_list bs |> List.concat
+        }
+      ]
+    }
+  | LBRACE; EOL*; LBRACK; EOL*; pf=unpol_symbol; ts=args?; EOL*; RBRACK;
+    EOL*; bs=bans?; EOL*; RBRACE;
+    {
+      [ Unmarked {
+          content = [to_func (pf, Option.to_list ts |> List.concat)];
+          bans = Option.to_list bs |> List.concat
+        }
+      ]
+    }
   | LBRACE; EOL*;
     pf=unpol_symbol; ts=args?; EOL*;
-    rs=separated_nonempty_list(pair(COMMA?, EOL*), ray);
+    rs=separated_nonempty_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
     EOL*; RBRACE;
-    { [Unmarked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)] }
+    {
+      [ Unmarked {
+          content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat
+        }
+      ]
+    }
+  | LBRACE; EOL*; LBRACK; EOL*;
+    pf=unpol_symbol; ts=args?; EOL*;
+    rs=separated_nonempty_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
+    EOL*; RBRACK; EOL*; RBRACE;
+    {
+      [ Unmarked {
+          content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat
+        }
+      ]
+    }
   | LBRACE; EOL*;
     pf=unpol_symbol; ts=args?; EOL*;
-    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*;
+    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?; EOL*;
     SEMICOLON; EOL*;
     cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?;
     EOL*; RBRACE;
-    { (Unmarked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)) :: cs }
+    {
+      (Unmarked {
+        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+        bans = Option.to_list bs |> List.concat
+      })
+      :: cs
+    }
+  | LBRACE; EOL*; LBRACK; EOL*;
+    pf=unpol_symbol; ts=args?; EOL*;
+    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?; EOL*;
+    RBRACK; EOL*; SEMICOLON; EOL*;
+    cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?;
+    EOL*; RBRACE;
+    {
+      (Unmarked {
+        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+        bans = Option.to_list bs |> List.concat
+      })
+      :: cs
+    }
   | LBRACE; EOL*; ~=non_neutral_singleton_mcs; EOL*; RBRACE; <>
   | ~=non_neutral_singleton_mcs; <>
 

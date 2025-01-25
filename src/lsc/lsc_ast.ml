@@ -50,7 +50,10 @@ type ray = term
 
 type ban = ray * ray
 
-type star = { content: ray list; bans: ban list }
+type star =
+  { content : ray list
+  ; bans : ban list
+  }
 
 type constellation = star list
 
@@ -129,7 +132,8 @@ let string_of_subst sub =
   |> surround "{" "}"
 
 let string_of_star s =
-  if List.is_empty s then "[]" else string_of_list string_of_ray " " s
+  if List.is_empty s.content then "[]"
+  else string_of_list string_of_ray " " s.content
 
 let string_of_constellation = function
   | [] -> "{}"
@@ -178,11 +182,14 @@ let mark = function s -> Marked s
 
 let focus = List.map ~f:(fun r -> mark r)
 
-let remove_mark = function Marked s -> s | Unmarked s -> s
+let remove_mark : marked_star -> star = function
+  | Marked s -> s
+  | Unmarked s -> s
 
 let unmark_all = List.map ~f:(fun s -> Unmarked s)
 
-let remove_mark_all = List.map ~f:remove_mark
+let remove_mark_all : marked_constellation -> constellation =
+  List.map ~f:remove_mark
 
 let ident_counter = ref 0
 
@@ -238,23 +245,30 @@ let extract_intspace (mcs : marked_constellation) =
    Execution
    --------------------------------------- *)
 
-let unpolarized_star = List.for_all ~f:(Fn.compose not is_polarised)
+let unpolarized_star s = List.for_all ~f:(Fn.compose not is_polarised) s.content
 
-let kill = List.filter ~f:unpolarized_star
+let kill : constellation -> constellation = List.filter ~f:unpolarized_star
 
-let clean = List.filter ~f:List.is_empty
+let clean : constellation -> constellation =
+  List.filter ~f:(fun s -> List.is_empty s.content)
 
-let pairs_with_rest l =
+let selections l =
   let rec aux acc = function
     | [] -> []
     | h :: t -> (h, acc @ t) :: aux (acc @ [ h ]) t
   in
   aux [] l
 
-let fusion repl1 repl2 s1 s2 theta =
+let fusion repl1 repl2 s1 s2 bans1 bans2 theta : star =
   let new1 = List.map s1 ~f:repl1 in
   let new2 = List.map s2 ~f:repl2 in
-  List.map (new1 @ new2) ~f:(subst theta)
+  let nbans1 = List.map bans1 ~f:(fun (x, y) -> (repl1 x, repl1 y)) in
+  let nbans2 = List.map bans2 ~f:(fun (x, y) -> (repl2 x, repl2 y)) in
+  { content = List.map (new1 @ new2) ~f:(subst theta)
+  ; bans =
+      List.map (nbans1 @ nbans2) ~f:(fun (x, y) ->
+        (subst theta x, subst theta y) )
+  }
 
 exception TooFewArgs of string
 
@@ -290,25 +304,31 @@ let string_of_exn = function
   | UnknownEffect x -> Printf.sprintf "%s '%s'.\n" (red "UnknownEffect") x
   | _ -> "unknown exception.\n"
 
-let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
-    =
+let search_partners ?(showtrace = false) (r, other_rays, bans) candidates :
+  star list =
   let open Out_channel in
   let print_string = output_string stdout in
-  let rec select_ray queue other_stars repl1 repl2 = function
+  let rec select_ray ~queue other_stars repl1 repl2 s : star list =
+    match s.content with
     | [] -> []
     | r' :: s' when not (is_polarised r') ->
-      select_ray (r' :: queue) other_stars repl1 repl2 s'
+      select_ray ~queue:(r' :: queue) other_stars repl1 repl2
+        { content = s'; bans }
     | r' :: s' -> (
       if showtrace then begin
         print_string "try ";
         string_of_ray r' |> print_string;
         print_string "... "
       end;
+      let next =
+        select_ray ~queue:(r' :: queue) other_stars repl1 repl2
+          { content = s'; bans }
+      in
       match raymatcher (repl1 r) (repl2 r') with
       | None ->
         if showtrace then print_string "failed.\n";
-        select_ray (r' :: queue) other_stars repl1 repl2 s'
-      (* if there is an actual connexion between rays *)
+        next
+      (* if there is an actual connection between rays *)
       | Some theta ->
         ( try apply_effect r theta
           with e ->
@@ -320,40 +340,46 @@ let search_partners ?(showtrace = false) (r, other_rays) candidates : star list
           print_string ".\n"
         end;
         let other_rays' = queue @ s' in
+        let after_fusion =
+          fusion repl1 repl2 other_rays other_rays' bans s.bans theta
+        in
+        let all_coherent =
+          List.for_all ~f:(fun (b1, b2) -> not @@ equal_ray b1 b2)
+        in
         let res =
-          fusion repl1 repl2 other_rays other_rays' theta
-          :: select_ray (r' :: queue) other_stars repl1 repl2 s'
+          if all_coherent after_fusion.bans then after_fusion :: next else next
         in
         ident_counter := !ident_counter + 2;
         res )
   in
   let repl1 = replace_indices !ident_counter in
-  []
-  (* pairs_with_rest candidates
+  selections candidates
   |> List.concat_map ~f:(fun (s, cs) ->
        let repl2 = replace_indices (!ident_counter + 1) in
-       select_ray [] cs repl1 repl2 s.content) *)
+       select_ray ~queue:[] cs repl1 repl2 s )
 
-let interaction ?(showtrace = false) (actions : star list) (states : star list) : constellation option =
-  let rec interact_on_rays states' queue = function
+let interaction ?(showtrace = false) (actions : star list) (states : star list)
+  : constellation option =
+  let rec select_ray states' ~queue s ~bans =
+    match s with
     | [] -> None
     | r :: rs when not (is_polarised r) ->
-      interact_on_rays states' (r :: queue) rs
+      select_ray states' ~queue:(r :: queue) rs ~bans
     | r :: rs -> begin
-      match search_partners ~showtrace (r, queue @ rs) (actions @ states') with
-      | [] -> interact_on_rays states' (r :: queue) rs
+      match search_partners ~showtrace (r, queue @ rs, bans) actions with
+      | [] -> select_ray states' ~queue:(r :: queue) rs ~bans
       | new_stars -> Some new_stars
     end
   in
-  let rec interaction_on_star queue = function
+  let rec select_star ~queue = function
     | [] -> None
     | s :: states' -> begin
-      match interact_on_rays states' [] s.content with
-      | None -> interaction_on_star (s :: queue) states'
+      match select_ray states' ~queue:[] s.content ~bans:s.bans with
+      | None -> select_star ~queue:(s :: queue) states'
       | Some new_stars -> Some (List.rev queue @ states' @ new_stars)
     end
   in
-  interaction_on_star [] states
+  select_star ~queue:[] states
 
 let display_steps content =
   let open Out_channel in
