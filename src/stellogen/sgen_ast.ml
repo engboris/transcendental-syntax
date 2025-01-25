@@ -289,7 +289,9 @@ let rec eval_decl env : declaration -> env = function
     Stdlib.print_newline ();
     env
   | ShowExec e -> eval_decl env (Show (Exec e))
-  | Run e -> let _ = eval_galaxy_expr env (Exec e) in env
+  | Run e ->
+    let _ = eval_galaxy_expr env (Exec e) in
+    env
   | TypeDef (x, t, ck) -> { objs = env.objs; types = add_type env x (t, ck) }
 
 let eval_program p =
