@@ -35,7 +35,7 @@ g = galaxy
 end
 
 'reactive effects
-show-exec +#print(X); -#print("hello world").
+run +#print(X); -#print("hello world\n").
 
 'access to field of a galaxy
 show g->test1.

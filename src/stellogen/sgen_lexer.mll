@@ -17,6 +17,7 @@ rule read = parse
   | '}'         { RBRACE }
   | "end"       { END }
   | "exec"      { EXEC }
+  | "run"       { RUN }
   | "show"      { SHOW }
   | "show-exec" { SHOWEXEC }
   | "galaxy"    { GALAXY }

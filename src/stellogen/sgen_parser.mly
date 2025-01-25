@@ -5,6 +5,7 @@ open Sgen_ast
 %token LBRACE RBRACE
 %token SHOW SHOWEXEC
 %token EXEC
+%token RUN
 %token PROCESS
 %token GALAXY
 %token RARROW DRARROW
@@ -25,6 +26,7 @@ let declaration :=
   | ~=SYM; EQ; EOL*; ~=galaxy_expr; <Def>
   | SHOW; EOL*; ~=galaxy_expr;      <Show>
   | SHOWEXEC; EOL*; ~=galaxy_expr;  <ShowExec>
+  | RUN; EOL*; ~=galaxy_expr;       <Run>
   | ~=SYM; CONS; CONS; ~=SYM; EOL*;
     ~=checker_def; DOT;             <TypeDef>
   | x=SYM; CONS; CONS; t=SYM; DOT;  { TypeDef (x, t, None) }
