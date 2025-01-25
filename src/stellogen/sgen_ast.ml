@@ -250,7 +250,8 @@ let default_checker =
   Raw
     (Galaxy
        [ ("interaction", Union (Token "tested", Token "test"))
-       ; ("expect", Raw (Const [ Unmarked [ func "ok" [] ] ]))
+       ; ( "expect"
+         , Raw (Const [ Unmarked { content = [ func "ok" [] ]; bans = [] } ]) )
        ] )
 
 let rec string_of_galaxy env = function

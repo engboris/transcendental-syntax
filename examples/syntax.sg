@@ -18,6 +18,9 @@ show { a; b; c }.
 'print result of execution
 show-exec { a; b; c }.
 
+'disequality constraints
+show-exec +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X != Y.
+
 'dynamic definition of constellation
 c = process
 	+n0(0).           'base constellation

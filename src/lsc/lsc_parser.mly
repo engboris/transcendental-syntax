@@ -2,6 +2,8 @@
 open Lsc_ast
 %}
 
+%token BAR
+%token NEQ
 %token COMMA
 %token LBRACK RBRACK
 %token LPAR RPAR
@@ -30,22 +32,31 @@ let marked_constellation :=
 %public let star :=
   | AT; ~=star_content; EOL*; <Marked>
   | ~=star_content; EOL*; <Unmarked>
+  | LBRACK; EOL*; ~=star_content; EOL*; RBRACK; EOL*; <Unmarked>
 
 let star_content :=
-  | LBRACK; RBRACK; { [] }
-  | ~=separated_nonempty_list(pair(COMMA?, EOL*), ray); <>
+  | LBRACK; RBRACK;
+    { {content=[]; bans=[]} }
+  | l=separated_nonempty_list(pair(COMMA?, EOL*), ray); bs=bans?;
+    { {content=l; bans=Option.to_list bs |> List.concat } }
+
+%public let bans :=
+  | BAR; ~=ban+; <>
+
+let ban :=
+  | r1=ray; NEQ; r2=ray; { (r1, r2) }
 
 %public let symbol :=
   | ~=pol_symbol; <>
   | ~=unpol_symbol; <>
 
 %public let pol_symbol :=
-  | PLUS; SHARP; f = SYM; { noisy (Pos, f) }
-  | PLUS; SHARP; PRINT; { noisy (Pos, "print") }
-  | PLUS; f = SYM; { muted (Pos, f) }
+  | PLUS; SHARP; f = SYM;  { noisy (Pos, f) }
+  | PLUS; SHARP; PRINT;    { noisy (Pos, "print") }
+  | PLUS; f = SYM;         { muted (Pos, f) }
   | MINUS; SHARP; f = SYM; { noisy (Neg, f) }
-  | MINUS; SHARP; PRINT; { noisy (Neg, "print") }
-  | MINUS; f = SYM; { muted (Neg, f) }
+  | MINUS; SHARP; PRINT;   { noisy (Neg, "print") }
+  | MINUS; f = SYM;        { muted (Neg, f) }
 
 %public let unpol_symbol :=
   | f=SYM; { muted (Null, f) }
