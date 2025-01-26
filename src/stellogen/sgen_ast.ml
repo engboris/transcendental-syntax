@@ -55,6 +55,7 @@ type declaration =
   | Def of ident * galaxy_expr
   | Show of galaxy_expr
   | ShowExec of galaxy_expr
+  | Trace of galaxy_expr
   | Run of galaxy_expr
   | TypeDef of ident * ident * ident option
 
@@ -290,6 +291,11 @@ let rec eval_decl env : declaration -> env = function
     Stdlib.print_newline ();
     env
   | ShowExec e -> eval_decl env (Show (Exec e))
+  | Trace e ->
+    let _ = eval_galaxy_expr env e
+    |> galaxy_to_constellation env
+    |> exec ~showtrace:true ~showsteps:false in
+    env
   | Run e ->
     let _ = eval_galaxy_expr env (Exec e) in
     env
