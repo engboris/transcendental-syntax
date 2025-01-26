@@ -12,17 +12,17 @@ w = +w(0:1:0:1:e).
 'full focus
 show-exec (@w) w.
 
-'trace
-'trace x.
-
 'show (literal) contellations
 show { a; b; c }.
 
 'print result of execution
 show-exec { a; b; c }.
 
-'disequality constraints
-show-exec +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X != Y.
+'inequality constraints
+ineq = +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X != Y.
+
+'interactive debugging of execution
+'trace ineq.
 
 'dynamic definition of constellation
 c = process

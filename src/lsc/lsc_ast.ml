@@ -131,9 +131,18 @@ let string_of_subst sub =
     string_of_var x ^ "->" ^ string_of_ray r )
   |> surround "{" "}"
 
+let string_of_ban (b1, b2) =
+  Printf.sprintf "%s!=%s" (string_of_ray b1) (string_of_ray b2)
+
+let string_of_raylist : ray list -> string = string_of_list string_of_ray " "
+
 let string_of_star s =
   if List.is_empty s.content then "[]"
-  else string_of_list string_of_ray " " s.content
+  else
+    string_of_list string_of_ray " " s.content
+    ^
+    if List.is_empty s.bans then ""
+    else " | " ^ string_of_list string_of_ban " " s.bans
 
 let string_of_constellation = function
   | [] -> "{}"
@@ -304,10 +313,23 @@ let string_of_exn = function
   | UnknownEffect x -> Printf.sprintf "%s '%s'.\n" (red "UnknownEffect") x
   | _ -> "unknown exception.\n"
 
+let pause () =
+  let open Out_channel in
+  let open In_channel in
+  flush stdout;
+  let _ = input_line stdin in
+  ()
+
 let search_partners ?(showtrace = false) (r, other_rays, bans) candidates :
   star list =
   let open Out_channel in
   let print_string = output_string stdout in
+  if showtrace then begin
+    print_string
+    @@ Printf.sprintf "select state: >>%s<< %s" (string_of_ray r)
+         (string_of_raylist other_rays);
+    pause ()
+  end;
   let rec select_ray ~queue other_stars repl1 repl2 s : star list =
     match s.content with
     | [] -> []
@@ -316,9 +338,9 @@ let search_partners ?(showtrace = false) (r, other_rays, bans) candidates :
         { content = s'; bans }
     | r' :: s' -> (
       if showtrace then begin
-        print_string "try ";
-        string_of_ray r' |> print_string;
-        print_string "... "
+        print_string
+        @@ Printf.sprintf "  try action: >>%s<< %s..." (string_of_ray r')
+             (string_of_raylist s')
       end;
       let next =
         select_ray ~queue:(r' :: queue) other_stars repl1 repl2
@@ -326,7 +348,7 @@ let search_partners ?(showtrace = false) (r, other_rays, bans) candidates :
       in
       match raymatcher (repl1 r) (repl2 r') with
       | None ->
-        if showtrace then print_string "failed.\n";
+        if showtrace then print_string "failed.";
         next
       (* if there is an actual connection between rays *)
       | Some theta ->
@@ -335,10 +357,10 @@ let search_partners ?(showtrace = false) (r, other_rays, bans) candidates :
             string_of_exn e |> Out_channel.output_string Out_channel.stderr;
             Stdlib.exit (-1) );
         if showtrace then begin
-          print_string "success with ";
-          string_of_subst theta |> print_string;
-          print_string ".\n"
+          print_string
+          @@ Printf.sprintf "success with %s." (string_of_subst theta)
         end;
+        if showtrace then pause ();
         let other_rays' = queue @ s' in
         let after_fusion =
           fusion repl1 repl2 other_rays other_rays' bans s.bans theta
@@ -347,8 +369,22 @@ let search_partners ?(showtrace = false) (r, other_rays, bans) candidates :
           List.for_all ~f:(fun (b1, b2) -> not @@ equal_ray b1 b2)
         in
         let res =
-          if all_coherent after_fusion.bans then after_fusion :: next else next
+          if all_coherent after_fusion.bans then begin
+            if showtrace then begin
+              print_string
+              @@ Printf.sprintf "  add star %s." (string_of_star after_fusion)
+            end;
+            after_fusion :: next
+          end
+          else begin
+            if showtrace then begin
+              print_string
+              @@ Printf.sprintf "  result filtered out by constraint."
+            end;
+            next
+          end
         in
+        if showtrace then pause ();
         ident_counter := !ident_counter + 2;
         res )
   in
@@ -381,30 +417,30 @@ let interaction ?(showtrace = false) (actions : star list) (states : star list)
   in
   select_star ~queue:[] states
 
-let display_steps content =
-  let open Out_channel in
-  string_of_constellation content ^ "\n" |> output_string stdout;
-  flush stdout;
-  let _ = In_channel.input_line In_channel.stdin in
-  ()
+let string_of_configuration (actions, states) : string =
+  Printf.sprintf ">> actions: %s\n>> states: %s\n"
+    (string_of_constellation actions)
+    (string_of_constellation states)
 
-let exec ?(showtrace = false) ?(showsteps = false) mcs =
+let exec ?(showtrace = false) mcs =
   let open Out_channel in
   let print_string = output_string stdout in
   let rec aux (actions, states) =
-    if showtrace then print_string "\n_____result_____\n";
-    if showsteps || showtrace then display_steps states;
+    if showtrace then begin
+      print_string @@ string_of_configuration (actions, states);
+      pause ()
+    end;
     begin
       match interaction ~showtrace actions states with
       | None -> states
       | Some result' -> aux (actions, result')
     end
   in
-  aux (extract_intspace mcs)
-  |>
-  if showtrace || showsteps then ( fun x ->
-    if showtrace then print_string "\n";
-    print_string "_____result_____\n";
-    display_steps x;
-    x )
-  else Fn.id
+  let actions, states = extract_intspace mcs in
+  if showtrace then print_string @@ Printf.sprintf "\n>> starting trace...\n";
+  let res = aux (actions, states) in
+  if showtrace then begin
+    print_string @@ Printf.sprintf ">> end trace.\n";
+    pause ()
+  end;
+  res
