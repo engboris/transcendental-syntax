@@ -9,8 +9,8 @@ fonction* (commençant par une minuscule ou un chiffre) et les expressions
 `t1`, ..., `tn` sont d'autres termes.
 
 Tous les identifiants (que cela soit pour les variables ou symboles de
-fonction) peuvent contenir les symboles `_`, `?` et terminer par une séquence
-de symboles `'`. Par exemple : `x'`, `X''`, `X_1`.
+fonction) peuvent contenir les symboles `_` et `?` (mais pas au début).
+Par exemple : `is_empty?` et `X_1`.
 
 > **Exemples de termes.** `X`, `f(X)`, `h(a, X)`, `parent(X)`, `add(X, Y, Z)`.
 

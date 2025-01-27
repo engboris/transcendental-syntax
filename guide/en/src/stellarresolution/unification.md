@@ -10,8 +10,8 @@ In unification theory, we write terms. These are either:
 `tn` are other terms.
 
 All identifiers (whether for variables or function symbols) can include the
-symbols `_`, `?`, and may end with a sequence of `'` symbols.
-For example: `x'`, `X''`, `X_1`.
+symbols `_` and `?` (but not at the beginning).
+For example : `is_empty?` and `X_1`.
 
 > **Examples of terms.** `X`, `f(X)`, `h(a, X)`, `parent(X)`, `add(X, Y, Z)`.
 

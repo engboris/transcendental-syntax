@@ -2,7 +2,7 @@
 id = +id(l:X) +id(r:X).
 
 ''' id id '''
-id_arg = { id'(l:X) +arg(l:r:X) }.
+id_arg = { ida(l:X) +arg(l:r:X) }.
 linker = -id(X) -arg(X); @+arg(r:X) out(X).
 show-exec id id_arg linker.
 
