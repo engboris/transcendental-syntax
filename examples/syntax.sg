@@ -26,15 +26,15 @@ ineq = +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X != Y.
 
 'dynamic definition of constellation
 c = process
-	+n0(0).           'base constellation
-	-n0(X) +n1(s(X)). 'interacts with previous
-	-n1(X) +n2(s(X)). 'interacts with previous
+  +n0(0).           'base constellation
+  -n0(X) +n1(s(X)). 'interacts with previous
+  -n1(X) +n2(s(X)). 'interacts with previous
 end
 
 'galaxy definition
 g = galaxy
-	test1: +f(a) ok.
-	test2: +f(b) ok.
+  test1: +f(a) ok.
+  test2: +f(b) ok.
 end
 
 'reactive effects
@@ -60,14 +60,14 @@ show-exec (#1 #2)[1=>+f(X) X][2=>-f(a)].
 
 'checkers & typechecking
 checker = galaxy
-	interaction: #tested #test.
-	expect: { ok }.
+  interaction: #tested #test.
+  expect: { ok }.
 end
 
 nat = galaxy
-	test:
-		-nat(0) ok;
-		-nat(s(N)) +nat(N).
+  test:
+    -nat(0) ok;
+    -nat(s(N)) +nat(N).
 end
 
 0 :: nat [checker].

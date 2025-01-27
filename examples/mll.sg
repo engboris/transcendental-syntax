@@ -1,42 +1,42 @@
 '''test of linear identity'''
 "a -o a" = galaxy
-	testrl:
-		-1(X) -2(X) +c5(X);
-		-3(X); -4(X) +c6(X);
-		-c5(X) +7(X); -c6(X);
-		@-7(X) ok.
-	testrr:
-		-1(X) -2(X) +c5(X);
-		-3(X); -4(X) +c6(X);
-		-c5(X); +7(X) -c6(X);
-		@-7(X) ok.
-	testll:
-		-1(X) -2(X) +c5(X);
-		-4(X); -3(X) +c6(X);
-		-c5(X) +7(X); -c6(X);
-		@-7(X) ok.
-	testlr:
-		-1(X) -2(X) +c5(X);
-		-4(X); -3(X) +c6(X);
-		-c5(X); +7(X) -c6(X);
-		@-7(X) ok.
+  testrl:
+    -1(X) -2(X) +c5(X);
+    -3(X); -4(X) +c6(X);
+    -c5(X) +7(X); -c6(X);
+    @-7(X) ok.
+  testrr:
+    -1(X) -2(X) +c5(X);
+    -3(X); -4(X) +c6(X);
+    -c5(X); +7(X) -c6(X);
+    @-7(X) ok.
+  testll:
+    -1(X) -2(X) +c5(X);
+    -4(X); -3(X) +c6(X);
+    -c5(X) +7(X); -c6(X);
+    @-7(X) ok.
+  testlr:
+    -1(X) -2(X) +c5(X);
+    -4(X); -3(X) +c6(X);
+    -c5(X); +7(X) -c6(X);
+    @-7(X) ok.
 end
 
 id :: "a -o a".
 id =
-	-5(l:X) +1(X);
-	-5(r:X) +2(X);
-	-6(l:X) +3(X);
-	-6(r:X) +4(X);
-	+5(l:X) +6(l:X);
-	+5(r:X) +6(r:X).
+  -5(l:X) +1(X);
+  -5(r:X) +2(X);
+  -6(l:X) +3(X);
+  -6(r:X) +4(X);
+  +5(l:X) +6(l:X);
+  +5(r:X) +6(r:X).
 
 '''cut-elimination'''
 ps1 = galaxy
-	vehicle:
-		+7(l:X) +7(r:X); 3(X) +8(l:X); @+8(r:X) 6(X).
-	cuts:
-		-7(X) -8(X).
+  vehicle:
+    +7(l:X) +7(r:X); 3(X) +8(l:X); @+8(r:X) 6(X).
+  cuts:
+    -7(X) -8(X).
 end
 
 show-exec ps1->vehicle ps1->cuts.
@@ -45,11 +45,11 @@ show-exec ps1->vehicle ps1->cuts.
 FIXME : MLL incorrectness
 
 vehicle =
-	+3(l:X) +3(r:X);
-	-3(l:X) +1(g:X);
-	-3(r:X) +2(g:X).
+  +3(l:X) +3(r:X);
+  -3(l:X) +1(g:X);
+  -3(r:X) +2(g:X).
 
 test =
-	-1(g:X) -2(g:X) +3(g:X);
-	@-3(g:X) 3(X).
+  -1(g:X) -2(g:X) +3(g:X);
+  @-3(g:X) 3(X).
 '''
