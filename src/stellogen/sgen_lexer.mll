@@ -19,6 +19,7 @@ rule read = parse
   | "exec"      { EXEC }
   | "run"       { RUN }
   | "show"      { SHOW }
+  | "trace"     { TRACE }
   | "show-exec" { SHOWEXEC }
   | "galaxy"    { GALAXY }
   | "process"   { PROCESS }
