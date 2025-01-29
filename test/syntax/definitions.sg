@@ -1,24 +1,26 @@
-x = +a.
-x = -a.
-x = -a.
-x = @-a.
-x = +a b; -c d.
-x = @+a b; -c d.
-x = +a b; @-c d.
-x = { a }.
-x = { +a }.
-x = { @+a }.
-x = { -a }.
-x = { @-a }.
-x = { +a b; -c d }.
-x = { @+a b; -c d }.
-x = { +a b; @-c d }.
-x = { a b }.
-x = { a b; -c d }.
+'normal
+_ = +a.
+_ = -a.
+_ = -a.
+_ = +a b; -c d.
+_ = { a }.
+_ = { +a }.
+_ = { -a }.
+_ = { +a b; -c d }.
+_ = { a b }.
+_ = { a b; -c d }.
 
-x = { a; +b -c }.
+'focussed
+_ = @-a.
+_ = @+a b; -c d.
+_ = +a b; @-c d.
+_ = { @+a }.
+_ = { @-a }.
+_ = { @+a b; -c d }.
+_ = { +a b; @-c d }.
 
-x
+'with EOL
+_
 =
 +a
 .

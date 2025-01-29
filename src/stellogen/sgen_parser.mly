@@ -22,11 +22,14 @@ program:
 
 let declaration :=
   | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr; <Def>
-  | SHOW; EOL*; ~=galaxy_expr;      <Show>
-  | SHOWEXEC; EOL*; ~=galaxy_expr;  <ShowExec>
+  | PLACEHOLDER; EOL*; EQ; EOL*;
+    g=galaxy_expr;
+    { Def ("_"^(fresh_placeholder ()), g) }
+  | SHOW; EOL*; ~=galaxy_expr;            <Show>
+  | SHOWEXEC; EOL*; ~=galaxy_expr;        <ShowExec>
   | ~=SYM; CONS; CONS; ~=SYM; EOL*;
-    ~=checker_def; DOT;             <TypeDef>
-  | x=SYM; CONS; CONS; t=SYM; DOT;  { TypeDef (x, t, None) }
+    ~=checker_def; DOT;                   <TypeDef>
+  | x=SYM; CONS; CONS; t=SYM; DOT;        { TypeDef (x, t, None) }
 
 checker_def:
 | LBRACK; x=SYM; RBRACK; { Some x }
