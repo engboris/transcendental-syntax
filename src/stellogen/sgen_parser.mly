@@ -20,17 +20,13 @@ program:
 | EOL*; d=declaration; EOL+; p=program { d::p }
 | EOL*; d=declaration; EOF { [d] }
 
-declaration:
-| x=SYM; EQ; EOL*; e=galaxy_expr;
-  { Def (x, e) }
-| SHOW; EOL*; e=galaxy_expr;
-  { ShowGalaxy e }
-| PRINT; EOL*; e=galaxy_expr;
-  { PrintGalaxy e }
-| x=SYM; CONS; CONS; t=SYM; EOL*; ck=checker_def; DOT;
-  { TypeDef (x, t, ck) }
-| x=SYM; CONS; CONS; t=SYM; DOT;
-  { TypeDef (x, t, None) }
+let declaration :=
+  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr; <Def>
+  | SHOW; EOL*; ~=galaxy_expr;      <Show>
+  | SHOWEXEC; EOL*; ~=galaxy_expr;  <ShowExec>
+  | ~=SYM; CONS; CONS; ~=SYM; EOL*;
+    ~=checker_def; DOT;             <TypeDef>
+  | x=SYM; CONS; CONS; t=SYM; DOT;  { TypeDef (x, t, None) }
 
 checker_def:
 | LBRACK; x=SYM; RBRACK; { Some x }

@@ -18,11 +18,18 @@ let test filename expected () =
 
 let example filename = "../examples/" ^ filename
 
-let suite =
-  [ "Automata", `Quick, test (example "automata/nfsa_ending00.stellar") "accept;"
-  ; "Prolog", `Quick, test (example "logicprogramming/prolog.stellar") "s(s(s(s(0))));"
-  ; "MLL (cut-elim)", `Quick, test (example "mll/cut.stellar") "6(X7) 3(X7);"
+let syntax =
+  let file x = "./syntax/" ^ x in
+  [ ("Definitions", `Quick, test (file "definitions.sg")) ]
+
+let behavior =
+  let file x = "./behavior/" ^ x in
+  [ ("Automata", `Quick, test (file "automata.sg"))
+  ; ("Prolog", `Quick, test (file "prolog.sg"))
   ]
 
 let () =
-  Alcotest.run "Stellar Resolution" [ "Basic tests", suite ]
+  Alcotest.run "Stellogen Test Suite"
+    [ ("Stellogen syntax test suite", syntax)
+    ; ("Stellogen behavior test suite", behavior)
+    ]
