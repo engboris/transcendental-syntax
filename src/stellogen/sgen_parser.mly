@@ -1,14 +1,18 @@
 %{
 open Sgen_ast
+open Lexing
+
 %}
 
 %token LBRACE RBRACE
 %token SHOW SHOWEXEC
 %token EXEC
+%token IMPORT
 %token RUN
 %token TRACE
 %token PROCESS
 %token GALAXY
+%token RANGLE
 %token RARROW DRARROW
 %token EQ
 %token DOT
@@ -32,6 +36,12 @@ let declaration :=
   | ~=SYM; CONS; CONS; ~=SYM; EOL*;
     ~=checker_def; DOT;             <TypeDef>
   | x=SYM; CONS; CONS; t=SYM; DOT;  { TypeDef (x, t, None) }
+  (* | IMPORT; EOL*; ~=import_target;
+    EOL*; DOT;                      {
+  } *)
+
+let import_target :=
+  | ~=separated_nonempty_list(RANGLE, VAR); <Module>
 
 let checker_def :=
   | LBRACK; ~=SYM; RBRACK; <Some>

@@ -1,6 +1,12 @@
 {
   open Sgen_parser
+  open Lexing
   exception SyntaxError of string
+
+let print_position outx lexbuf =
+  let pos = lexbuf.lex_curr_p in
+  Stdlib.Printf.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
+    (pos.pos_cnum - pos.pos_bol)
 }
 
 let alpha    = ['a'-'z' 'A'-'Z']
@@ -15,6 +21,7 @@ rule read = parse
   (* Stellogen *)
   | '{'         { LBRACE }
   | '}'         { RBRACE }
+  | "import"    { IMPORT }
   | "end"       { END }
   | "exec"      { EXEC }
   | "run"       { RUN }
@@ -23,6 +30,7 @@ rule read = parse
   | "show-exec" { SHOWEXEC }
   | "galaxy"    { GALAXY }
   | "process"   { PROCESS }
+  | ">"         { RANGLE }
   | "->"        { RARROW }
   | "=>"        { DRARROW }
   | "."         { DOT }

@@ -12,11 +12,6 @@ let anon_fun filename = input_file := filename
 
 let speclist = []
 
-let print_position outx lexbuf =
-  let pos = lexbuf.lex_curr_p in
-  Stdlib.Printf.fprintf outx "%s:%d:%d" pos.pos_fname pos.pos_lnum
-    (pos.pos_cnum - pos.pos_bol)
-
 let parse_with_error lexbuf =
   try program read lexbuf
   with SyntaxError msg ->

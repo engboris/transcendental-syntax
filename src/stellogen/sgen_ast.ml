@@ -1,8 +1,12 @@
 open Base
 open Lsc_ast
 open Format_exn
+open Lexing
 
 type ident = string
+
+type import_target =
+  | Module of string list
 
 type idvar = string * int option
 
@@ -58,6 +62,7 @@ type declaration =
   | Trace of galaxy_expr
   | Run of galaxy_expr
   | TypeDef of ident * ident * ident option
+  | Import of env
 
 type program = declaration list
 
@@ -301,8 +306,10 @@ let rec eval_decl env : declaration -> env = function
     let _ = eval_galaxy_expr env (Exec e) in
     env
   | TypeDef (x, t, ck) -> { objs = env.objs; types = add_type env x (t, ck) }
+  | Import env' ->
+    { objs = env'.objs @ env.objs; types = env'.types @ env.types }
 
-let eval_program p =
+and eval_program p =
   try List.fold_left ~f:(fun acc x -> eval_decl acc x) ~init:empty_env p
   with e ->
     string_of_exn e |> Out_channel.output_string Out_channel.stderr;
