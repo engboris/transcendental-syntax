@@ -25,6 +25,9 @@ let program :=
 
 let declaration :=
   | ~=SYM; EQ; EOL*; ~=galaxy_expr; <Def>
+  | PLACEHOLDER; EOL*; EQ; EOL*;
+    g=galaxy_expr;
+    { Def ("_"^(fresh_placeholder ()), g) }
   | SHOW; EOL*; ~=galaxy_expr;      <Show>
   | SHOWEXEC; EOL*; ~=galaxy_expr;  <ShowExec>
   | TRACE; EOL*; ~=galaxy_expr;     <Trace>
