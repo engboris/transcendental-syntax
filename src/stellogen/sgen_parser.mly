@@ -71,6 +71,34 @@ galaxy_item:
 | x=SYM; CONS; EOL*; e=galaxy_content; DOT; EOL*; { (x, e) }
 | x=SYM; CONS; EOL*; gb=galaxy_block; END; EOL*;  { (x, gb) }
 
+%public let non_neutral_start_mcs :=
+  | pf=pol_symbol; ts=args?; EOL*;
+    rs=separated_list(pair(COMMA?, EOL*), ray);
+    { [Unmarked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)] }
+  | AT; pf=pol_symbol; ts=args?; EOL*;
+    rs=separated_list(pair(COMMA?, EOL*), ray);
+    { [Marked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)] }
+  | nmcs=non_neutral_start_mcs; EOL*; SEMICOLON; EOL*;
+    mcs=marked_constellation;
+    { nmcs @ mcs }
+
+%inline neutral_start_mcs:
+  | pf=unpol_symbol; ts=args?;
+    { [Unmarked [to_func (pf, Option.to_list ts |> List.concat)]] }
+  | pf=unpol_symbol; ts=args?; EOL*;
+    rs=separated_nonempty_list(pair(COMMA?, EOL*), ray);
+    { [Unmarked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)] }
+  | pf=unpol_symbol; ts=args?; EOL*;
+    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*;
+    SEMICOLON; EOL*;
+    cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?;
+    { (Unmarked ((to_func (pf, Option.to_list ts |> List.concat)) :: rs)) :: cs }
+
+let raw_constellation :=
+  | LBRACE; EOL*; ~=neutral_start_mcs; EOL*; SEMICOLON?; EOL*; RBRACE; <>
+  | LBRACE; EOL*; ~=non_neutral_start_mcs; EOL*; RBRACE; <>
+  | ~=non_neutral_start_mcs; <>
+
 galaxy_block:
 | PROCESS; EOL*; { Process [] }
 | PROCESS; EOL*; l=process_item+; { Process l }

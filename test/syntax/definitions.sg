@@ -10,6 +10,13 @@ _ = { +a b; -c d }.
 _ = { a b }.
 _ = { a b; -c d }.
 
+'cons
+_ = +w(0:1:0:1:e).
+_ = +w((((0:1):0):1):e).
+
+'trailing end of star
+_ = { a; }.
+
 'focussed
 _ = @-a.
 _ = @+a b; -c d.

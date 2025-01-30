@@ -26,9 +26,8 @@ constellation_file:
 | EOF { [] }
 | cs=marked_constellation; EOF { cs }
 
-marked_constellation:
-| cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?
-  { cs }
+let marked_constellation :=
+  | ~=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?; <>
 
 star:
 | AT; s=star_content; EOL* { Marked s }
