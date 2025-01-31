@@ -2,8 +2,8 @@
  (name test)
  (modules test)
  (deps
-  (glob_files ./testsuite/*.sg)
-  (glob_files ../examples/*.sg))
+  (glob_files ./syntax/*.sg)
+  (glob_files ./behavior/*.sg))
  (libraries alcotest base stellogen))
 
 (env

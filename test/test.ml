@@ -9,12 +9,18 @@ let test filename () =
   let _ = eval_program p in
   ()
 
-let suite =
-  let suite x = "./testsuite/" ^ x in
-  let example x = "../examples/" ^ x in
-  [ ("Syntax of Stellogen", `Quick, test (example "syntax.sg"))
-  ; ("Automata", `Quick, test (suite "automata.sg"))
-  ; ("Prolog", `Quick, test (suite "prolog.sg"))
+let syntax =
+  let file x = "./syntax/" ^ x in
+  [ ("Definitions", `Quick, test (file "definitions.sg")) ]
+
+let behavior =
+  let file x = "./behavior/" ^ x in
+  [ ("Automata", `Quick, test (file "automata.sg"))
+  ; ("Prolog", `Quick, test (file "prolog.sg"))
   ]
 
-let () = Alcotest.run "Stellogen Test Suite" [ ("Stellogen test suite", suite) ]
+let () =
+  Alcotest.run "Stellogen Test Suite"
+    [ ("Stellogen syntax test suite", syntax)
+    ; ("Stellogen behavior test suite", behavior)
+    ]
