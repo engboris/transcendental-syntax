@@ -3,7 +3,8 @@
  (modules test)
  (deps
   (glob_files ./syntax/*.sg)
-  (glob_files ./behavior/*.sg))
+  (glob_files ./behavior/*.sg)
+  (glob_files ../examples/*.sg))
  (libraries alcotest base stellogen))
 
 (env

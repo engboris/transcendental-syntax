@@ -17,4 +17,3 @@ let delimited_opt(l, x, r) :=
 %public let braces(x) == ~=delimited(LBRACE; EOL*, x, EOL*; RBRACE); <>
 %public let bracks_opt(x) == ~=delimited_opt(LBRACK; EOL*, x, EOL*; RBRACK); <>
 %public let braces_opt(x) == ~=delimited_opt(LBRACE; EOL*, x, EOL*; RBRACE); <>
-
