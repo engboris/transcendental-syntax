@@ -37,15 +37,18 @@ let checker_def :=
   | bracks(EOL*);  { None }
 
 let galaxy_expr :=
-  | ~=galaxy_content; EOL*; DOT; <>
-  | ~=galaxy_block; END;         <>
-  | g=galaxy_def; END;           { Raw (Galaxy g) }
+  | ~=galaxy_content; EOL*; DOT;          <>
+  | mcs=non_neutral_start_mcs; EOL*; DOT; { Raw (Const mcs) }
+  | ~=galaxy_block; END;                  <>
+  | g=galaxy_def; END;                    { Raw (Galaxy g) }
 
 let galaxy_content :=
   | ~=pars(galaxy_content);             <>
+  | mcs=pars(non_neutral_start_mcs);    { Raw (Const mcs) }
   | braces(EOL*);                       { Raw (Const []) }
   | SHARP; ~=SYM;                       <Token>
-  | cs=raw_constellation;               { Raw (Const cs) }
+  | cs=braces(neutral_start_mcs);       { Raw (Const cs) }
+  | cs=braces(non_neutral_start_mcs);   { Raw (Const cs) }
   | ~=SYM;                              <Id>
   | g=galaxy_content; EOL*;
     h=galaxy_content; EOL*;             { Union (g, h) }
@@ -54,30 +57,34 @@ let galaxy_content :=
     LBRACK; DRARROW; ~=symbol; RBRACK;  <Extend>
   | ~=galaxy_content;
     LBRACK; ~=symbol; DRARROW; RBRACK;  <Reduce>
-  | LPAR; AT; ~=galaxy_content; RPAR;   <Focus>
+  | LPAR; AT; EOL*; ~=galaxy_content;
+    RPAR;                               <Focus>
   | ~=galaxy_content; LBRACK; x=VAR;
     DRARROW; r=ray; RBRACK;             <SubstVar>
   | e=galaxy_content; LBRACK; f=symbol;
     DRARROW; g=symbol; RBRACK;          { SubstFunc (e, f, g) }
   | g=galaxy_content; LBRACK; x=SYM;
     DRARROW; h=galaxy_content; RBRACK;  { SubstGal (g, x, h) }
+  | g=galaxy_content; LBRACK; x=SYM;
+    DRARROW; h=non_neutral_start_mcs;
+    RBRACK;                             { SubstGal (g, x, Raw (Const h)) }
 
 %public let non_neutral_start_mcs :=
   (* single star *)
-  | pf=pol_symbol; ts=args?; EOL*;
+  | marked=AT?; EOL*; pf=pol_symbol; ts=args?; EOL*;
     rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
     {
-      [ Unmarked {
-        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
-        bans = Option.to_list bs |> List.concat } ]
+      [ { content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat }
+        |> if Option.is_some marked then mark else unmark ]
     }
-  | LBRACK; EOL*; pf=pol_symbol; ts=args?; EOL*;
+  | LBRACK; EOL*; marked=AT?; EOL*; pf=pol_symbol; ts=args?; EOL*;
     rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; RBRACK; EOL*;
     bs=bans?;
     {
-      [ Unmarked {
-        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
-        bans = Option.to_list bs |> List.concat } ]
+      [ { content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat }
+        |> if Option.is_some marked then mark else unmark ]
     }
   (* more than one star *)
   | nmcs=non_neutral_start_mcs; EOL*; SEMICOLON; EOL*; mcs=marked_constellation;
@@ -85,52 +92,53 @@ let galaxy_content :=
 
 let neutral_start_mcs :=
   (* single ray *)
-  | pf=unpol_symbol; ts=args?; EOL*; bs=bans?;
+  | marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*; bs=bans?;
     {
-      [ Unmarked {
-        content = [to_func (pf, Option.to_list ts |> List.concat)];
-        bans = Option.to_list bs |> List.concat } ]
+      [ { content = [to_func (pf, Option.to_list ts |> List.concat)];
+          bans = Option.to_list bs |> List.concat }
+        |> if Option.is_some marked then mark else unmark ]
     }
-  | LBRACK; EOL*; pf=unpol_symbol; ts=args?; EOL*; RBRACK; EOL*; bs=bans?;
+  | LBRACK; EOL*; marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*;
+    RBRACK; EOL*; bs=bans?;
     {
-      [ Unmarked {
-        content = [to_func (pf, Option.to_list ts |> List.concat)];
-        bans = Option.to_list bs |> List.concat } ]
+      [ { content = [to_func (pf, Option.to_list ts |> List.concat)];
+          bans = Option.to_list bs |> List.concat }
+        |> if Option.is_some marked then mark else unmark ]
     }
   (* single star *)
-  | pf=unpol_symbol; ts=args?; EOL*;
+  | marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*;
     rs=separated_nonempty_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
     {
-      [ Unmarked {
-        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
-        bans = Option.to_list bs |> List.concat } ]
+      [ { content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat }
+        |> if Option.is_some marked then mark else unmark ]
     }
-  | LBRACK; EOL*; pf=unpol_symbol; ts=args?; EOL*;
+  | LBRACK; EOL*; marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*;
     rs=separated_nonempty_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?;
     EOL*; RBRACK;
     {
-      [ Unmarked {
-        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
-        bans = Option.to_list bs |> List.concat } ]
+      [ { content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+          bans = Option.to_list bs |> List.concat }
+        |> if Option.is_some marked then mark else unmark ]
     }
   (* general constellation *)
-  | pf=unpol_symbol; ts=args?; EOL*;
+  | marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*;
     rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?; EOL*;
     SEMICOLON; EOL*;
     cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star);
     {
-      (Unmarked {
-        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
-        bans = Option.to_list bs |> List.concat }) :: cs
+      ({ content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+         bans = Option.to_list bs |> List.concat }
+         |> if Option.is_some marked then mark else unmark) :: cs
     }
-  | LBRACK; EOL*; pf=unpol_symbol; ts=args?; EOL*;
+  | LBRACK; EOL*; marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*;
     rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?; EOL*;
     RBRACK; EOL*; SEMICOLON; EOL*;
     cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star);
     {
-      (Unmarked {
-        content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
-        bans = Option.to_list bs |> List.concat }) :: cs
+      ({ content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
+         bans = Option.to_list bs |> List.concat }
+         |> if Option.is_some marked then mark else unmark) :: cs
     }
 
 let raw_constellation :=
@@ -142,12 +150,16 @@ let galaxy_def :=
 
 let galaxy_item :=
   | ~=SYM; CONS; EOL*; ~=galaxy_content; DOT; EOL*; <>
+  | x=SYM; CONS; EOL*; mcs=non_neutral_start_mcs; DOT; EOL*;
+    { (x, Raw (Const mcs)) }
   | ~=SYM; CONS; EOL*; ~=galaxy_block; END; EOL*; <>
 
 let galaxy_block :=
   | PROCESS; EOL*; { Process [] }
   | PROCESS; EOL*; ~=process_item+; <Process>
   | EXEC; EOL*; ~=galaxy_content; <Exec>
+  | EXEC; EOL*; mcs=non_neutral_start_mcs; { Exec (Raw (Const mcs)) }
 
 let process_item :=
   | ~=galaxy_content; DOT; EOL*; <>
+  | mcs=non_neutral_start_mcs; DOT; EOL*; { Raw (Const mcs) }

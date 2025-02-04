@@ -9,7 +9,6 @@ open Lsc_ast
 %token <string> SYM
 %token PLUS MINUS
 %token CONS
-%token AT
 %token SEMICOLON
 %token PLACEHOLDER
 
@@ -28,8 +27,9 @@ let marked_constellation :=
   | ~=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?; <>
 
 %public let star :=
-  | AT; ~=star_content; EOL*; <Marked>
-  | ~=bracks_opt(star_content); EOL*; <Unmarked>
+  | ~=star_content; EOL*; <Marked>
+  | ~=bracks(star_content); EOL*; <Unmarked>
+  | ~=bracks_opt(AT; EOL*; star_content); EOL*; <Marked>
 
 let star_content :=
   | LBRACK; RBRACK;

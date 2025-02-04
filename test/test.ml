@@ -9,28 +9,16 @@ let test filename () =
   let _ = eval_program p in
   ()
 
-let examples =
-  let directory = "../examples/" in
-  let file x = directory ^ x in
+let run_dir directory =
   Stdlib.Sys.readdir directory
   |> Array.to_list
-  |> List.filter ~f:(fun f -> not @@ Stdlib.Sys.is_directory (Stdlib.Filename.concat directory f))
-  |> List.map ~f:(fun x ->
-  ("Example " ^ x, `Quick, test (file x)))
-
-let syntax =
-  let file x = "./syntax/" ^ x in
-  [ ("definitions", `Quick, test (file "definitions.sg")) ]
-
-let behavior =
-  let file x = "./behavior/" ^ x in
-  [ ("Automata", `Quick, test (file "automata.sg"))
-  ; ("Prolog", `Quick, test (file "prolog.sg"))
-  ]
+  |> List.filter ~f:(fun f ->
+       not @@ Stdlib.Sys.is_directory (Stdlib.Filename.concat directory f) )
+  |> List.map ~f:(fun x -> (x, `Quick, test (directory ^ x)))
 
 let () =
   Alcotest.run "Stellogen Test Suite"
-    [ ("Stellogen examples test suite", examples)
-    ; ("Stellogen syntax test suite", syntax)
-    ; ("Stellogen behavior test suite", behavior)
+    [ ("Stellogen examples test suite", run_dir "../examples/")
+    ; ("Stellogen syntax test suite", run_dir "./syntax/")
+    ; ("Stellogen behavior test suite", run_dir "./behavior/")
     ]

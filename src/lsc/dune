@@ -8,7 +8,7 @@
    (:standard -warn-error -A))))
 
 (menhir
- (modules common_tokens lsc_parser)
+ (modules common_parser lsc_parser)
  (merge_into lsc_parser)
  (flags --dump --explain))
 

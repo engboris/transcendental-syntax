@@ -1,6 +1,7 @@
 %token PRINT
 %token EOF
 %token SHARP
+%token AT
 %token EOL
 %token LBRACK RBRACK
 %token LBRACE RBRACE
