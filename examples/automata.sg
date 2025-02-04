@@ -3,11 +3,6 @@ binary =
   -i(0:X) +i(X);
   -i(1:X) +i(X).
 
-show process
-	+i(e).
-	binary.
-end
-
 'input words
 e :: binary.
 e = +i(e).
