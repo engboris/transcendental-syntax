@@ -20,15 +20,15 @@ open Lsc_ast
 %%
 
 let constellation_file :=
-  | EOF; { [] }
+  | EOF;                         { [] }
   | ~=marked_constellation; EOF; <>
 
 let marked_constellation :=
   | ~=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?; <>
 
 %public let star :=
-  | ~=star_content; EOL*; <Marked>
-  | ~=bracks(star_content); EOL*; <Unmarked>
+  | ~=star_content; EOL*;                       <Unmarked>
+  | ~=bracks(star_content); EOL*;               <Unmarked>
   | ~=bracks_opt(AT; EOL*; star_content); EOL*; <Marked>
 
 let star_content :=
@@ -44,7 +44,7 @@ let ban :=
   | r1=ray; NEQ; r2=ray; { (r1, r2) }
 
 %public let symbol :=
-  | ~=pol_symbol; <>
+  | ~=pol_symbol;   <>
   | ~=unpol_symbol; <>
 
 %public let pol_symbol :=
@@ -63,11 +63,11 @@ let ban :=
 
 %public let ray :=
   | PLACEHOLDER; { to_var ("_"^(fresh_placeholder ())) }
-  | ~=VAR; <to_var>
+  | ~=VAR;       <to_var>
   | ~=func_expr; <>
 
 let func_expr :=
-  | ~=cons_expr; <>
+  | ~=cons_expr;         <>
   | pf=symbol; ts=args?; { to_func (pf, Option.to_list ts |> List.concat) }
 
 let cons_expr :=

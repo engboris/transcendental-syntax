@@ -57,8 +57,8 @@ let galaxy_content :=
     LBRACK; DRARROW; ~=symbol; RBRACK;  <Extend>
   | ~=galaxy_content;
     LBRACK; ~=symbol; DRARROW; RBRACK;  <Reduce>
-  | LPAR; AT; EOL*; ~=galaxy_content;
-    RPAR;                               <Focus>
+  | LPAR; EOL*; AT; EOL*;
+    ~=galaxy_content; RPAR;             <Focus>
   | ~=galaxy_content; LBRACK; x=VAR;
     DRARROW; r=ray; RBRACK;             <SubstVar>
   | e=galaxy_content; LBRACK; f=symbol;
@@ -123,8 +123,8 @@ let neutral_start_mcs :=
     }
   (* general constellation *)
   | marked=AT?; EOL*; pf=unpol_symbol; ts=args?; EOL*;
-    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*; bs=bans?; EOL*;
-    SEMICOLON; EOL*;
+    rs=separated_list(pair(COMMA?, EOL*), ray); EOL*;
+    bs=bans?; EOL*; SEMICOLON; EOL*;
     cs=separated_nonempty_list(pair(SEMICOLON, EOL*), star);
     {
       ({ content = ((to_func (pf, Option.to_list ts |> List.concat)) :: rs);
