@@ -5,13 +5,10 @@ open Lsc_ast
 %token BAR
 %token NEQ
 %token COMMA
-%token LBRACK RBRACK
-%token LPAR RPAR
 %token <string> VAR
 %token <string> SYM
 %token PLUS MINUS
 %token CONS
-%token AT
 %token SEMICOLON
 %token PLACEHOLDER
 
@@ -23,16 +20,16 @@ open Lsc_ast
 %%
 
 let constellation_file :=
-  | EOF; { [] }
+  | EOF;                         { [] }
   | ~=marked_constellation; EOF; <>
 
 let marked_constellation :=
   | ~=separated_nonempty_list(pair(SEMICOLON, EOL*), star); SEMICOLON?; <>
 
 %public let star :=
-  | AT; ~=star_content; EOL*; <Marked>
-  | ~=star_content; EOL*; <Unmarked>
-  | LBRACK; EOL*; ~=star_content; EOL*; RBRACK; EOL*; <Unmarked>
+  | ~=star_content; EOL*;                       <Unmarked>
+  | ~=bracks(star_content); EOL*;               <Unmarked>
+  | ~=bracks_opt(AT; EOL*; star_content); EOL*; <Marked>
 
 let star_content :=
   | LBRACK; RBRACK;
@@ -47,7 +44,7 @@ let ban :=
   | r1=ray; NEQ; r2=ray; { (r1, r2) }
 
 %public let symbol :=
-  | ~=pol_symbol; <>
+  | ~=pol_symbol;   <>
   | ~=unpol_symbol; <>
 
 %public let pol_symbol :=
@@ -62,15 +59,15 @@ let ban :=
   | f=SYM; { muted (Null, f) }
 
 %public let args :=
-  | LPAR; ~=separated_nonempty_list(COMMA?, ray); RPAR; <>
+  | ~=pars(separated_nonempty_list(COMMA?, ray)); <>
 
 %public let ray :=
   | PLACEHOLDER; { to_var ("_"^(fresh_placeholder ())) }
-  | ~=VAR; <to_var>
+  | ~=VAR;       <to_var>
   | ~=func_expr; <>
 
 let func_expr :=
-  | ~=cons_expr; <>
+  | ~=cons_expr;         <>
   | pf=symbol; ts=args?; { to_func (pf, Option.to_list ts |> List.concat) }
 
 let cons_expr :=
@@ -78,5 +75,5 @@ let cons_expr :=
     { to_func (noisy (Null, ":"), [r1; r2]) }
   | LPAR; r1=ray; CONS; r2=ray; RPAR;
     { to_func (noisy (Null, ":"), [r1; r2]) }
-  | LPAR; e=cons_expr; RPAR; CONS; r=ray;
+  | e=pars(cons_expr); CONS; r=ray;
     { to_func (muted (Null, ":"), [e; r]) }

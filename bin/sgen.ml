@@ -21,7 +21,7 @@ let parse_with_error lexbuf =
   try program read lexbuf
   with SyntaxError msg ->
     Stdlib.Printf.fprintf Stdlib.stderr "%a: %s\n" print_position lexbuf msg;
-    Stdlib.exit (-1)
+    raise (SyntaxError msg)
 
 let () =
   Stdlib.Arg.parse speclist anon_fun usage_msg;

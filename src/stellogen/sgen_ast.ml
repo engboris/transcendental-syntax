@@ -306,4 +306,4 @@ let eval_program p =
   try List.fold_left ~f:(fun acc x -> eval_decl acc x) ~init:empty_env p
   with e ->
     string_of_exn e |> Out_channel.output_string Out_channel.stderr;
-    Stdlib.exit (-1)
+    raise e
