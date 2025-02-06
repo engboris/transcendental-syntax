@@ -23,7 +23,7 @@ and galaxy_expr =
   | Focus of galaxy_expr
   | SubstVar of galaxy_expr * ident * StellarRays.term
   | SubstFunc of
-      galaxy_expr * (StellarRays.fmark * idfunc) * (StellarRays.fmark * idfunc)
+    galaxy_expr * (StellarRays.fmark * idfunc) * (StellarRays.fmark * idfunc)
   | SubstGal of galaxy_expr * ident * galaxy_expr
   | Process of galaxy_expr list
   | Token of string
@@ -46,7 +46,7 @@ exception TestFailed of ident * ident * ident * galaxy * galaxy
 
 type env =
   { objs : (ident * galaxy_expr) list
-  ; types : (ident * (ident * ident option)) list
+  ; types : (ident * (ident list * ident option)) list
   }
 
 let empty_env = { objs = []; types = [] }
@@ -57,7 +57,7 @@ type declaration =
   | ShowExec of galaxy_expr
   | Trace of galaxy_expr
   | Run of galaxy_expr
-  | TypeDef of ident * ident * ident option
+  | TypeDef of ident * ident list * ident option
 
 type program = declaration list
 
@@ -271,11 +271,11 @@ let rec eval_decl env : declaration -> env = function
     let env = { objs = add_obj env x e; types = env.types } in
     begin
       match List.Assoc.find ~equal:equal_string env.types x with
-      | Some (t, None) ->
-        typecheck env x t default_checker;
+      | Some (ts, None) ->
+        List.iter ts ~f:(fun t -> typecheck env x t default_checker);
         env
-      | Some (t, Some xck) ->
-        typecheck env x t (get_obj env xck);
+      | Some (ts, Some xck) ->
+        List.iter ts ~f:(fun t -> typecheck env x t (get_obj env xck));
         env
       | None -> env
     end
@@ -300,7 +300,10 @@ let rec eval_decl env : declaration -> env = function
   | Run e ->
     let _ = eval_galaxy_expr env (Exec e) in
     env
-  | TypeDef (x, t, ck) -> { objs = env.objs; types = add_type env x (t, ck) }
+  | TypeDef (x, ts, ck) -> {
+    objs = env.objs;
+    types = add_type env x (ts, ck)
+  }
 
 let eval_program p =
   try List.fold_left ~f:(fun acc x -> eval_decl acc x) ~init:empty_env p

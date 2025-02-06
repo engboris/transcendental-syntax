@@ -23,14 +23,17 @@ let program :=
   | EOL*; d=declaration; EOF;             { [d] }
 
 let declaration :=
-  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr; <Def>
-  | SHOW; EOL*; ~=galaxy_expr;            <Show>
-  | SHOWEXEC; EOL*; ~=galaxy_expr;        <ShowExec>
-  | TRACE; EOL*; ~=galaxy_expr;           <Trace>
-  | RUN; EOL*; ~=galaxy_expr;             <Run>
-  | ~=SYM; CONS; CONS; ~=SYM; EOL*;
-    ~=checker_def; DOT;                   <TypeDef>
-  | x=SYM; CONS; CONS; t=SYM; DOT;        { TypeDef (x, t, None) }
+  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr;   <Def>
+  | SHOW; EOL*; ~=galaxy_expr;              <Show>
+  | SHOWEXEC; EOL*; ~=galaxy_expr;          <ShowExec>
+  | TRACE; EOL*; ~=galaxy_expr;             <Trace>
+  | RUN; EOL*; ~=galaxy_expr;               <Run>
+  | ~=SYM; CONS; CONS;
+    ~=separated_nonempty_list(COMMA, SYM);
+    EOL*; ~=checker_def; DOT;               <TypeDef>
+  | x=SYM; CONS; CONS;
+    ts=separated_nonempty_list(COMMA, SYM);
+    DOT;                                    { TypeDef (x, ts, None) }
 
 let checker_def :=
   | ~=bracks(SYM); <Some>
