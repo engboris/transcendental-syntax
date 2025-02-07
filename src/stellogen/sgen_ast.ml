@@ -46,7 +46,7 @@ exception TestFailed of ident * ident * ident * galaxy * galaxy
 
 type env =
   { objs : (ident * galaxy_expr) list
-  ; types : (ident * (ident * ident option)) list
+  ; types : (ident * (ident list * ident option)) list
   }
 
 let empty_env = { objs = []; types = [] }
@@ -57,7 +57,7 @@ type declaration =
   | ShowExec of galaxy_expr
   | Trace of galaxy_expr
   | Run of galaxy_expr
-  | TypeDef of ident * ident * ident option
+  | TypeDef of ident * ident list * ident option
 
 type program = declaration list
 
@@ -270,15 +270,15 @@ let rec eval_decl env : declaration -> env = function
   | Def (x, e) ->
     let env = { objs = add_obj env x e; types = env.types } in
     begin
-      match List.Assoc.find ~equal:equal_string env.types x with
-      | Some (t, None) ->
-        typecheck env x t default_checker;
-        env
-      | Some (t, Some xck) ->
-        typecheck env x t (get_obj env xck);
-        env
-      | None -> env
-    end
+      List.filter env.types ~f:(fun (y, _) -> equal_string x y)
+      |> List.iter ~f:(fun (_, (ts, ck)) ->
+           match ck with
+           | None ->
+             List.iter ts ~f:(fun t -> typecheck env x t default_checker)
+           | Some xck ->
+             List.iter ts ~f:(fun t -> typecheck env x t (get_obj env xck)) )
+    end;
+    env
   | Show (Raw (Galaxy g)) ->
     Galaxy g |> string_of_galaxy env |> Stdlib.print_string;
     Stdlib.print_newline ();
@@ -300,7 +300,7 @@ let rec eval_decl env : declaration -> env = function
   | Run e ->
     let _ = eval_galaxy_expr env (Exec e) in
     env
-  | TypeDef (x, t, ck) -> { objs = env.objs; types = add_type env x (t, ck) }
+  | TypeDef (x, ts, ck) -> { objs = env.objs; types = add_type env x (ts, ck) }
 
 let eval_program p =
   try List.fold_left ~f:(fun acc x -> eval_decl acc x) ~init:empty_env p
