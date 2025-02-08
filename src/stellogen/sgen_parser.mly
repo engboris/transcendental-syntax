@@ -23,54 +23,57 @@ let program :=
   | EOL*; d=declaration; EOF;             { [d] }
 
 let declaration :=
-  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr;   <Def>
-  | SHOW; EOL*; ~=galaxy_expr;              <Show>
-  | SHOWEXEC; EOL*; ~=galaxy_expr;          <ShowExec>
-  | TRACE; EOL*; ~=galaxy_expr;             <Trace>
-  | RUN; EOL*; ~=galaxy_expr;               <Run>
+  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr;    <Def>
+  | SHOW; EOL*; ~=galaxy_expr;               <Show>
+  | SHOWEXEC; EOL*; ~=galaxy_expr;           <ShowExec>
+  | TRACE; EOL*; ~=galaxy_expr;              <Trace>
+  | RUN; EOL*; ~=galaxy_expr;                <Run>
   | ~=SYM; CONS; CONS;
     ~=separated_nonempty_list(COMMA, SYM);
-    EOL*; ~=checker_def; DOT;               <TypeDef>
-  | x=SYM; CONS; CONS;
+    EOL*; ~=checker_def; DOT;                <TypeDefWithChecker>
+  | ~=SYM; CONS; CONS;
     ts=separated_nonempty_list(COMMA, SYM);
-    DOT;                                    { TypeDef (x, ts, None) }
+    EOL*; DOT;                               <TypeDef>
 
 let checker_def :=
   | ~=bracks(SYM); <Some>
   | bracks(EOL*);  { None }
 
 let galaxy_expr :=
-  | ~=galaxy_content; EOL*; DOT;          <>
-  | mcs=non_neutral_start_mcs; EOL*; DOT; { Raw (Const mcs) }
-  | ~=galaxy_block; END;                  <>
-  | g=galaxy_def; END;                    { Raw (Galaxy g) }
+  | ~=galaxy_content; EOL*; DOT;  <>
+  | ~=galaxy_block; END;          <>
+  | ~=raw_galaxy_expr;            <Raw>
+
+let raw_galaxy_expr :=
+  | ~=non_neutral_start_mcs; EOL*; DOT;  <Const>
+  | g=galaxy_def; END;                   <Galaxy>
+
+let raw_galaxy_content :=
+  | ~=pars(non_neutral_start_mcs);    <Const>
+  | braces(EOL*);                     { Const [] }
+  | ~=braces(neutral_start_mcs);      <Const>
+  | ~=braces(non_neutral_start_mcs);  <Const>
 
 let galaxy_content :=
   | ~=pars(galaxy_content);             <>
-  | mcs=pars(non_neutral_start_mcs);    { Raw (Const mcs) }
-  | braces(EOL*);                       { Raw (Const []) }
-  | SHARP; ~=SYM;                       <Token>
-  | cs=braces(neutral_start_mcs);       { Raw (Const cs) }
-  | cs=braces(non_neutral_start_mcs);   { Raw (Const cs) }
   | ~=SYM;                              <Id>
+  | ~=raw_galaxy_content;               <Raw>
+  | SHARP; ~=SYM;                       <Token>
   | g=galaxy_content; EOL*;
     h=galaxy_content; EOL*;             { Union (g, h) }
   | ~=galaxy_content; RARROW; ~=SYM;    <Access>
-  | ~=galaxy_content;
-    LBRACK; DRARROW; ~=symbol; RBRACK;  <Extend>
-  | ~=galaxy_content;
-    LBRACK; ~=symbol; DRARROW; RBRACK;  <Reduce>
   | LPAR; EOL*; AT; EOL*;
     ~=galaxy_content; RPAR;             <Focus>
-  | ~=galaxy_content; LBRACK; x=VAR;
-    DRARROW; r=ray; RBRACK;             <SubstVar>
-  | e=galaxy_content; LBRACK; f=symbol;
-    DRARROW; g=symbol; RBRACK;          { SubstFunc (e, f, g) }
-  | g=galaxy_content; LBRACK; x=SYM;
-    DRARROW; h=galaxy_content; RBRACK;  { SubstGal (g, x, h) }
-  | g=galaxy_content; LBRACK; x=SYM;
-    DRARROW; h=non_neutral_start_mcs;
-    RBRACK;                             { SubstGal (g, x, Raw (Const h)) }
+  | ~=galaxy_content;
+    ~=bracks(substitution);            <Subst>
+
+let substitution ==
+  | DRARROW; ~=symbol;                               <Extend>
+  | ~=symbol; DRARROW;                               <Reduce>
+  | ~=VAR; DRARROW; ~=ray;                           <SVar>
+  | f=symbol; DRARROW; g=symbol;                     { SFunc (f, g) }
+  | SHARP; ~=SYM; DRARROW; ~=galaxy_content;         <SGal>
+  | SHARP; x=SYM; DRARROW; h=non_neutral_start_mcs;  { SGal (x, Raw (Const h)) }
 
 %public let non_neutral_start_mcs :=
   (* single star *)
