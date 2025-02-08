@@ -1,8 +1,3 @@
-'''
-FIXME
-'''
-
-'''
 u4 = -b(1 _) -b(2 _) -b(3 _) -b(4 _) ok.
 
 checker = galaxy
@@ -57,4 +52,3 @@ show-exec process
   b2[b=>+b2].
   kill.
 end
-'''

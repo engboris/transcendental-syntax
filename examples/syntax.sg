@@ -3,7 +3,7 @@ x = +a; -a b.
 y = x.
 z = -f(X).
 
-'strings
+'string literals
 w = "hello world".
 
 'cons
@@ -56,7 +56,7 @@ show-exec (+f(X))[X=>+a(X)].
 show-exec (+f(X))[+f=>+g].
 
 'tokens (fillable named empty constellation)
-show-exec (#1 #2)[1=>+f(X) X][2=>-f(a)].
+show-exec (#1 #2)[#1=>+f(X) X][#2=>-f(a)].
 
 'checkers & typechecking
 checker = galaxy

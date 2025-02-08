@@ -65,12 +65,12 @@ let galaxy_content :=
     ~=bracks(substitution);            <Subst>
 
 let substitution ==
-  | DRARROW; ~=symbol;                        <Extend>
-  | ~=symbol; DRARROW;                        <Reduce>
-  | ~=VAR; DRARROW; ~=ray;                    <SVar>
-  | f=symbol; DRARROW; g=symbol;              { SFunc (f, g) }
-  | ~=SYM; DRARROW; ~=galaxy_content;         <SGal>
-  | x=SYM; DRARROW; h=non_neutral_start_mcs;  { SGal (x, Raw (Const h)) }
+  | DRARROW; ~=symbol;                               <Extend>
+  | ~=symbol; DRARROW;                               <Reduce>
+  | ~=VAR; DRARROW; ~=ray;                           <SVar>
+  | f=symbol; DRARROW; g=symbol;                     { SFunc (f, g) }
+  | SHARP; ~=SYM; DRARROW; ~=galaxy_content;         <SGal>
+  | SHARP; x=SYM; DRARROW; h=non_neutral_start_mcs;  { SGal (x, Raw (Const h)) }
 
 %public let non_neutral_start_mcs :=
   (* single star *)
