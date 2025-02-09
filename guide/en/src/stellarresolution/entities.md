@@ -22,23 +22,64 @@ For example:
 - `+f(+h(X))` and `-f(-h(a))` are compatible with `{X:=a}`;
 - `+f(+h(X))` and `-f(-h(+a))` are compatible with `{X:=+a}`.
 
+### String literals
+
+Stellogen also allows to define special constants representing string literals:
+
+```
+"this is a string literal"
+```
+
+### Sequences
+
+It is possible to use a special infix symbol `:` as in:
+
+```
++w(0:1:0:1:e).
+```
+
+It is possible to put parentheses around it to make the priorit explicit
+(right-associative by default):
+
+```
++w((0:(1:(0:(1:e))))).
++w((((0:1):0):1):e).
+```
+
 ## Stars
 
-With rays, we can form *stars*. These are unordered collections of rays:
+With rays, we can form *stars*. These are unordered collections of rays
+which can be surrounded by brackets:
 
 ```
 +f(X) -f(h(a)) +f(+h(X))
+```
+
+```
+[+f(X) -f(h(a)) +f(+h(X))]
 ```
 
 The empty star is denoted as `[]`.
 
 ## Constellations
 
-*Constellations* are unordered sequences of stars separated by the `;` symbol and
-ending with a `.`:
+*Constellations* are unordered sequences of stars separated by the `;` symbol
+and ending with a `.`:
 
 ```
 +f(X) X; +f(+h(X) a f(b)).
+```
+
+They can be surrounded by braces:
+
+```
+{ +f(X) X; +f(+h(X) a f(b)) }.
+```
+
+Variables are local to their stars. This can be made explicit by writing:
+
+```
++f(X1) X1; +f(+h(X2) a f(b)).
 ```
 
 The empty constellation is denoted as `{}`.

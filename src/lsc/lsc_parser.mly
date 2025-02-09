@@ -38,7 +38,7 @@ let star_content :=
     { {content=l; bans=Option.to_list bs |> List.concat } }
 
 %public let bans :=
-  | BAR; ~=ban+; <>
+  | BAR; ~=separated_nonempty_list(COMMA?, ban); <>
 
 let ban :=
   | r1=ray; NEQ; r2=ray; { (r1, r2) }

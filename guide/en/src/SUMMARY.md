@@ -1,14 +1,12 @@
 # Summary
 
-# Contexte
+# Context
 
 - [Introduction](./introduction/introduction.md)
-- [Transcendental syntax](./introduction/ts.md)
-- [Stellar resolution](./introduction/sr.md)
-- [Stellogen language](./introduction/sg.md)
+- [Philosophy](./introduction/philosophy.md)
 - [Getting started](./introduction/start.md)
 
-# Principles of stellar resolution
+# Constellations and their execution
 
 - [Term unification](./stellarresolution/unification.md)
 - [Stars and constellations](./stellarresolution/entities.md)
@@ -18,17 +16,13 @@
 # Basics of Stellogen
 
 - [Defining constellations](./stellogen/definitions.md)
+- [Commands](./stellogen/commands.md)
+- [Reactive effects](./stellogen/effects.md)
+- [Construction processes](./stellogen/processed.md)
 - [Galaxies](./stellogen/galaxies.md)
 - [Substitutions](./stellogen/substitutions.md)
 - [Typing](./stellogen/typing.md)
 - [Exercises](./stellogen/exercises.md)
-
-# Encoding techniques
-
-- [Introduction](./encoding/introduction.md)
-- [Sequences](./encoding/seq.md)
-- [Hypergraphs (TODO)](./encoding/hypergraphs.md)
-- [Integers (TODO)](./encoding/integers.md)
 
 # Automata theory
 

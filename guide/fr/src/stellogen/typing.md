@@ -103,3 +103,24 @@ Cela nous permet d'écrire :
 1 :: nat.
 1 = +nat(s(0)).
 ```
+
+## Pluralité des types
+
+Il est possible d'associer plusieurs types à une constellation:
+- soit en définissant plusieurs déclaration de types;
+- soit en écrivant des séquences de types (séparés par des virgules) si le même
+checker est utilisé.
+
+Par exemple:
+
+```
+nat2 = { -nat(X) ok }.
+2 :: nat [checker].
+2 :: nat2.
+2 = +nat(s(s(0))).
+```
+
+````
+3 :: nat, nat2.
+3 = +nat(s(s(s(0)))).
+```

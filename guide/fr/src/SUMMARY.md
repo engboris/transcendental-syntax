@@ -3,12 +3,10 @@
 # Contexte
 
 - [Introduction](./introduction/introduction.md)
-- [Syntaxe transcendantale](./introduction/ts.md)
-- [Résolution stellaire](./introduction/sr.md)
-- [Language Stellogen](./introduction/sg.md)
+- [Philosophie](./introduction/philosophy.md)
 - [Démarrer](./introduction/start.md)
 
-# Principes de résolution stellaire
+# Les constellations et leur exécution
 
 - [Unification de termes](./stellarresolution/unification.md)
 - [Etoiles et constellations](./stellarresolution/entities.md)
@@ -18,17 +16,13 @@
 # Bases de Stellogen
 
 - [Définir des constellations](./stellogen/definitions.md)
+- [Commandes](./stellogen/commands.md)
+- [Effets réactifs](./stellogen/effects.md)
+- [Processus de construction](./stellogen/processes.md)
 - [Galaxies](./stellogen/galaxies.md)
 - [Substitutions](./stellogen/substitutions.md)
 - [Typage](./stellogen/typing.md)
 - [Exercices](./stellogen/exercises.md)
-
-# Techniques d'encodage
-
-- [Introduction](./encoding/introduction.md)
-- [Séquences](./encoding/seq.md)
-- [Hypergraphes (TODO)](./encoding/hypergraphs.md)
-- [Entiers (TODO)](./encoding/integers.md)
 
 # Théorie des automates
 
