@@ -23,7 +23,7 @@ Par exemple :
 - `+f(+h(X))` et `-f(-h(a))` sont compatibles avec `{X:=a}`;
 - `+f(+h(X))` et `-f(-h(+a))` sont compatibles avec `{X:=+a}`.
 
-## Chaînes de caractère
+### Chaînes de caractère
 
 Stellogen permet aussi de définir des constantes spéciales représentant des
 chaînes de caractères :
@@ -32,7 +32,7 @@ chaînes de caractères :
 "this is a string literal"
 ```
 
-## Séquences
+### Séquences
 
 Il est possible d'utiliser un symbole infixe spécial `:` comme dans :
 
