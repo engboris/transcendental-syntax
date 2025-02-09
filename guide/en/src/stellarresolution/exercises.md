@@ -4,7 +4,7 @@ Determine the result of executing the constellations below.
 You can verify your results by writing the following code in a file:
 
 ```
-print <constellation>
+show-exec <constellation>
 ```
 
 and then executing it.
@@ -12,7 +12,7 @@ and then executing it.
 For example:
 
 ```
-print X +f(X); @-f(a).
+show-exec { X +f(X); @-f(a) }.
 ```
 
 1. `@+f(X); -f(a).`

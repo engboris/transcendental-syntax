@@ -9,31 +9,27 @@ L'idée est que ces constellations représentent des chemins à compléter de so
 à obtenir seulement la constellation `ok` en résultat.
 
 ```
-checker = galaxy
-  interaction: #test #tested.
-  expect: { ok }.
-end
 empty = {}.
 
 answer = #replace_me.
-exercise1 :: empty [checker].
-exercise1 = ((-1 ok) {1})[1=>answer].
+exercise1 :: empty.
+exercise1 = ((-1 ok) #1)[#1=>answer].
 
 answer = #replace_me.
-exercise2 :: empty [checker].
-exercise2 = ((-1; +2) {1})[1=>answer].
+exercise2 :: empty.
+exercise2 = ((-1; +2) #1)[#1=>answer].
 
 answer = #replace_me.
-exercise3 :: empty [checker].
-exercise3 = ((-1 ok; -2 +3) {1})[1=>answer].
+exercise3 :: empty.
+exercise3 = ((-1 ok; -2 +3) #1)[#1=>answer].
 
 answer = #replace_me.
-exercise4 :: empty [checker].
-exercise4 = ((-f(+g(X)) ok) {1})[1=>answer].
+exercise4 :: empty.
+exercise4 = ((-f(+g(X)) ok) #1)[#1=>answer].
 
 answer = #replace_me.
-exercise5 :: empty [checker].
-exercise5 = ((+f(a) +f(b); +g(a); @+g(b) ok) {1})[1=>answer].
+exercise5 :: empty.
+exercise5 = ((+f(a) +f(b); +g(a); @+g(b) ok) #1)[#1=>answer].
 ```
 
 <details>
@@ -41,31 +37,27 @@ exercise5 = ((+f(a) +f(b); +g(a); @+g(b) ok) {1})[1=>answer].
 <pre>
 <code>
 
-checker = galaxy
-  interaction: #test #tested.
-expect: { ok }.
-end
 empty = {}.
 
 answer = +1.
-exercise1 :: empty [checker]
-exercise1 = ((-1 ok) {1})[1=>answer].
+exercise1 :: empty.
+exercise1 = ((-1 ok) #1)[#1=>answer].
 
 answer = +1 -2 ok.
-exercise2 :: empty [checker]
-exercise2 = ((-1; +2) {1})[1=>answer].
+exercise2 :: empty.
+exercise2 = ((-1; +2) #1)[#1=>answer].
 
 answer = +1 +2; -3.
-exercise3 :: empty [checker]
-exercise3 = ((-1 ok; -2 +3) {1})[1=>answer].
+exercise3 :: empty.
+exercise3 = ((-1 ok; -2 +3) #1)[#1=>answer].
 
 answer = +f(-g(X)).
-exercise4 :: empty [checker]
-exercise4 = ((-f(+g(X)) ok) {1})[1=>answer].
+exercise4 :: empty.
+exercise4 = ((-f(+g(X)) ok) #1)[#1=>answer].
 
 answer = -f(a); -f(b) -g(a) -g(b).
-exercise5 :: empty [checker]
-exercise5 = ((+f(a) +f(b); +g(a); @+g(b) ok) {1})[1 => answer].
+exercise5 :: empty.
+exercise5 = ((+f(a) +f(b); +g(a); @+g(b) ok) #1)[#1 => answer].
 
 </code>
 </pre>
@@ -78,7 +70,7 @@ Partons du programme suivant :
 ```
 init = +r0(0).
 
-print process
+show-exec process
   init.
   {replace_me}.
 end
@@ -190,7 +182,7 @@ seule étoile, de sorte à ce qu'on obtienne en sortie
 <details>
   <summary>Solution</summary>
 <pre>
-<code>print @-not(X Y) table_not(X Y).
+<code>show-exec @-not(X Y) table_not(X Y).
 </code>
 </pre>
 </details>
@@ -210,10 +202,10 @@ or  = +or(0 0 0); +or(0 1 1); +or(1 0 1); +or(1 1 1).
 and2 = +and2(0 X 0); +and2(1 X X).
 or2  = +or2(0 X X); +or2(1 X 1).
 
-print @-and(X Y R) table_and(X Y R).
-print @-or(X Y R) table_or(X Y R).
-print @-and2(X Y R) table_and2(X Y R).
-print @-or2(X Y R) table_or2(X Y R).
+show-exec @-and(X Y R) table_and(X Y R).
+show-exec @-or(X Y R) table_or(X Y R).
+show-exec @-and2(X Y R) table_and2(X Y R).
+show-exec @-or2(X Y R) table_or2(X Y R).
 
 </code>
 </pre>
@@ -230,8 +222,8 @@ de vérité de l'implication sachant que `X => Y = not(X) \/ Y`.
 impl  = -not(X Y) -or(Y Z R) +impl(X Z R).
 impl2 = -not(X Y) -or2(Y Z R) +impl2(X Z R).
 
-print @-impl(X Y R) table_impl(X Y R).
-print @-impl2(X Y R) table_impl2(X Y R).
+show-exec @-impl(X Y R) table_impl(X Y R).
+show-exec @-impl2(X Y R) table_impl2(X Y R).
 
 </code>
 </pre>
@@ -264,7 +256,7 @@ table_eqq2 = @-eqq2(X Y R) table_eqq2(X Y R).
 <code>
 
 ex = -not(X R1) -or(R1 X R2) +ex(X R2).
-print -ex(X R) table_ex(X R).
+show-exec -ex(X R) table_ex(X R).
 
 </code>
 </pre>
@@ -276,7 +268,7 @@ print -ex(X R) table_ex(X R).
 <details>
   <summary>Solution</summary>
 <pre>
-<code>print -or(Y Z R1) -not(R1 R2) -and(X R2 1) x(X) y(Y) z(Z).
+<code>show-exec -or(Y Z R1) -not(R1 R2) -and(X R2 1) x(X) y(Y) z(Z).
 </code>
 </pre>
 </details>

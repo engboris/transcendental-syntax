@@ -1,16 +1,7 @@
 # Galaxies
 
-Le langage Stellogen ajoute à la résolution stellaire une entité appelée
-*galaxie*.
-
-Une galaxie est soit une constellation soit une structure avec des champs
-nommés contenant d'autres galaxies.
-
-Plus généralement, Stellogen manipule en réalité des galaxies plutôt que
-des constellations (qui sont des cas particuliers de galaxies).
-
-En Stellogen, "tout est galaxie" de la même manière que tout est objet
-dans des langages de programmation comme *Smalltalk* ou *Ruby*.
+Les constellations peuvent être représentées en donnant un nom à des
+sous-constellation les composant. On appelle cela des *galaxies*.
 
 On définit les galaxies avec des blocs `galaxy ... end` contenant une
 série d'étiquettes `label:` suivit de la galaxie associée :

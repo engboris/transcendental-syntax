@@ -37,7 +37,9 @@ propagates to the adjacent rays.
 `-f(a)` interact, propagating the substitution `{X:=a}` to the remaining
 ray `X`. The result is `X{X:=a}`, i.e., `a`.
 
-> This fusion operation corresponds to the cut rule in first-order logic (also linked to the resolution rule). However, the context here is "alogical" (our objects carry no logical meaning).
+> This fusion operation corresponds to the cut rule in first-order logic (also
+linked to the resolution rule). However, the context here is "alogical" (our
+objects carry no logical meaning).
 
 ## Execution
 
@@ -53,8 +55,8 @@ interaction;
 - the *action space*, corresponding to stars which will interact with stars of
 the state space.
 
-This separation can be represented as follows, with the action space on the left
-and state space on the right, separated by the symbol `|-`:
+This separation can be represented as follows, with the action space on the
+left and state space on the right, separated by the symbol `|-`:
 
 ```
 a1 ... an |- s1 ... sm
@@ -68,113 +70,135 @@ Execution proceeds as follows:
 5. Repeat until no further interactions are possible in the state space.
 stars.
 
+## Focus
+
+State stars are prefixed by `@`:
+
+```
+@+a b; [-c d].
+```
+
+```
++a b; [@-c d].
+```
+
 ## Example
 
-Consider the execution of the following constellation, where the only initial
-state star is prefixed by `@`:
+Consider the execution of the following constellation:
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z));
-@-add(s(s(0)) s(s(0)) R) R.
+@+a(0(1(e)) q0);
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2).
 ```
 
-For clarity, the selected rays will be highlighted with `>>` and `<<`.
-The steps are as follows:
+For the example, we surround the selected way between `>>` and `<<`.
+We have the following step:
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z));
-@-add(s(s(0)) s(s(0)) R) R.
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2);
+@+a(0(1(e)) q0).
 ```
 
-The initial separation is:
+And the following separation:
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
--add(s(s(0)) s(s(0)) R) R
++a(0(1(e)) q0)
 ```
 
-Select the first ray
+Select the first ray of the first star:
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+>>-a(e q2)<< accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
->>-add(s(s(0))<< s(s(0)) R) R
++a(0(1(e)) q0)
 ```
 
-`+add(0 Y Y)` cannot interact with `-add(s(s(0)) s(s(0)) R)`
-because the first argument `0` is incompatible with `s(s(0))`. However, it
-can interact with `+add(s(X) Y s(Z))`. Fusing:
+It cannot be connected to `+a(0(1(e)) q0)` because its first argument `e` is
+incompatible with `0(1(e))`. However, it can interact with the two next
+stars (but not the last one because of an incompatibility between `q0` and
+`q1`)
+We do a duplication and a fusion between:
 
 ```
--add(X Y Z) +add(s(X) Y s(Z))
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
 ```
 
-with
+and
 
 ```
--add(s(s(0)) s(s(0)) R) R
++a(0(1(e)) q0)
 ```
 
-produces the substitution `{X:=s(0), Y:=s(s(0)), R:=s(Z)}` and the result:
+and obtain the substitution `{W:=1(e)}` then the result:
 
 ```
--add(s(0) s(s(0)) Z) s(Z)
++a(1(e) q0);
++a(1(e) q1)
 ```
 
-This leads to:
+We obtain the following step:
 
 ```
-+add(0 Y Y);
--add(X Y Z) >>+add(s(X) Y s(Z))<<
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
--add(s(0) s(s(0)) Z) s(Z)
++a(1(e) q0);
++a(1(e) q1)
 ```
 
-Select the first ray again
+The second state star `+a(1(e) q1)` cannot interact with an action star.
+However, we can focus on `+a(1(e) q0)`.
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
->>-add(s(0) s(s(0)) Z)<< s(Z)
+>>+a(1(e) q0)<<;
++a(1(e) q1)
 ```
 
-It can interact with `+add(s(X) Y s(Z))`,
-giving the substitution `{X:=0, Y:=s(s(0)), Z:=s(Z')}`:
+It can connect to `-a(1(W) q0)` with substitution `{W:=e}`:
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
--add(0 s(s(0)) Z') s(s(Z'))
++a(e q0);
++a(1(e) q1)
 ```
 
-Selecting the first ray once more
+No further interaction is possible.
+The result of execution is then:
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
-|-
->>-add(0 s(s(0)) Z')<< s(s(Z'))
-```
-
-This ray interacts only with the first action star `+add(0 Y Y)`, resulting
-in:
-
-```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
-|-
-s(s(s(s(0))))
-```
-
-The result of the execution is:
-
-```
-s(s(s(s(0))))
++a(e q0);
++a(1(e) q1)
 ```

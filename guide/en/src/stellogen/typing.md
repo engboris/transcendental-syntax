@@ -100,3 +100,24 @@ This allows us to write:
 1 :: nat.
 1 = +nat(s(0)).
 ```
+
+## Plurality of types
+
+It is possible to associate seveeral types to a same constellation:
+- either by defining several type declarations;
+- or by writing sequences of types (separated by commas) when a same checker
+is used.
+
+For example:
+
+```
+nat2 = { -nat(X) ok }.
+2 :: nat [checker].
+2 :: nat2.
+2 = +nat(s(s(0))).
+```
+
+````
+3 :: nat, nat2.
+3 = +nat(s(s(s(0)))).
+```

@@ -71,115 +71,139 @@ d'action `a`;
 3. dupliquer `s` à droite pour chaque tel rayon `r'` trouvé car il y a
 plusieurs interactions possibles à satisfaire;
 4. remplacer chaque copie de `s` par la fusion entre `a` et `s`;
-5. répéter jusqu'à qu'il n'y a plus aucune interaction possible l'espace d'états.
+5. répéter jusqu'à qu'il n'y a plus aucune interaction possible l'espace
+d'états.
+
+## Focus
+
+Les étoiles d'état sont préfixées par un symbole `@` :
+
+```
+@+a b; [-c d].
+```
+
+```
++a b; [@-c d].
+```
 
 ## Exemple
 
-Considérons l'exécution de la constellation suivante où l'unique étoile
-initiale de l'espace d'état est préfixée par `@`:
+Considérons l'exécution de la constellation suivante :
+
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z));
-@-add(s(s(0)) s(s(0)) R) R.
+@+a(0(1(e)) q0);
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2).
 ```
 
 Pour l'exemple, on entoure par `>>` et `<<` les rayons sélectionnés. Nous avons
-donc les étapes suivantes :
+donc l'étapes suivante :
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z));
-@-add(s(s(0)) s(s(0)) R) R.
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2);
+@+a(0(1(e)) q0).
 ```
 
 Nous avons la séparation suivante :
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
--add(s(s(0)) s(s(0)) R) R
++a(0(1(e)) q0)
 ```
 
-Sélectionnons le premier rayon :
+Sélectionnons le premier rayon de la première étoile :
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+>>-a(e q2)<< accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
->>-add(s(s(0))<< s(s(0)) R) R
++a(0(1(e)) q0)
 ```
 
-Il ne peut pas se connecter à `+add(0 Y Y)` car le premier argument `0` est
-incompatible avec `s(s(0))`. Cependant, il peut interagir avec
-`+add(s(X) Y s(Z))`. Nous effectuons une fusion suivante entre
+Il ne peut pas se connecter à `+a(0(1(e)) q0)` car le premier argument `e` est
+incompatible avec `0(1(e))`. Cependant, il peut interagir avec
+les deux étoiles suivantes (mais pas la dernière à cause d'une
+incompatibilité entre `q0` et `q1`).
+Nous effectuons une duplication et fusion suivante entre :
 
 ```
--add(X Y Z) +add(s(X) Y s(Z))
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
 ```
 
 et
 
 ```
--add(s(s(0)) s(s(0)) R) R
++a(0(1(e)) q0)
 ```
 
-donnant la substitution `{X:=s(0), Y:=s(s(0)), R:=s(Z)}` et le résultat :
+donnant la substitution `{W:=1(e)}` et le résultat :
 
 ```
--add(s(0) s(s(0)) Z) s(Z)
++a(1(e) q0);
++a(1(e) q1)
 ```
 
 Nous obtenons donc l'étape suivante :
 
-
 ```
-+add(0 Y Y);
--add(X Y Z) >>+add(s(X) Y s(Z))<<
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
--add(s(0) s(s(0)) Z) s(Z)
++a(1(e) q0);
++a(1(e) q1)
 ```
 
-Nous resélectinnons le premier rayon :
+La seconde étoile d'état `+a(1(e) q1)` ne peut interagir avec aucune
+étoile d'action. Cependant on peut se focaliser sur `+a(1(e) q0)`.
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
->>-add(s(0) s(s(0)) Z)<< s(Z)
+>>+a(1(e) q0)<<;
++a(1(e) q1)
 ```
 
-Il peut se connecter à `+add(s(X) Y s(Z))` avec comme substitution
-`{X:=0, Y:=s(s(0)), Z:=s(Z')}` :
+Il peut se connecter à `-a(1(W) q0)` avec comme substitution
+`{W:=e}` :
 
 ```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
+-a(e q2) accept;
+-a(0(W) q0) +a(W q0);
+-a(0(W) q0) +a(W q1);
+-a(1(W) q0) +a(W q0);
+-a(0(W) q1) +a(W q2)
 |-
--add(0 s(s(0)) Z') s(s(Z'))
++a(e q0);
++a(1(e) q1)
 ```
 
-Nous sélectionnons le premier rayon :
-
-```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
-|-
->>-add(0 s(s(0)) Z')<< s(s(Z'))
-```
-
-Il ne peut interagir qu'avec la première étoile d'action `+add(0 Y Y)`, ce
-qui nous donne :
-
-```
-+add(0 Y Y);
--add(X Y Z) +add(s(X) Y s(Z))
-|-
-s(s(s(s(0))))
-```
-
+Plus aucune interaction n'est possible.
 Le résultat de l'exécution est donc :
 
 ```
-s(s(s(s(0))))
++a(e q0);
++a(1(e) q1)
 ```

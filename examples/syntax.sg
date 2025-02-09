@@ -17,9 +17,10 @@ show { a; b; c }.
 
 'print result of execution
 show-exec { a; b; c }.
+show exec { a; b; c } end
 
 'inequality constraints
-ineq = +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X != Y.
+ineq = +f(a); +f(b); @-f(X) -f(Y) r(X Y) | X!=Y.
 
 'interactive debugging of execution
 'trace ineq.
@@ -78,7 +79,8 @@ end
 
 'double typing
 nat2 = { -nat(X) ok }.
-
 2 :: nat [checker].
 2 :: nat2.
 2 = +nat(s(s(0))).
+3 :: nat, nat2.
+3 = +nat(s(s(s(0)))).
