@@ -10,9 +10,15 @@ type idfunc = polarity * string
 
 type ray_prefix = StellarRays.fmark * idfunc
 
+type type_declaration = ident * ident list * ident option
+
 type galaxy =
   | Const of marked_constellation
-  | Galaxy of (ident * galaxy_expr) list
+  | Galaxy of galaxy_declaration list
+
+and galaxy_declaration =
+  | GTypeDef of type_declaration
+  | GLabelDef of ident * galaxy_expr
 
 and galaxy_expr =
   | Raw of galaxy
@@ -61,8 +67,7 @@ type declaration =
   | ShowExec of galaxy_expr
   | Trace of galaxy_expr
   | Run of galaxy_expr
-  | TypeDefWithChecker of ident * ident list * ident option
-  | TypeDef of ident * ident list
+  | TypeDef of type_declaration
 
 type program = declaration list
 
@@ -81,7 +86,10 @@ let get_type env x =
 let rec map_galaxy env ~f = function
   | Const mcs -> Const (f mcs)
   | Galaxy g ->
-    Galaxy (List.map ~f:(fun (k, v) -> (k, map_galaxy_expr env ~f v)) g)
+    Galaxy
+      (List.map g ~f:(function
+        | GTypeDef tdef -> GTypeDef tdef
+        | GLabelDef (k, v) -> GLabelDef (k, map_galaxy_expr env ~f v) ))
 
 and map_galaxy_expr env ~f e =
   match e with
@@ -122,14 +130,29 @@ let subst_vars env _from _to =
 let subst_funcs env _from _to =
   map_galaxy_expr env ~f:(Lsc_ast.subst_all_funcs [ (_from, _to) ])
 
-let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
-  | Raw g -> g
+let group_galaxy =
+  List.fold_left ~init:([], []) ~f:(function types, fields ->
+    (function
+      | GTypeDef d -> (d :: types, fields)
+    | GLabelDef (x, g') -> (types, (x, g') :: fields) ) )
+
+let rec typecheck_galaxy _ _ =
+  ()
+
+and eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
+  | Raw (Galaxy g) ->
+    typecheck_galaxy env g;
+    Galaxy g
+  | Raw (Const mcs) -> Const mcs
   | Token _ -> Const []
   | Access (e, x) -> begin
     match eval_galaxy_expr env e with
     | Const _ -> raise (UnknownField x)
     | Galaxy g -> (
-      try List.Assoc.find_exn ~equal:equal_string g x |> eval_galaxy_expr env
+      let _, fields = group_galaxy g in
+      try
+        fields |> fun g ->
+        List.Assoc.find_exn ~equal:equal_string g x |> eval_galaxy_expr env
       with Not_found_s _ -> raise (UnknownField x) )
   end
   | Id x -> begin
@@ -193,10 +216,11 @@ let rec eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
 and galaxy_to_constellation env = function
   | Const mcs -> mcs
   | Galaxy g ->
-    List.fold_left g ~init:[] ~f:(fun acc (_, v) ->
+    let _, fields = group_galaxy g in
+    List.fold_left fields ~init:[] ~f:(fun acc (_, v) ->
       galaxy_to_constellation env (eval_galaxy_expr env v) @ acc )
 
-let string_of_exn e =
+and string_of_exn e =
   match e with
   | ReservedWord x ->
     Printf.sprintf "%s: identifier '%s' is reserved.\n"
@@ -219,23 +243,26 @@ let string_of_exn e =
       |> List.map ~f:remove_mark |> string_of_constellation )
   | _ -> raise e
 
-let equal_galaxy env g g' =
+and equal_galaxy env g g' =
   let mcs = galaxy_to_constellation env g in
   let mcs' = galaxy_to_constellation env g' in
   Lsc_ast.equal_mconstellation mcs mcs'
 
-let typecheck env x t (ck : galaxy_expr) : unit =
+and typecheck env x t (ck : galaxy_expr) : unit =
   let gtests =
     match get_obj env t |> eval_galaxy_expr env with
     | Const mcs -> [ ("_", Raw (Const mcs)) ]
-    | Galaxy gtests -> gtests
+    | Galaxy gtests -> group_galaxy gtests |> snd
   in
   let testing =
     List.map gtests ~f:(fun (idtest, test) ->
       match ck with
       | Raw (Galaxy gck) ->
         let format =
-          try List.Assoc.find_exn ~equal:equal_string gck "interaction"
+          try
+            List.Assoc.find_exn ~equal:equal_string
+              (group_galaxy gck |> snd)
+              "interaction"
           with Not_found_s _ -> Union (Token "test", Token "tested")
         in
         ( idtest
@@ -251,22 +278,32 @@ let typecheck env x t (ck : galaxy_expr) : unit =
     if not (equal_galaxy env got expect) then
       raise (TestFailed (x, t, idtest, got, expect)) )
 
-let default_checker =
+and default_checker =
   Raw
     (Galaxy
-       [ ("interaction", Union (Token "tested", Token "test"))
-       ; ( "expect"
-         , Raw (Const [ Unmarked { content = [ func "ok" [] ]; bans = [] } ]) )
+       [ GLabelDef ("interaction", Union (Token "tested", Token "test"))
+       ; GLabelDef
+           ( "expect"
+           , Raw (Const [ Unmarked { content = [ func "ok" [] ]; bans = [] } ])
+           )
        ] )
 
-let rec string_of_galaxy env = function
+and string_of_galaxy env = function
   | Const mcs -> mcs |> remove_mark_all |> string_of_constellation
   | Galaxy g ->
     "galaxy\n"
-    ^ List.fold_left g ~init:"" ~f:(fun acc (k, v) ->
-        acc ^ "  " ^ k ^ ": "
-        ^ (v |> eval_galaxy_expr env |> string_of_galaxy env)
-        ^ "\n" )
+    ^ List.fold_left g ~init:"" ~f:(fun acc -> function
+        | GLabelDef (k, v) ->
+          acc ^ "  " ^ k ^ ": "
+          ^ (v |> eval_galaxy_expr env |> string_of_galaxy env)
+          ^ "\n"
+        | GTypeDef (x, ts, None) ->
+          Printf.sprintf "%s  %s :: %s.\n" acc x
+            (Pretty.string_of_list Fn.id "," ts)
+        | GTypeDef (x, ts, Some xck) ->
+          Printf.sprintf "%s  %s :: %s [%s].\n" acc x
+            (Pretty.string_of_list Fn.id "," ts)
+            xck )
     ^ "end"
 
 let rec eval_decl env : declaration -> env = function
@@ -286,6 +323,7 @@ let rec eval_decl env : declaration -> env = function
   | Show (Raw (Galaxy g)) ->
     Galaxy g |> string_of_galaxy env |> Stdlib.print_string;
     Stdlib.print_newline ();
+    Stdlib.flush Stdlib.stdout;
     env
   | Show e ->
     eval_galaxy_expr env e
@@ -304,9 +342,7 @@ let rec eval_decl env : declaration -> env = function
   | Run e ->
     let _ = eval_galaxy_expr env (Exec e) in
     env
-  | TypeDefWithChecker (x, ts, ck) ->
-    { objs = env.objs; types = add_type env x (ts, ck) }
-  | TypeDef (x, ts) -> { objs = env.objs; types = add_type env x (ts, None) }
+  | TypeDef (x, ts, ck) -> { objs = env.objs; types = add_type env x (ts, ck) }
 
 let eval_program p =
   try List.fold_left ~f:(fun acc x -> eval_decl acc x) ~init:empty_env p

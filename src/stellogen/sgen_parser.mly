@@ -23,57 +23,53 @@ let program :=
   | EOL*; d=declaration; EOF;             { [d] }
 
 let declaration :=
-  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr;    <Def>
-  | SHOW; EOL*; ~=galaxy_expr;               <Show>
-  | SHOWEXEC; EOL*; ~=galaxy_expr;           <ShowExec>
-  | TRACE; EOL*; ~=galaxy_expr;              <Trace>
-  | RUN; EOL*; ~=galaxy_expr;                <Run>
-  | ~=SYM; CONS; CONS;
-    ~=separated_nonempty_list(COMMA, SYM);
-    EOL*; ~=checker_def; DOT;                <TypeDefWithChecker>
-  | ~=SYM; CONS; CONS;
-    ts=separated_nonempty_list(COMMA, SYM);
-    EOL*; DOT;                               <TypeDef>
+  | ~=SYM; EOL*; EQ; EOL*; ~=galaxy_expr; <Def>
+  | SHOW; EOL*; ~=galaxy_expr;            <Show>
+  | SHOWEXEC; EOL*; ~=galaxy_expr;        <ShowExec>
+  | TRACE; EOL*; ~=galaxy_expr;           <Trace>
+  | RUN; EOL*; ~=galaxy_expr;             <Run>
+  | ~=type_declaration;                   <TypeDef>
 
-let checker_def :=
-  | ~=bracks(SYM); <Some>
-  | bracks(EOL*);  { None }
+let type_declaration :=
+  | x=SYM; CONS; CONS; ts=separated_list(COMMA, SYM);
+    EOL*; ck=bracks(SYM)?; DOT;
+    { (x, ts, ck) }
 
 let galaxy_expr :=
-  | ~=galaxy_content; EOL*; DOT;  <>
-  | ~=galaxy_block; END;          <>
-  | ~=raw_galaxy_expr;            <Raw>
+  | ~=galaxy_content; EOL*; DOT; <>
+  | ~=galaxy_block; END;         <>
+  | ~=raw_galaxy_expr;           <Raw>
 
 let raw_galaxy_expr :=
-  | ~=non_neutral_start_mcs; EOL*; DOT;  <Const>
-  | g=galaxy_def; END;                   <Galaxy>
+  | ~=non_neutral_start_mcs; EOL*; DOT; <Const>
+  | g=galaxy_def; END;                  <Galaxy>
 
 let raw_galaxy_content :=
-  | ~=pars(non_neutral_start_mcs);    <Const>
-  | braces(EOL*);                     { Const [] }
-  | ~=braces(neutral_start_mcs);      <Const>
-  | ~=braces(non_neutral_start_mcs);  <Const>
+  | ~=pars(non_neutral_start_mcs);   <Const>
+  | braces(EOL*);                    { Const [] }
+  | ~=braces(neutral_start_mcs);     <Const>
+  | ~=braces(non_neutral_start_mcs); <Const>
 
 let galaxy_content :=
-  | ~=pars(galaxy_content);             <>
-  | ~=SYM;                              <Id>
-  | ~=raw_galaxy_content;               <Raw>
-  | SHARP; ~=SYM;                       <Token>
+  | ~=pars(galaxy_content);           <>
+  | ~=SYM;                            <Id>
+  | ~=raw_galaxy_content;             <Raw>
+  | SHARP; ~=SYM;                     <Token>
   | g=galaxy_content; EOL*;
-    h=galaxy_content; EOL*;             { Union (g, h) }
-  | ~=galaxy_content; RARROW; ~=SYM;    <Access>
+    h=galaxy_content; EOL*;           { Union (g, h) }
+  | ~=galaxy_content; RARROW; ~=SYM;  <Access>
   | LPAR; EOL*; AT; EOL*;
-    ~=galaxy_content; RPAR;             <Focus>
+    ~=galaxy_content; RPAR;           <Focus>
   | ~=galaxy_content;
-    ~=bracks(substitution);            <Subst>
+    ~=bracks(substitution);           <Subst>
 
 let substitution ==
-  | DRARROW; ~=symbol;                               <Extend>
-  | ~=symbol; DRARROW;                               <Reduce>
-  | ~=VAR; DRARROW; ~=ray;                           <SVar>
-  | f=symbol; DRARROW; g=symbol;                     { SFunc (f, g) }
-  | SHARP; ~=SYM; DRARROW; ~=galaxy_content;         <SGal>
-  | SHARP; x=SYM; DRARROW; h=non_neutral_start_mcs;  { SGal (x, Raw (Const h)) }
+  | DRARROW; ~=symbol;                              <Extend>
+  | ~=symbol; DRARROW;                              <Reduce>
+  | ~=VAR; DRARROW; ~=ray;                          <SVar>
+  | f=symbol; DRARROW; g=symbol;                    { SFunc (f, g) }
+  | SHARP; ~=SYM; DRARROW; ~=galaxy_content;        <SGal>
+  | SHARP; x=SYM; DRARROW; h=non_neutral_start_mcs; { SGal (x, Raw (Const h)) }
 
 %public let non_neutral_start_mcs :=
   (* single star *)
@@ -93,7 +89,8 @@ let substitution ==
         |> if Option.is_some marked then mark else unmark ]
     }
   (* more than one star *)
-  | nmcs=non_neutral_start_mcs; EOL*; SEMICOLON; EOL*; mcs=marked_constellation;
+  | nmcs=non_neutral_start_mcs; EOL*; SEMICOLON; EOL*;
+    mcs=marked_constellation;
     { nmcs @ mcs }
 
 let neutral_start_mcs :=
@@ -155,15 +152,17 @@ let galaxy_def :=
   | GALAXY; EOL*; ~=galaxy_item+; <>
 
 let galaxy_item :=
-  | ~=SYM; CONS; EOL*; ~=galaxy_content; DOT; EOL*; <>
-  | x=SYM; CONS; EOL*; mcs=non_neutral_start_mcs; DOT; EOL*;
-    { (x, Raw (Const mcs)) }
-  | ~=SYM; CONS; EOL*; ~=galaxy_block; END; EOL*; <>
+  | ~=SYM; CONS; EOL*; ~=galaxy_content; DOT; EOL*; <GLabelDef>
+  | x=SYM; CONS; EOL*; mcs=non_neutral_start_mcs;
+    DOT; EOL*;
+    { GLabelDef (x, Raw (Const mcs)) }
+  | ~=SYM; CONS; EOL*; ~=galaxy_block; END; EOL*;   <GLabelDef>
+  | ~=type_declaration; EOL*;                       <GTypeDef>
 
 let galaxy_block :=
-  | PROCESS; EOL*; { Process [] }
-  | PROCESS; EOL*; ~=process_item+; <Process>
-  | EXEC; EOL*; ~=galaxy_content; <Exec>
+  | PROCESS; EOL*;                         { Process [] }
+  | PROCESS; EOL*; ~=process_item+;        <Process>
+  | EXEC; EOL*; ~=galaxy_content;          <Exec>
   | EXEC; EOL*; mcs=non_neutral_start_mcs; { Exec (Raw (Const mcs)) }
 
 let process_item :=
