@@ -133,7 +133,7 @@ let subst_funcs env _from _to =
 let group_galaxy =
   List.fold_left ~init:([], []) ~f:(function types, fields ->
     (function
-      | GTypeDef d -> (d :: types, fields)
+    | GTypeDef d -> (d :: types, fields)
     | GLabelDef (x, g') -> (types, (x, g') :: fields) ) )
 
 let rec typecheck_galaxy env g =
@@ -300,7 +300,7 @@ and string_of_galaxy env = function
     "galaxy\n"
     ^ List.fold_left g ~init:"" ~f:(fun acc -> function
         | GLabelDef (k, v) ->
-          acc ^ "  " ^ k ^ ": "
+          acc ^ "  " ^ k ^ " = "
           ^ (v |> eval_galaxy_expr env |> string_of_galaxy env)
           ^ "\n"
         | GTypeDef (x, ts, None) ->

@@ -17,12 +17,12 @@ e = +i(e).
 1110 = +i(1:1:1:0:e).
 
 a1 = galaxy
-  initial:
+  initial =
     -i(W) +a(W e q0).
-  final:
+  final =
     -a(e e q0) accept;
     -a(e e q1) accept.
-  transitions:
+  transitions =
     -a(0:W S q0) +a(W 0:S q0);
     -a(1:W S q0) +a(W 1:S q0);
     -a(W S q0) +a(W S q1);

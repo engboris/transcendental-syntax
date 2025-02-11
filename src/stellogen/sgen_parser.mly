@@ -152,12 +152,12 @@ let galaxy_def :=
   | GALAXY; EOL*; ~=galaxy_item+; <>
 
 let galaxy_item :=
-  | ~=SYM; CONS; EOL*; ~=galaxy_content; DOT; EOL*; <GLabelDef>
-  | x=SYM; CONS; EOL*; mcs=non_neutral_start_mcs;
+  | ~=SYM; EQ; EOL*; ~=galaxy_content; DOT; EOL*; <GLabelDef>
+  | x=SYM; EQ; EOL*; mcs=non_neutral_start_mcs;
     DOT; EOL*;
     { GLabelDef (x, Raw (Const mcs)) }
-  | ~=SYM; CONS; EOL*; ~=galaxy_block; END; EOL*;   <GLabelDef>
-  | ~=type_declaration; EOL*;                       <GTypeDef>
+  | ~=SYM; EQ; EOL*; ~=galaxy_block; END; EOL*;   <GLabelDef>
+  | ~=type_declaration; EOL*;                     <GTypeDef>
 
 let galaxy_block :=
   | PROCESS; EOL*;                         { Process [] }
@@ -166,5 +166,5 @@ let galaxy_block :=
   | EXEC; EOL*; mcs=non_neutral_start_mcs; { Exec (Raw (Const mcs)) }
 
 let process_item :=
-  | ~=galaxy_content; DOT; EOL*; <>
+  | ~=galaxy_content; DOT; EOL*;          <>
   | mcs=non_neutral_start_mcs; DOT; EOL*; { Raw (Const mcs) }

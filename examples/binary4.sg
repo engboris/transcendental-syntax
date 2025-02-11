@@ -1,12 +1,12 @@
 u4 = -b(1 _) -b(2 _) -b(3 _) -b(4 _) ok.
 
 checker = galaxy
-  interaction:
+  interaction =
     process
       #test.
       #tested[b=>+b].
     end
-  expect: { ok }.
+  expect = { ok }.
 end
 
 b1 :: u4 [checker].

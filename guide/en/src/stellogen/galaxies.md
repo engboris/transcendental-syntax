@@ -4,12 +4,12 @@ Constellations can be represented by labelling sub-constellations.
 This is what we call *galaxies*.
 
 Galaxies are defined with blocks `galaxy ... end` containing a series of labels
-`label:` followed by the associated galaxy:
+`label =` followed by the associated galaxy:
 
 ```
 g = galaxy
-  test1: +f(a) ok.
-  test2: +f(b) ok.
+  test1 = +f(a) ok.
+  test2 = +f(b) ok.
 end
 ```
 

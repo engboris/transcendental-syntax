@@ -34,8 +34,8 @@ end
 
 'galaxy definition
 g = galaxy
-  test1: +f(a) ok.
-  test2: +f(b) ok.
+  test1 = +f(a) ok.
+  test2 = +f(b) ok.
 end
 
 'reactive effects
@@ -61,12 +61,12 @@ show-exec (#1 #2)[#1=>+f(X) X][#2=>-f(a)].
 
 'checkers & typechecking
 checker = galaxy
-  interaction: #tested #test.
-  expect: { ok }.
+  interaction = #tested #test.
+  expect = { ok }.
 end
 
 nat = galaxy
-  test:
+  test =
     -nat(0) ok;
     -nat(s(N)) +nat(N).
 end
@@ -88,13 +88,13 @@ nat2 = { -nat(X) ok }.
 'galaxy with type declarations
 show-exec galaxy
 	n1 :: nat [checker].
-  n1: +nat(0).
+  n1 = +nat(0).
 	n2 :: nat [checker].
-	n2: +nat(s(s(0))).
+	n2 = +nat(s(s(0))).
 	n3 :: nat [checker].
-	n3: +nat(s(s(0))).
+	n3 = +nat(s(s(0))).
 	n4 :: nat [checker].
-	n4: +nat(s(s(0))).
+	n4 = +nat(s(s(0))).
 	n5 :: nat [checker].
-	n5: +nat(s(s(0))).
+	n5 = +nat(s(s(0))).
 end
