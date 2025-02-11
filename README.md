@@ -22,7 +22,7 @@ It draws inspiration (or try to draw inspiration) from:
 - Smalltalk (for message-passing, object-oriented paradigm and minimalism);
 - Coq (for proof-as-program paradigm and iterative programming with tactics);
 - Scheme/Racket (for minimalism and metaprogramming);
-- Haskell/Ruby (for syntax).
+- Haskell/Ruby/Lua (for syntax).
 
 ## Syntax sample
 

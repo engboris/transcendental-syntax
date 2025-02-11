@@ -136,8 +136,14 @@ let group_galaxy =
       | GTypeDef d -> (d :: types, fields)
     | GLabelDef (x, g') -> (types, (x, g') :: fields) ) )
 
-let rec typecheck_galaxy _ _ =
-  ()
+let rec typecheck_galaxy env g =
+  let types, fields = group_galaxy g in
+  List.iter types ~f:(fun (x, ts, ck) ->
+    let checker : galaxy_expr =
+      match ck with None -> default_checker | Some xck -> get_obj env xck
+    in
+    let new_env = { types = env.types; objs = fields @ env.objs } in
+    List.iter ts ~f:(fun t -> typecheck new_env x t checker) )
 
 and eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
   | Raw (Galaxy g) ->
