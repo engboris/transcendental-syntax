@@ -1,21 +1,21 @@
 '''test of linear identity'''
 "a -o a" = galaxy
-  testrl:
+  testrl =
     -1(X) -2(X) +c5(X);
     -3(X); -4(X) +c6(X);
     -c5(X) +7(X); -c6(X);
     @-7(X) ok.
-  testrr:
+  testrr =
     -1(X) -2(X) +c5(X);
     -3(X); -4(X) +c6(X);
     -c5(X); +7(X) -c6(X);
     @-7(X) ok.
-  testll:
+  testll =
     -1(X) -2(X) +c5(X);
     -4(X); -3(X) +c6(X);
     -c5(X) +7(X); -c6(X);
     @-7(X) ok.
-  testlr:
+  testlr =
     -1(X) -2(X) +c5(X);
     -4(X); -3(X) +c6(X);
     -c5(X); +7(X) -c6(X);
@@ -33,10 +33,8 @@ id =
 
 '''cut-elimination'''
 ps1 = galaxy
-  vehicle:
-    +7(l:X) +7(r:X); 3(X) +8(l:X); @+8(r:X) 6(X).
-  cuts:
-    -7(X) -8(X).
+  vehicle = +7(l:X) +7(r:X); 3(X) +8(l:X); @+8(r:X) 6(X).
+  cuts = -7(X) -8(X).
 end
 
 show-exec ps1->vehicle ps1->cuts.

@@ -22,7 +22,7 @@ It draws inspiration (or try to draw inspiration) from:
 - Smalltalk (for message-passing, object-oriented paradigm and minimalism);
 - Coq (for proof-as-program paradigm and iterative programming with tactics);
 - Scheme/Racket (for minimalism and metaprogramming);
-- Haskell/Ruby (for syntax).
+- Haskell/Ruby/Lua (for syntax).
 
 ## Syntax sample
 
@@ -46,11 +46,11 @@ e = +i(e).
 110 = +i(1:1:0:e).
 
 a1 = galaxy
-  initial:
+  initial =
     -i(W) +a(W q0).
-  final:
+  final =
     -a(e q2) accept.
-  transitions:
+  transitions =
     -a(0:W q0) +a(W q0);
     -a(0:W q0) +a(W q1);
     -a(1:W q0) +a(W q0);

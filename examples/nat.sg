@@ -1,8 +1,8 @@
 nat = -nat(0) ok; -nat(s(N)) +nat(N).
 
 fchecker = galaxy
-  interaction: #tested #test.
-  expect: { arg out }.
+  interaction = #tested #test.
+  expect = { arg out }.
 end
 
 "nat -> nat" =

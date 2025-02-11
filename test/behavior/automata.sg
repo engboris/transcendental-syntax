@@ -13,11 +13,11 @@ e = +i(e).
 1 = +i(1:e).
 
 a1 = galaxy
-	initial:
+	initial =
 		-i(W) +a(W q0).
-	final:
+	final =
 		-a(e q2) accept.
-	transitions:
+	transitions =
 		-a(0:W q0) +a(W q0);
 		-a(0:W q0) +a(W q1);
 		-a(1:W q0) +a(W q0);
@@ -26,26 +26,26 @@ end
 
 empty = {}.
 
-expect = galaxy expect: {}. end
+expect = galaxy expect = {}. end
 tested :: empty [expect].
 tested = process e. a1. kill. end
 
-expect = galaxy expect: {}. end
+expect = galaxy expect = {}. end
 tested :: empty [expect].
 tested = process 0. a1. kill. end
 
-expect = galaxy expect: {}. end
+expect = galaxy expect = {}. end
 tested :: empty [expect].
 tested = process 1. a1. kill. end
 
-expect = galaxy expect: { accept }. end
+expect = galaxy expect = { accept }. end
 tested :: empty [expect].
 tested = process +i(0:0:0:e). a1. kill. end
 
-expect = galaxy expect: {}. end
+expect = galaxy expect = {}. end
 tested :: empty [expect].
 tested = process +i(0:1:0:e). a1. kill. end
 
-expect = galaxy expect: {}. end
+expect = galaxy expect = {}. end
 tested :: empty [expect].
 tested = process +i(1:1:0:e). a1. kill. end

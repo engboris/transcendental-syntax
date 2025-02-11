@@ -10,8 +10,8 @@ must be passed:
 
 ```
 t = galaxy
-  test1: @-f(X) ok; -g(X).
-  test2: @-g(X) ok; -f(X).
+  test1 = @-f(X) ok; -g(X).
+  test2 = @-g(X) ok; -f(X).
 end
 ```
 
@@ -40,8 +40,8 @@ For example:
 
 ```
 checker = galaxy
-  interaction: #tested #test.
-  expect: { ok }.
+  interaction = #tested #test.
+  expect = { ok }.
 end
 ```
 
@@ -86,8 +86,8 @@ We can also omit specifying the checker. In this case, the default checker is:
 
 ```
 checker = galaxy
-  interaction: #tested #test.
-  expect: { ok }.
+  interaction = #tested #test.
+  expect = { ok }.
 end
 ```
 

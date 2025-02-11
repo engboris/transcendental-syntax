@@ -10,8 +10,8 @@ passer :
 
 ```
 t = galaxy
-  test1: @-f(X) ok; -g(X).
-  test2: @-g(X) ok; -f(X).
+  test1 = @-f(X) ok; -g(X).
+  test2 = @-g(X) ok; -f(X).
 end
 ```
 
@@ -40,8 +40,8 @@ Par exemple :
 
 ```
 checker = galaxy
-  interaction: #tested #test.
-  expect: { ok }.
+  interaction = #tested #test.
+  expect = { ok }.
 end
 ```
 
@@ -89,8 +89,8 @@ défaut est :
 
 ```
 checker = galaxy
-  interaction: #tested #test.
-  expect: { ok }.
+  interaction = #tested #test.
+  expect = { ok }.
 end
 ```
 
