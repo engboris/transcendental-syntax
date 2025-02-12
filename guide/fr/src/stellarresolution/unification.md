@@ -15,7 +15,7 @@ Par exemple : `is_empty?` et `X_1`.
 > **Exemples de termes.** `X`, `f(X)`, `h(a, X)`, `parent(X)`, `add(X, Y, Z)`.
 
 On peut aussi omettre la virgule séparant les arguments d'une fonction étant
-donné que leur absence de produit pas d'ambiguïté. On écrirait donc
+donné que leur absence ne produit pas d'ambiguïté. On écrirait donc
 `h(a X)` à la place de `h(a, X)`.
 
 ## Principe
