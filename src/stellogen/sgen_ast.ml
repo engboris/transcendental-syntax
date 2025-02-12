@@ -262,9 +262,8 @@ and equal_galaxy env g g' =
   Lsc_ast.equal_mconstellation mcs mcs'
 
 and check_interface env x i =
-  let g = match get_obj env x with
-    | Raw (Galaxy g) -> g
-    | _ -> raise ExpectedGalaxy
+  let g =
+    match get_obj env x with Raw (Galaxy g) -> g | _ -> raise ExpectedGalaxy
   in
   let type_decls = List.map i ~f:(fun t -> GTypeDef t) in
   typecheck_galaxy env (type_decls @ g)
@@ -273,7 +272,9 @@ and typecheck env x t (ck : galaxy_expr) : unit =
   let gtests =
     match get_obj env t |> eval_galaxy_expr env with
     | Const mcs -> [ ("_", Raw (Const mcs)) ]
-    | Interface i -> check_interface env x i; []
+    | Interface i ->
+      check_interface env x i;
+      []
     | Galaxy gtests -> group_galaxy gtests |> snd
   in
   let testing =
@@ -312,27 +313,25 @@ and default_checker =
 
 and string_of_type_declaration (x, ts, ck) =
   match ck with
-  | None ->
-    Printf.sprintf "%s :: %s.\n" x (Pretty.string_of_list Fn.id "," ts)
+  | None -> Printf.sprintf "%s :: %s.\n" x (Pretty.string_of_list Fn.id "," ts)
   | Some xck ->
-    Printf.sprintf "%s :: %s [%s].\n" x
-      (Pretty.string_of_list Fn.id "," ts)
-      xck
+    Printf.sprintf "%s :: %s [%s].\n" x (Pretty.string_of_list Fn.id "," ts) xck
 
 and string_of_galaxy_declaration env = function
   | GLabelDef (k, v) ->
-    Printf.sprintf "  %s = %s\n"
-    k (v |> eval_galaxy_expr env |> string_of_galaxy env)
+    Printf.sprintf "  %s = %s\n" k
+      (v |> eval_galaxy_expr env |> string_of_galaxy env)
   | GTypeDef (x, ts, ck) -> "  " ^ string_of_type_declaration (x, ts, ck)
 
 and string_of_galaxy env g =
   match g with
   | Const mcs -> mcs |> remove_mark_all |> string_of_constellation
-  | Interface i -> Printf.sprintf "interface\n%s\nend"
-    (Pretty.string_of_list string_of_type_declaration "" i)
+  | Interface i ->
+    Printf.sprintf "interface\n%s\nend"
+      (Pretty.string_of_list string_of_type_declaration "" i)
   | Galaxy g ->
     Printf.sprintf "galaxy\n%send"
-    (Pretty.string_of_list (string_of_galaxy_declaration env) "" g)
+      (Pretty.string_of_list (string_of_galaxy_declaration env) "" g)
 
 let rec eval_decl env : declaration -> env = function
   | Def (x, _) when is_reserved x -> raise (ReservedWord x)
