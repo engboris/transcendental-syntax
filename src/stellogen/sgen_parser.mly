@@ -4,6 +4,7 @@ open Sgen_ast
 
 %token SHOW SHOWEXEC
 %token EXEC
+%token INTERFACE
 %token RUN
 %token TRACE
 %token PROCESS
@@ -41,8 +42,12 @@ let galaxy_expr :=
   | ~=raw_galaxy_expr;           <Raw>
 
 let raw_galaxy_expr :=
-  | ~=non_neutral_start_mcs; EOL*; DOT; <Const>
-  | g=galaxy_def; END;                  <Galaxy>
+  | ~=non_neutral_start_mcs; EOL*; DOT;      <Const>
+  | ~=galaxy_def; END;                       <Galaxy>
+  | INTERFACE; EOL*; ~=interface_item+; END; <Interface>
+
+let interface_item :=
+  | ~=type_declaration; EOL*; <>
 
 let raw_galaxy_content :=
   | ~=pars(non_neutral_start_mcs);   <Const>

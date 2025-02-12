@@ -18,6 +18,7 @@ rule read = parse
   | "end"       { END }
   | "exec"      { EXEC }
   | "run"       { RUN }
+  | "interface" { INTERFACE }
   | "show"      { SHOW }
   | "trace"     { TRACE }
   | "show-exec" { SHOWEXEC }
