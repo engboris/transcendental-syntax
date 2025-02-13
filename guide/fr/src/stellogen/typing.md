@@ -124,3 +124,25 @@ nat2 = { -nat(X) ok }.
 3 :: nat, nat2.
 3 = +nat(s(s(s(0)))).
 ```
+
+## Interfaces
+
+Il est possible de définir des interfaces décrivant une liste d'identifiants
+devant être d'un certain type.
+
+```
+nat_pair = interface
+	n :: nat [checker].
+	m :: nat [checker].
+end
+```
+
+On peut ensuite demander à ce qu'une galaxie respecte cette interface.
+
+```
+g_pair :: nat_pair.
+g_pair = galaxy
+	n = +nat(0).
+	m = +nat(0).
+end
+```

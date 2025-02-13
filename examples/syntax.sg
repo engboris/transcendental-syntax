@@ -37,6 +37,7 @@ g = galaxy
   test1 = +f(a) ok.
   test2 = +f(b) ok.
 end
+show g.
 
 'reactive effects
 run +#print(X); -#print("hello world\n").
@@ -77,7 +78,7 @@ end
 1 :: nat [checker].
 1 = +nat(s(0)).
 
-'double typing
+'plural typing
 nat2 = { -nat(X) ok }.
 2 :: nat [checker].
 2 :: nat2.
@@ -86,15 +87,21 @@ nat2 = { -nat(X) ok }.
 3 = +nat(s(s(s(0)))).
 
 'galaxy with type declarations
-show-exec galaxy
-	n1 :: nat [checker].
+show galaxy
+  n1 :: nat [checker].
   n1 = +nat(0).
-	n2 :: nat [checker].
-	n2 = +nat(s(s(0))).
-	n3 :: nat [checker].
-	n3 = +nat(s(s(0))).
-	n4 :: nat [checker].
-	n4 = +nat(s(s(0))).
-	n5 :: nat [checker].
-	n5 = +nat(s(s(0))).
+  n2 :: nat [checker].
+  n2 = +nat(s(s(0))).
+end
+
+'interfaces
+nat_pair = interface
+  n :: nat [checker].
+  m :: nat [checker].
+end
+
+g_pair :: nat_pair.
+g_pair = galaxy
+  n = +nat(0).
+  m = +nat(0).
 end

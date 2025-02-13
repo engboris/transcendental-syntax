@@ -15,6 +15,7 @@ type type_declaration = ident * ident list * ident option
 type galaxy =
   | Const of marked_constellation
   | Galaxy of galaxy_declaration list
+  | Interface of type_declaration list
 
 and galaxy_declaration =
   | GTypeDef of type_declaration
@@ -43,6 +44,8 @@ let reserved_words = [ "clean"; "kill" ]
 let is_reserved = List.mem reserved_words ~equal:equal_string
 
 exception IllFormedChecker
+
+exception ExpectedGalaxy
 
 exception ReservedWord of ident
 
@@ -85,6 +88,7 @@ let get_type env x =
 
 let rec map_galaxy env ~f = function
   | Const mcs -> Const (f mcs)
+  | Interface i -> Interface i
   | Galaxy g ->
     Galaxy
       (List.map g ~f:(function
@@ -150,10 +154,12 @@ and eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
     typecheck_galaxy env g;
     Galaxy g
   | Raw (Const mcs) -> Const mcs
+  | Raw (Interface _) -> Interface []
   | Token _ -> Const []
   | Access (e, x) -> begin
     match eval_galaxy_expr env e with
     | Const _ -> raise (UnknownField x)
+    | Interface _ -> raise (UnknownField x)
     | Galaxy g -> (
       let _, fields = group_galaxy g in
       try
@@ -221,6 +227,7 @@ and eval_galaxy_expr (env : env) : galaxy_expr -> galaxy = function
 
 and galaxy_to_constellation env = function
   | Const mcs -> mcs
+  | Interface _ -> []
   | Galaxy g ->
     let _, fields = group_galaxy g in
     List.fold_left fields ~init:[] ~f:(fun acc (_, v) ->
@@ -254,11 +261,24 @@ and equal_galaxy env g g' =
   let mcs' = galaxy_to_constellation env g' in
   Lsc_ast.equal_mconstellation mcs mcs'
 
+and check_interface env x i =
+  let g =
+    match get_obj env x with Raw (Galaxy g) -> g | _ -> raise ExpectedGalaxy
+  in
+  let type_decls = List.map i ~f:(fun t -> GTypeDef t) in
+  typecheck_galaxy env (type_decls @ g)
+
 and typecheck env x t (ck : galaxy_expr) : unit =
   let gtests =
-    match get_obj env t |> eval_galaxy_expr env with
-    | Const mcs -> [ ("_", Raw (Const mcs)) ]
-    | Galaxy gtests -> group_galaxy gtests |> snd
+    match get_obj env t with
+    | Raw (Const mcs) -> [ ("_", Raw (Const mcs)) ]
+    | Raw (Interface i) ->
+      check_interface env x i;
+      []
+    | Raw (Galaxy gtests) -> group_galaxy gtests |> snd
+    | e ->
+      let mcs = eval_galaxy_expr env e |> galaxy_to_constellation env in
+      [ ("_", Raw (Const mcs)) ]
   in
   let testing =
     List.map gtests ~f:(fun (idtest, test) ->
@@ -294,23 +314,30 @@ and default_checker =
            )
        ] )
 
-and string_of_galaxy env = function
+and string_of_type_declaration (x, ts, ck) =
+  match ck with
+  | None ->
+    Printf.sprintf "  %s :: %s.\n" x (Pretty.string_of_list Fn.id "," ts)
+  | Some xck ->
+    Printf.sprintf "  %s :: %s [%s].\n" x
+      (Pretty.string_of_list Fn.id "," ts)
+      xck
+
+and string_of_galaxy_declaration env = function
+  | GLabelDef (k, v) ->
+    Printf.sprintf "  %s = %s\n" k
+      (v |> eval_galaxy_expr env |> string_of_galaxy env)
+  | GTypeDef (x, ts, ck) -> string_of_type_declaration (x, ts, ck)
+
+and string_of_galaxy env g =
+  match g with
   | Const mcs -> mcs |> remove_mark_all |> string_of_constellation
+  | Interface i ->
+    Printf.sprintf "interface\n%send"
+      (Pretty.string_of_list string_of_type_declaration "" i)
   | Galaxy g ->
-    "galaxy\n"
-    ^ List.fold_left g ~init:"" ~f:(fun acc -> function
-        | GLabelDef (k, v) ->
-          acc ^ "  " ^ k ^ " = "
-          ^ (v |> eval_galaxy_expr env |> string_of_galaxy env)
-          ^ "\n"
-        | GTypeDef (x, ts, None) ->
-          Printf.sprintf "%s  %s :: %s.\n" acc x
-            (Pretty.string_of_list Fn.id "," ts)
-        | GTypeDef (x, ts, Some xck) ->
-          Printf.sprintf "%s  %s :: %s [%s].\n" acc x
-            (Pretty.string_of_list Fn.id "," ts)
-            xck )
-    ^ "end"
+    Printf.sprintf "galaxy\n%send"
+      (Pretty.string_of_list (string_of_galaxy_declaration env) "" g)
 
 let rec eval_decl env : declaration -> env = function
   | Def (x, _) when is_reserved x -> raise (ReservedWord x)
@@ -326,8 +353,16 @@ let rec eval_decl env : declaration -> env = function
              List.iter ts ~f:(fun t -> typecheck env x t (get_obj env xck)) )
     end;
     env
+  | Show (Id x) ->
+    let e = get_obj env x in
+    eval_decl env (Show e)
   | Show (Raw (Galaxy g)) ->
     Galaxy g |> string_of_galaxy env |> Stdlib.print_string;
+    Stdlib.print_newline ();
+    Stdlib.flush Stdlib.stdout;
+    env
+  | Show (Raw (Interface i)) ->
+    Interface i |> string_of_galaxy env |> Stdlib.print_string;
     Stdlib.print_newline ();
     Stdlib.flush Stdlib.stdout;
     env

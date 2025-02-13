@@ -1,6 +1,6 @@
 syn clear
 
-syn keyword sgKeyword show exec trace process end galaxy run
+syn keyword sgKeyword show exec trace process end galaxy run interface
 syn match sgComment "\s*'[^'].*$"
 syn region sgComment start="'''" end="'''" contains=NONE
 syn region sgString start=/\v"/ skip=/\v\\./ end=/\v"/

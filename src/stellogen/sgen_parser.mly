@@ -4,6 +4,7 @@ open Sgen_ast
 
 %token SHOW SHOWEXEC
 %token EXEC
+%token INTERFACE
 %token RUN
 %token TRACE
 %token PROCESS
@@ -32,7 +33,7 @@ let declaration :=
 
 let type_declaration :=
   | x=SYM; CONS; CONS; ts=separated_list(COMMA, SYM);
-    EOL*; ck=bracks(SYM)?; DOT;
+    EOL*; ck=bracks(SYM)?; EOL*; DOT;
     { (x, ts, ck) }
 
 let galaxy_expr :=
@@ -41,8 +42,12 @@ let galaxy_expr :=
   | ~=raw_galaxy_expr;           <Raw>
 
 let raw_galaxy_expr :=
-  | ~=non_neutral_start_mcs; EOL*; DOT; <Const>
-  | g=galaxy_def; END;                  <Galaxy>
+  | ~=non_neutral_start_mcs; EOL*; DOT;      <Const>
+  | ~=galaxy_def; END;                       <Galaxy>
+  | INTERFACE; EOL*; ~=interface_item*; END; <Interface>
+
+let interface_item :=
+  | ~=type_declaration; EOL*; <>
 
 let raw_galaxy_content :=
   | ~=pars(non_neutral_start_mcs);   <Const>
@@ -149,7 +154,7 @@ let raw_constellation :=
   | ~=braces_opt(non_neutral_start_mcs); <>
 
 let galaxy_def :=
-  | GALAXY; EOL*; ~=galaxy_item+; <>
+  | GALAXY; EOL*; ~=galaxy_item*; <>
 
 let galaxy_item :=
   | ~=SYM; EQ; EOL*; ~=galaxy_content; DOT; EOL*; <GLabelDef>
