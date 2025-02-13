@@ -78,7 +78,7 @@ end
 1 :: nat [checker].
 1 = +nat(s(0)).
 
-'double typing
+'plural typing
 nat2 = { -nat(X) ok }.
 2 :: nat [checker].
 2 :: nat2.
