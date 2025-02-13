@@ -270,12 +270,15 @@ and check_interface env x i =
 
 and typecheck env x t (ck : galaxy_expr) : unit =
   let gtests =
-    match get_obj env t |> eval_galaxy_expr env with
-    | Const mcs -> [ ("_", Raw (Const mcs)) ]
-    | Interface i ->
+    match get_obj env t with
+    | Raw (Const mcs) -> [ ("_", Raw (Const mcs)) ]
+    | Raw (Interface i) ->
       check_interface env x i;
       []
-    | Galaxy gtests -> group_galaxy gtests |> snd
+    | Raw (Galaxy gtests) -> group_galaxy gtests |> snd
+    | e ->
+      let mcs = eval_galaxy_expr env e |> galaxy_to_constellation env in
+      [ ("_", Raw (Const mcs)) ]
   in
   let testing =
     List.map gtests ~f:(fun (idtest, test) ->
@@ -313,21 +316,24 @@ and default_checker =
 
 and string_of_type_declaration (x, ts, ck) =
   match ck with
-  | None -> Printf.sprintf "%s :: %s.\n" x (Pretty.string_of_list Fn.id "," ts)
+  | None ->
+    Printf.sprintf "  %s :: %s.\n" x (Pretty.string_of_list Fn.id "," ts)
   | Some xck ->
-    Printf.sprintf "%s :: %s [%s].\n" x (Pretty.string_of_list Fn.id "," ts) xck
+    Printf.sprintf "  %s :: %s [%s].\n" x
+      (Pretty.string_of_list Fn.id "," ts)
+      xck
 
 and string_of_galaxy_declaration env = function
   | GLabelDef (k, v) ->
     Printf.sprintf "  %s = %s\n" k
       (v |> eval_galaxy_expr env |> string_of_galaxy env)
-  | GTypeDef (x, ts, ck) -> "  " ^ string_of_type_declaration (x, ts, ck)
+  | GTypeDef (x, ts, ck) -> string_of_type_declaration (x, ts, ck)
 
 and string_of_galaxy env g =
   match g with
   | Const mcs -> mcs |> remove_mark_all |> string_of_constellation
   | Interface i ->
-    Printf.sprintf "interface\n%s\nend"
+    Printf.sprintf "interface\n%send"
       (Pretty.string_of_list string_of_type_declaration "" i)
   | Galaxy g ->
     Printf.sprintf "galaxy\n%send"
@@ -352,6 +358,11 @@ let rec eval_decl env : declaration -> env = function
     eval_decl env (Show e)
   | Show (Raw (Galaxy g)) ->
     Galaxy g |> string_of_galaxy env |> Stdlib.print_string;
+    Stdlib.print_newline ();
+    Stdlib.flush Stdlib.stdout;
+    env
+  | Show (Raw (Interface i)) ->
+    Interface i |> string_of_galaxy env |> Stdlib.print_string;
     Stdlib.print_newline ();
     Stdlib.flush Stdlib.stdout;
     env

@@ -88,26 +88,20 @@ nat2 = { -nat(X) ok }.
 
 'galaxy with type declarations
 show galaxy
-	n1 :: nat [checker].
+  n1 :: nat [checker].
   n1 = +nat(0).
-	n2 :: nat [checker].
-	n2 = +nat(s(s(0))).
-	n3 :: nat [checker].
-	n3 = +nat(s(s(0))).
-	n4 :: nat [checker].
-	n4 = +nat(s(s(0))).
-	n5 :: nat [checker].
-	n5 = +nat(s(s(0))).
+  n2 :: nat [checker].
+  n2 = +nat(s(s(0))).
 end
 
 'interfaces
 nat_pair = interface
-	n :: nat [checker].
-	m :: nat [checker].
+  n :: nat [checker].
+  m :: nat [checker].
 end
 
 g_pair :: nat_pair.
 g_pair = galaxy
-	n = +nat(0).
-	m = +nat(0).
+  n = +nat(0).
+  m = +nat(0).
 end
